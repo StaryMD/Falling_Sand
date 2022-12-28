@@ -7,6 +7,3 @@
 DEFINE_NEW_LAW(law_for_NOTHING);
 DEFINE_NEW_LAW(law_for_AIR);
 DEFINE_NEW_LAW(law_for_SAND);
-
-#pragma GCC diagnostic ignored "-Wunused-variable"
-static void (*laws[SUBSTANCE_COUNT])(World& world, const int y, const int x);

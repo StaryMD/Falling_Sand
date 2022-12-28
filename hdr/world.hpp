@@ -36,5 +36,7 @@ struct World {
     Substance* grid;
     Substance* grid_temp;
 
+    void (*laws[SUBSTANCE_COUNT])(World& world, const int y, const int x);
+
     FastRng terrain_rng;
 };
