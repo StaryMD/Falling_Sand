@@ -16,7 +16,7 @@ int main() {
 
 	sf::Color color_of_substance[] = {
 		sf::Color::Red,
-		sf::Color(51, 51, 51),
+		sf::Color(101, 101, 101),
 		sf::Color::Yellow
 	};
 

@@ -31,6 +31,8 @@ struct World {
         grid_temp[y * WORLD_WIDTH + x] = subs;
     }
 
+    void init_laws_table();
+
     Substance* grid;
     Substance* grid_temp;
 
