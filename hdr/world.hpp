@@ -13,7 +13,6 @@ enum class Substance {
 };
 
 struct World {
-
     World();
     ~World();
 
@@ -39,4 +38,5 @@ struct World {
     void (*laws[SUBSTANCE_COUNT])(World& world, const int y, const int x);
 
     FastRng terrain_rng;
+
 };

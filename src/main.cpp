@@ -1,14 +1,11 @@
-
-#include "gameEngine.cpp"
+#include "FallingSandEngine.hpp"
+#include "GameEngine.hpp"
 
 int main() {
-	GameEngine gameEngine(WORLD_HEIGHT, WORLD_WIDTH);
-
-	gameEngine.setup();
-
-	while (gameEngine.window.isOpen()) {
-		gameEngine.update();
-	}
+	FallingSandEngine fallingSandEngine;
+	GameEngine gameEngine(fallingSandEngine, WORLD_WIDTH, WORLD_HEIGHT);
+	
+	gameEngine.run();
 
 	return 0;
 }
