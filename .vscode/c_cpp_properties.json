@@ -3,7 +3,7 @@
         {
             "name": "Win64",
             "includePath": [
-                "${workspaceFolder}/hdr"
+                "${workspaceFolder}/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -18,7 +18,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/hdr"
+                "${workspaceFolder}/include"
             ],
             "defines": [
                 "_DEBUG",
