@@ -98,25 +98,25 @@ else:
 		command = ' '.join([command, SFML_FLAGS, INCLUDE_FLAGS])
 		
 		print(command)
-		
+
 		try:
-			output = subprocess.check_output(command)
+			subprocess.check_output(command, shell=True)
 
 			status[cpp_path] = os.path.getmtime(cpp_path)
 		except:
 			build_executable = False
 	
-	if build_executable:
+	if build_executable or not os.path.exists('runme.exe'):
 		full_obj_list = ['build/' + f + '.o' for f in cpp_path_list]
 
-		command = 'g++ -o runme.exe '
-		command += ' '.join(full_obj_list)
-		command = ' '.join([command, SFML_FLAGS, MY_FLAGS])
+		command = ' '.join(['g++ -o runme.exe', MY_FLAGS])
+		command = ' '.join([command, ' '.join(full_obj_list)])
+		command = ' '.join([command, SFML_FLAGS])
 		
 		print(command)
 
 		try:
-			output = subprocess.check_output(command)
+			output = subprocess.check_output(command, shell=True)
 		except:
 			pass
 	
