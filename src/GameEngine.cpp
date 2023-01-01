@@ -35,9 +35,22 @@ void GameEngine::run() {
 		while (window.pollEvent(event)) {
 			#pragma GCC diagnostic ignored "-Wswitch"
 			switch (event.type) {
-				case sf::Event::Closed:
+				case sf::Event::Closed: {
 					window.close();
 					break;
+				}
+				case sf::Event::MouseButtonPressed:
+				case sf::Event::MouseButtonReleased: {
+					switch (event.mouseButton.button) {
+						case sf::Mouse::Left:
+							input_handler.mouseLEFT_switch();
+							break;
+						case sf::Mouse::Right:
+							input_handler.mouseRIGHT_switch();
+							break;
+					}
+					break;
+				}
 			}
 		}
 		
@@ -60,7 +73,7 @@ void GameEngine::run() {
 
 void GameEngine::handle_user_input() {
 	if (window.hasFocus()) {
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+		if (input_handler.mouseLEFT_pressed) {
 			const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
 			
 			fallingSandEngine.set_cell(cur_position.y, cur_position.x, Substance::SAND);

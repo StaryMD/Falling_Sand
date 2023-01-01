@@ -4,6 +4,7 @@
 
 #include "RefreshRate.hpp"
 #include "FallingSandEngine.hpp"
+#include "InputHandler.hpp"
 
 class GameEngine {
 public:
@@ -24,6 +25,7 @@ private:
 	sf::RenderWindow window;
 	FallingSandEngine &fallingSandEngine;
 	RefreshRate refresh_rate;
+	InputHandler input_handler;
 
 	sf::Event event;
 
