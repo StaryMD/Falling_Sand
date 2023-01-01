@@ -9,15 +9,14 @@ void law_for_NOTHING(World& world, const int y, const int x) {
 }
 
 void law_for_AIR(World& world, const int y, const int x) {
-	world.set_element_at_temp(y, x, Element(Substance::AIR));
+	//world.set_element_at(y, x, Element(Substance::AIR));
 }
 
 void law_for_SAND(World& world, const int y, const int x) {
 	if (y + 1 < WORLD_HEIGHT) {
 		if (false == SUBS_IS_SOLID(world.get_element_at(y + 1, x).substance)) {
-			world.set_element_at_temp(y, x, Element(Substance::AIR));
-			world.set_element_at_temp(y + 1, x, Element(Substance::SAND));
-			world.set_element_at(y, x, Element(Substance::NOTHING));
+			world.set_element_at(y, x, Element(Substance::AIR));
+			world.set_element_at(y + 1, x, Element(Substance::SAND));
 			return;
 		}
 
@@ -36,25 +35,23 @@ void law_for_SAND(World& world, const int y, const int x) {
 			false == SUBS_IS_SOLID(world.get_element_at(y + 1, first_x).substance) &&
 			false == SUBS_IS_SOLID(world.get_element_at(y    , first_x).substance))
 		{
-			world.set_element_at_temp(y, x, Element(Substance::AIR));
-			world.set_element_at_temp(y + 1, first_x, Element(Substance::SAND));
-			world.set_element_at(y, x, Element(Substance::NOTHING));
+			world.set_element_at(y, x, Element(Substance::AIR));
+			world.set_element_at(y + 1, first_x, Element(Substance::SAND));
 			return;
 		}
 		if (second_x >= 0 &&
 			false == SUBS_IS_SOLID(world.get_element_at(y + 1, second_x).substance) &&
 			false == SUBS_IS_SOLID(world.get_element_at(y    , second_x).substance))
 		{
-			world.set_element_at_temp(y, x, Element(Substance::AIR));
-			world.set_element_at_temp(y + 1, second_x, Element(Substance::SAND));
-			world.set_element_at(y, x, Element(Substance::NOTHING));
+			world.set_element_at(y, x, Element(Substance::AIR));
+			world.set_element_at(y + 1, second_x, Element(Substance::SAND));
 			return;
 		}
 	}
 
-	world.set_element_at_temp(y, x, Element(Substance::SAND));
+	world.set_element_at(y, x, Element(Substance::SAND));
 }
 
 void law_for_STONE(World& world, const int y, const int x) {
-	world.set_element_at_temp(y, x, Element(Substance::STONE));
+	//world.set_element_at(y, x, Element(Substance::STONE));
 }

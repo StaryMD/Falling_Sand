@@ -38,7 +38,7 @@ void GameEngine::run() {
 			handle_user_input();
 		}
 
-		if (1 || refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
+		if (refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
 			refresh_rate.reset_time_since_last_frame();
 
 			fallingSandEngine.draw_world_on_texture(screen_pixels);

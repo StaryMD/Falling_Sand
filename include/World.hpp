@@ -20,16 +20,7 @@ struct World {
         grid[y * WORLD_WIDTH + x] = subs;
     }
 
-    void set_element_at_temp(const int y, const int x, const Element subs) {
-        grid_temp[y * WORLD_WIDTH + x] = subs;
-    }
-
-    void init_laws_table();
-
     Element* grid;
-    Element* grid_temp;
-
-    void (*laws[SUBSTANCE_COUNT])(World& world, const int y, const int x);
 
     FastRng terrain_rng;
 

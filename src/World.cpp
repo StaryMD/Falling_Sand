@@ -4,34 +4,32 @@
 #include <algorithm>
 
 World::World() {
-    this->grid      = new Element[WORLD_HEIGHT * WORLD_WIDTH];
-    this->grid_temp = new Element[WORLD_HEIGHT * WORLD_WIDTH];
-
+    this->grid = new Element[WORLD_HEIGHT * WORLD_WIDTH];
     std::fill(grid, grid + WORLD_HEIGHT * WORLD_WIDTH, Element(Substance::AIR));
 
 	terrain_rng = FastRng();
-	init_laws_table();
 }
 
 void World::update() {
-    for (int y = WORLD_HEIGHT - 1; y >= 0; y--) {
+    for (int y = 0; y < WORLD_HEIGHT; y++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
-			const int substance = (int) get_element_at(y, x).substance;
+			const Substance substance = get_element_at(y, x).substance;
 			
-            laws[substance](*this, y, x);
+            if (SUBS_IS_INVERSELY_UPDATED(get_element_at(y, x).substance) == false)
+                laws[(int) substance](*this, y, x);
         }
     }
-    std::swap(grid, grid_temp);
-}
 
-void World::init_laws_table() {
-	laws[(int) Substance::NOTHING] = law_for_NOTHING;
-	laws[(int) Substance::AIR    ] = law_for_AIR;
-	laws[(int) Substance::SAND   ] = law_for_SAND;
-	laws[(int) Substance::STONE   ] = law_for_STONE;
+    for (int y = WORLD_HEIGHT - 1; y >= 0; y--) {
+        for (int x = 0; x < WORLD_WIDTH; x++) {
+			const Substance substance = get_element_at(y, x).substance;
+			
+            if (SUBS_IS_INVERSELY_UPDATED(get_element_at(y, x).substance) == true)
+                laws[(int) substance](*this, y, x);
+        }
+    }
 }
 
 World::~World() {
     delete[] grid;
-    delete[] grid_temp;
 }
