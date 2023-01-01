@@ -1,6 +1,8 @@
 #include "GameEngine.hpp"
 #include "FallingSandEngine.hpp"
 
+#include <cmath>
+
 GameEngine::GameEngine(FallingSandEngine &fallingSandEngine_, const int window_width, const int window_height)
 	: fallingSandEngine(fallingSandEngine_) {
 	window.create(sf::VideoMode(window_width, window_height), "Falling Sand");
@@ -19,12 +21,13 @@ void GameEngine::setup() {
 
 	font.loadFromFile("fonts/Lato-Regular.ttf");
 
-	std::fill(last_fps, last_fps + FPS_BUFFER_SIZE, 0.0f);
-
 	screen_pixels = new sf::Uint8[window.getSize().x * window.getSize().y * 4];
 
-	time_since_last_frame = 0.0f;
-	last_frame_start = std::chrono::system_clock::now();
+	refresh_rate.setup();
+
+	fps_text.setFillColor(sf::Color::Green);
+	fps_text.setFont(font);
+	fps_text.setCharacterSize(15);
 }
 
 void GameEngine::run() {
@@ -38,21 +41,16 @@ void GameEngine::run() {
 			}
 		}
 		
-		const std::chrono::duration<float> elapsed_time_duration = std::chrono::system_clock::now() - last_frame_start;
-		elapsed_time = elapsed_time_duration.count();
-		time_since_last_frame += elapsed_time;
-		last_frame_start = std::chrono::system_clock::now();
-
 		handle_user_input();
 
-		if (time_since_last_frame >= WANTED_SECONDS_PER_FRAME) {
-			time_since_last_frame = 0.0f;
-			last_fps[++last_fps_idx % FPS_BUFFER_SIZE] = 1.0f / elapsed_time;
+		if (refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
+			refresh_rate.reset_time_since_last_frame();
 
 			fallingSandEngine.draw_world_on_texture(screen_pixels);
 			screen_texture.update(screen_pixels);
 
 			window.draw(screen_sprite);
+			show_fps();
 			window.display();
 
 			fallingSandEngine.update();
@@ -71,32 +69,11 @@ void GameEngine::handle_user_input() {
 }
 
 void GameEngine::show_fps() {
-	sf::Text fps_text;
-	fps_text.setFillColor(sf::Color::Green);
-	fps_text.setFont(font);
-	fps_text.setCharacterSize(10);
+	const auto [avg_fps, min_fps] = refresh_rate.get_fps_info();
 
-	fps_text.setString(std::to_string((avg_fps())) + " " + std::to_string((min_fps())));
+	fps_text.setString(std::to_string((int) std::round(avg_fps)) + " " + std::to_string((int) std::round(min_fps)));
 
 	window.draw(fps_text);
-}
-
-float GameEngine::min_fps() {
-	float min = 100000.0f;
-
-	for (const float &x: last_fps)
-		min = std::min(min, x);
-
-	return min;
-}
-
-float GameEngine::avg_fps() {
-	float sum = 0.0f;
-
-	for (const float &x: last_fps)
-		sum += x;
-
-	return sum / FPS_BUFFER_SIZE;
 }
 
 GameEngine::~GameEngine() {
