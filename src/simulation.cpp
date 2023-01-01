@@ -1,5 +1,5 @@
 #include "simulation.hpp"
-#include "world.hpp"
+#include "World.hpp"
 
 #include <algorithm>
 
@@ -9,17 +9,15 @@ void law_for_NOTHING(World& world, const int y, const int x) {
 }
 
 void law_for_AIR(World& world, const int y, const int x) {
-	world.set_subs_at_temp(y, x, Substance::AIR);
+	world.set_element_at_temp(y, x, Element(Substance::AIR));
 }
 
 void law_for_SAND(World& world, const int y, const int x) {
-	const int wanted_y = y + 1;
-
-	if (wanted_y < WORLD_HEIGHT) {
-		if (world.get_subs_at(wanted_y, x) != Substance::SAND) {
-			world.set_subs_at_temp(y, x, Substance::AIR);
-			world.set_subs_at_temp(wanted_y, x, Substance::SAND);
-			world.set_subs_at(y, x, Substance::NOTHING);
+	if (y + 1 < WORLD_HEIGHT) {
+		if (false == SUBS_IS_SOLID(world.get_element_at(y + 1, x).substance)) {
+			world.set_element_at_temp(y, x, Element(Substance::AIR));
+			world.set_element_at_temp(y + 1, x, Element(Substance::SAND));
+			world.set_element_at(y, x, Element(Substance::NOTHING));
 			return;
 		}
 
@@ -34,19 +32,29 @@ void law_for_SAND(World& world, const int y, const int x) {
 			second_x = x - 1;
 		}
 		
-		if (first_x < WORLD_WIDTH && world.get_subs_at(wanted_y, first_x) != Substance::SAND) {
-			world.set_subs_at_temp(y, x, Substance::AIR);
-			world.set_subs_at_temp(wanted_y, first_x, Substance::SAND);
-			world.set_subs_at(y, x, Substance::NOTHING);
+		if (first_x < WORLD_WIDTH &&
+			false == SUBS_IS_SOLID(world.get_element_at(y + 1, first_x).substance) &&
+			false == SUBS_IS_SOLID(world.get_element_at(y    , first_x).substance))
+		{
+			world.set_element_at_temp(y, x, Element(Substance::AIR));
+			world.set_element_at_temp(y + 1, first_x, Element(Substance::SAND));
+			world.set_element_at(y, x, Element(Substance::NOTHING));
 			return;
 		}
-		if (second_x >= 0 && world.get_subs_at(wanted_y, second_x) != Substance::SAND) {
-			world.set_subs_at_temp(y, x, Substance::AIR);
-			world.set_subs_at_temp(wanted_y, second_x, Substance::SAND);
-			world.set_subs_at(y, x, Substance::NOTHING);
+		if (second_x >= 0 &&
+			false == SUBS_IS_SOLID(world.get_element_at(y + 1, second_x).substance) &&
+			false == SUBS_IS_SOLID(world.get_element_at(y    , second_x).substance))
+		{
+			world.set_element_at_temp(y, x, Element(Substance::AIR));
+			world.set_element_at_temp(y + 1, second_x, Element(Substance::SAND));
+			world.set_element_at(y, x, Element(Substance::NOTHING));
 			return;
 		}
 	}
 
-	world.set_subs_at_temp(y, x, Substance::SAND);
+	world.set_element_at_temp(y, x, Element(Substance::SAND));
+}
+
+void law_for_STONE(World& world, const int y, const int x) {
+	world.set_element_at_temp(y, x, Element(Substance::STONE));
 }

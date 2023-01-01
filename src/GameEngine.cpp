@@ -32,31 +32,13 @@ void GameEngine::setup() {
 
 void GameEngine::run() {
 	while (window.isOpen()) {
-		while (window.pollEvent(event)) {
-			#pragma GCC diagnostic ignored "-Wswitch"
-			switch (event.type) {
-				case sf::Event::Closed: {
-					window.close();
-					break;
-				}
-				case sf::Event::MouseButtonPressed:
-				case sf::Event::MouseButtonReleased: {
-					switch (event.mouseButton.button) {
-						case sf::Mouse::Left:
-							input_handler.mouseLEFT_switch();
-							break;
-						case sf::Mouse::Right:
-							input_handler.mouseRIGHT_switch();
-							break;
-					}
-					break;
-				}
-			}
-		}
+		handle_events();
 		
-		handle_user_input();
+		if (window.hasFocus()) {
+			handle_user_input();
+		}
 
-		if (refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
+		if (1 || refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
 			refresh_rate.reset_time_since_last_frame();
 
 			fallingSandEngine.draw_world_on_texture(screen_pixels);
@@ -71,13 +53,40 @@ void GameEngine::run() {
 	}
 }
 
-void GameEngine::handle_user_input() {
-	if (window.hasFocus()) {
-		if (input_handler.mouseLEFT_pressed) {
-			const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
-			
-			fallingSandEngine.set_cell(cur_position.y, cur_position.x, Substance::SAND);
+void GameEngine::handle_events() {
+	while (window.pollEvent(event)) {
+		#pragma GCC diagnostic ignored "-Wswitch"
+		switch (event.type) {
+			case sf::Event::Closed: {
+				window.close();
+				break;
+			}
+			case sf::Event::MouseButtonPressed:
+			case sf::Event::MouseButtonReleased: {
+				switch (event.mouseButton.button) {
+					case sf::Mouse::Left:
+						input_handler.mouseLEFT_switch();
+						break;
+					case sf::Mouse::Right:
+						input_handler.mouseRIGHT_switch();
+						break;
+				}
+				break;
+			}
 		}
+	}
+}
+
+void GameEngine::handle_user_input() {
+	if (input_handler.mouseLEFT_pressed) {
+		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
+		
+		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::SAND));
+	}
+	if (input_handler.mouseRIGHT_pressed) {
+		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
+		
+		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::STONE));
 	}
 }
 

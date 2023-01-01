@@ -16,6 +16,7 @@ public:
 	void run();
 
 	void handle_user_input();
+	void handle_events();
 
 	void show_fps();
 
