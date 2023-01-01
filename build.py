@@ -2,7 +2,7 @@ import sys
 import os
 
 SFML_FLAGS = '-lsfml-graphics -lsfml-window -lsfml-system'
-MY_FLAGS = '-Wall -Wextra -I ../include -I include -std=c++20 -Ofast'
+MY_FLAGS = '-Wall -Wextra -std=c++20 -Ofast'
 
 if len(sys.argv) == 2 and sys.argv[1] == 'clean':
 	if os.path.exists('build'):
@@ -49,7 +49,7 @@ else:
 		header_dependencies[cpp_path] = sorted(header_dependencies[cpp_path])
 	
 	
-	cpp_path_to_build_list = []
+	cpp_path_to_build_list: list[str] = []
 	build_executable = False
 	old_status: dict[str, float] = {}
 	status: dict[str, float] = {}
@@ -88,10 +88,14 @@ else:
 			else:
 				os.mkdir(built_obj_path)
 		
+		include_list = list(set([os.path.dirname(dep) for dep in header_dependencies[cpp_path]]))
+		INCLUDE_FLAGS = ' '.join(['-I ' + flag for flag in include_list])
+
 		built_obj_path = 'build/' + cpp_path + '.o'
 		
-		command = ' '.join(['g++ -c -o', built_obj_path, cpp_path])
-		command = ' '.join([command, SFML_FLAGS, MY_FLAGS])
+		command = ' '.join(['g++ -c', MY_FLAGS])
+		command = ' '.join([command, '-o', built_obj_path, cpp_path])
+		command = ' '.join([command, SFML_FLAGS, INCLUDE_FLAGS])
 		
 		print(command)
 		
