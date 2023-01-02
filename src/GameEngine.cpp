@@ -38,7 +38,7 @@ void GameEngine::run() {
 			handle_user_input();
 		}
 
-		if (refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
+		if (1 || refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
 			refresh_rate.reset_time_since_last_frame();
 
 			fallingSandEngine.draw_world_on_texture(screen_pixels);
@@ -81,12 +81,12 @@ void GameEngine::handle_user_input() {
 	if (input_handler.mouseLEFT_pressed) {
 		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
 		
-		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::SAND));
+		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::SAND), true);
 	}
 	if (input_handler.mouseRIGHT_pressed) {
 		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
 		
-		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::STONE));
+		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::STONE), true);
 	}
 }
 

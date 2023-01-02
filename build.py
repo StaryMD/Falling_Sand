@@ -64,7 +64,7 @@ else:
 					status[cpp_path] = cpp_path_mtime
 					continue
 				
-				print(cpp_path, "was added/modified")
+				# print(cpp_path, "was added/modified")
 				
 				build_executable = True
 				cpp_path_to_build_list.add(cpp_path)
@@ -74,7 +74,7 @@ else:
 					status[hpp_path] = hpp_path_mtime
 					continue
 				
-				print(hpp_path, "was added/modified")
+				# print(hpp_path, "was added/modified")
 				build_executable = True
 				
 				for cpp_path in hpp_dependent[hpp_path]:

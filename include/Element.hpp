@@ -20,14 +20,14 @@ struct Element {
 
 // PROPERITIES
 
-static sf::Color color_of_substance[SUBSTANCE_COUNT] = {
+static const sf::Color color_of_substance[SUBSTANCE_COUNT] = {
     sf::Color::Red,
     sf::Color(101, 101, 101),
     sf::Color::Yellow,
     sf::Color(51, 51, 51),
 };
 
-static bool SUBS_IS_SOLID_vec[SUBSTANCE_COUNT] = {
+static const bool SUBS_IS_SOLID_vec[SUBSTANCE_COUNT] = {
     false,
     false,
     true,
@@ -38,7 +38,7 @@ static inline bool SUBS_IS_SOLID(const Substance subs) {
     return SUBS_IS_SOLID_vec[(int) subs];
 }
 
-static bool SUBS_IS_INVERSELY_UPDATED_vec[SUBSTANCE_COUNT] = {
+static const bool SUBS_IS_INVERSELY_UPDATED_vec[SUBSTANCE_COUNT] = {
     false,
     false,
     true,
