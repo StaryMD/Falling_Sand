@@ -12,27 +12,31 @@ FallingSandEngine::FallingSandEngine() {
     }
 }
 
-void FallingSandEngine::apply_law(const Substance substance, const int y, const int x) {
+bool FallingSandEngine::apply_law(const Substance substance, const int y, const int x) {
 	switch (substance) {
 		case Substance::NOTHING: {
-			law_for_NOTHING(y, x);
-			break;
+			return law_for_NOTHING(y, x);
 		}
 		case Substance::AIR: {
-			law_for_AIR(y, x);
-			break;
+			return law_for_AIR(y, x);
 		}
 		case Substance::SAND: {
-			law_for_SAND(y, x);
-			break;
+			return law_for_SAND(y, x);
 		}
 		case Substance::STONE: {
-			law_for_STONE(y, x);
-			break;
+			return law_for_STONE(y, x);
 		}
 	}
+
+	return false;
 }
-	
+
+void FallingSandEngine::set_chunk_activity(const int chunk_y, const int chunk_x, const bool activity) {
+	if (chunk_y >= 0 && chunk_y < CHUNK_NUM_HEIGHT && chunk_x >= 0 && chunk_x < CHUNK_NUM_WIDTH) {
+		chunks[chunk_y][chunk_x].is_active = activity;
+	}
+}
+
 void FallingSandEngine::update() {
     for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
@@ -41,13 +45,14 @@ void FallingSandEngine::update() {
             if (chunk.is_active) {
 				chunk.is_active = false;
 				bool there_is_more = false;
+				bool was_activated = false;
 				
 				for (int i = 0; i < CHUNK_SIZE; i++) {
 					for (int j = 0; j < CHUNK_SIZE; j++) {
 						const Substance substance = chunk.get_element_at(i, j).substance;
 						
 						if (SUBS_IS_INVERSELY_UPDATED(substance) == false) {
-							apply_law(substance, y * CHUNK_SIZE + i, x * CHUNK_SIZE + j);
+							was_activated |= apply_law(substance, y * CHUNK_SIZE + i, x * CHUNK_SIZE + j);
 						}
 						else {
 							there_is_more = true;
@@ -56,6 +61,16 @@ void FallingSandEngine::update() {
 				}
 
 				chunk.is_active = there_is_more;
+				if (was_activated) {
+					set_chunk_activity(y - 1, x, true);
+					set_chunk_activity(y - 1, x + 1, true);
+					set_chunk_activity(y, x + 1, true);
+					set_chunk_activity(y + 1, x + 1, true);
+					set_chunk_activity(y + 1, x, true);
+					set_chunk_activity(y + 1, x - 1, true);
+					set_chunk_activity(y, x - 1, true);
+					set_chunk_activity(y - 1, x - 1, true);
+				}
 			}
         }
     }
@@ -66,15 +81,27 @@ void FallingSandEngine::update() {
 
             if (chunk.is_active) {
 				chunk.is_active = false;
+				bool was_activated = false;
 
 				for (int i = CHUNK_SIZE - 1; i >= 0; i--) {
 					for (int j = 0; j < CHUNK_SIZE; j++) {
 						const Substance substance = chunk.get_element_at(i, j).substance;
 						
 						if (SUBS_IS_INVERSELY_UPDATED(substance) == true) {
-							apply_law(substance, y * CHUNK_SIZE + i, x * CHUNK_SIZE + j);
+							was_activated |= apply_law(substance, y * CHUNK_SIZE + i, x * CHUNK_SIZE + j);
 						}
 					}
+				}
+				
+				if (was_activated) {
+					set_chunk_activity(y - 1, x, true);
+					set_chunk_activity(y - 1, x + 1, true);
+					set_chunk_activity(y, x + 1, true);
+					set_chunk_activity(y + 1, x + 1, true);
+					set_chunk_activity(y + 1, x, true);
+					set_chunk_activity(y + 1, x - 1, true);
+					set_chunk_activity(y, x - 1, true);
+					set_chunk_activity(y - 1, x - 1, true);
 				}
 			}
         }

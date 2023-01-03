@@ -54,7 +54,11 @@
 		"set": "cpp",
 		"fstream": "cpp",
 		"iomanip": "cpp",
-		"cinttypes": "cpp"
+		"cinttypes": "cpp",
+		"strstream": "cpp",
+		"cfenv": "cpp",
+		"complex": "cpp",
+		"source_location": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "enabled",
 	"python.analysis.typeCheckingMode": "basic",

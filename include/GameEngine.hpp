@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <functional>
 
 #include "RefreshRate.hpp"
 #include "FallingSandEngine.hpp"
@@ -19,6 +20,8 @@ public:
 	void handle_events();
 
 	void show_fps();
+
+	void set_line_of_elements(const sf::Vector2i &pos1, const sf::Vector2i &pos2, const Element element);
 
 	~GameEngine();
 

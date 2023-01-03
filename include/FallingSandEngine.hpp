@@ -23,7 +23,9 @@ public:
 
     void swap_elements(const int y1, const int x1, const int y2, const int x2, bool activate_chunk);
 	
-	void apply_law(const Substance substance, const int y, const int x);
+	bool apply_law(const Substance substance, const int y, const int x);
+
+	void set_chunk_activity(const int chunk_y, const int chunk_x, const bool activity);
 	
 	~FallingSandEngine();
 
@@ -32,9 +34,9 @@ private:
 
     FastRng terrain_rng;
 	
-	void law_for_NOTHING(const int y, const int x);
-	void law_for_AIR(const int y, const int x);
-	void law_for_SAND(const int y, const int x);
-	void law_for_STONE(const int y, const int x);
+	bool law_for_NOTHING(const int y, const int x);
+	bool law_for_AIR(const int y, const int x);
+	bool law_for_SAND(const int y, const int x);
+	bool law_for_STONE(const int y, const int x);
 
 };

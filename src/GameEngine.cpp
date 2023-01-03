@@ -81,13 +81,28 @@ void GameEngine::handle_user_input() {
 	if (input_handler.mouseLEFT_pressed) {
 		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
 		
+		if (input_handler.mouseLEFT_was_pressed) {
+			set_line_of_elements(cur_position, input_handler.mouseLEFT_last_press, Element(Substance::SAND));
+		}
+		
 		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::SAND), true);
+
+		input_handler.mouseLEFT_last_press = cur_position;
 	}
 	if (input_handler.mouseRIGHT_pressed) {
 		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
 		
+		if (input_handler.mouseRIGHT_was_pressed) {
+			set_line_of_elements(cur_position, input_handler.mouseRIGHT_last_press, Element(Substance::STONE));
+		}
+
 		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::STONE), true);
+
+		input_handler.mouseRIGHT_last_press = cur_position;
 	}
+
+	input_handler.mouseLEFT_was_pressed = input_handler.mouseLEFT_pressed;
+	input_handler.mouseRIGHT_was_pressed = input_handler.mouseRIGHT_pressed;
 }
 
 void GameEngine::show_fps() {
@@ -96,6 +111,24 @@ void GameEngine::show_fps() {
 	fps_text.setString(std::to_string((int) std::round(avg_fps)) + " " + std::to_string((int) std::round(min_fps)));
 
 	window.draw(fps_text);
+}
+
+void GameEngine::set_line_of_elements(const sf::Vector2i &pos1, const sf::Vector2i &pos2, const Element element) {
+	float dx = (pos2.x - pos1.x);
+	float dy = (pos2.y - pos1.y);
+
+	const int step = (abs(dx) >= abs(dy)) ? abs(dx) : abs(dy);
+	dx /= step;
+	dy /= step;
+
+	float x = pos1.x;
+	float y = pos1.y;
+
+	for (int i = 1; i <= step; i++) {
+		fallingSandEngine.set_cell(y, x, element, true);
+		x += dx;
+		y += dy;
+	}
 }
 
 GameEngine::~GameEngine() {
