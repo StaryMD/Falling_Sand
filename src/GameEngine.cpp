@@ -3,14 +3,12 @@
 
 #include <cmath>
 
-GameEngine::GameEngine(FallingSandEngine &fallingSandEngine_, const int window_width, const int window_height)
-	: fallingSandEngine(fallingSandEngine_) {
+GameEngine::GameEngine(const int window_width, const int window_height) {
 	window.create(sf::VideoMode(window_width, window_height), "Falling Sand");
 	setup();
 }
 
-GameEngine::GameEngine(FallingSandEngine &fallingSandEngine_)
-	: fallingSandEngine(fallingSandEngine_) {
+GameEngine::GameEngine() {
 	window.create(sf::VideoMode::getDesktopMode(), "Falling Sand", sf::Style::Fullscreen);
 	setup();
 }

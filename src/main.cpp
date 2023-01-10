@@ -2,8 +2,7 @@
 #include "GameEngine.hpp"
 
 int main() {
-	FallingSandEngine fallingSandEngine;
-	GameEngine gameEngine(fallingSandEngine, WORLD_WIDTH, WORLD_HEIGHT);
+	GameEngine gameEngine(WORLD_WIDTH, WORLD_HEIGHT);
 	
 	gameEngine.run();
 

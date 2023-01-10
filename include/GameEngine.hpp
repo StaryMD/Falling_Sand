@@ -9,9 +9,9 @@
 
 class GameEngine {
 public:
-	GameEngine(FallingSandEngine &fallingSandEngine_, const int window_width, const int window_height);
+	GameEngine(const int window_width, const int window_height);
 
-	GameEngine(FallingSandEngine &fallingSandEngine_);
+	GameEngine();
 
 	void setup();
 	void run();
@@ -27,7 +27,7 @@ public:
 
 private:
 	sf::RenderWindow window;
-	FallingSandEngine &fallingSandEngine;
+	FallingSandEngine fallingSandEngine;
 	RefreshRate refresh_rate;
 	InputHandler input_handler;
 
