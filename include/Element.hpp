@@ -48,3 +48,18 @@ static const bool SUBS_IS_INVERSELY_UPDATED_vec[SUBSTANCE_COUNT] = {
 static inline bool SUBS_IS_INVERSELY_UPDATED(const Substance subs) {
     return SUBS_IS_INVERSELY_UPDATED_vec[(int) subs];
 }
+
+static const bool SUBS_IS_MOVABLE_vec[SUBSTANCE_COUNT] = {
+    false,
+    true,
+    false,
+    true
+};
+
+static inline bool SUBS_IS_MOVABLE(const Substance subs) {
+    return SUBS_IS_MOVABLE_vec[(int) subs];
+}
+
+static inline bool SUBS_IS_MOVABLE_AND_SOLID(const Substance subs) {
+    return SUBS_IS_MOVABLE_vec[(int) subs] && SUBS_IS_SOLID_vec[(int) subs];
+}

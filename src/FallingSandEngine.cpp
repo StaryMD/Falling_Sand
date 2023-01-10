@@ -43,7 +43,6 @@ void FallingSandEngine::update() {
 			Chunk &chunk = chunks[y][x];
 
             if (chunk.is_active) {
-				chunk.is_active = false;
 				bool there_is_more = false;
 				bool was_activated = false;
 				
@@ -80,7 +79,6 @@ void FallingSandEngine::update() {
 			Chunk &chunk = chunks[y][x];
 
             if (chunk.is_active) {
-				chunk.is_active = false;
 				bool was_activated = false;
 
 				for (int i = CHUNK_SIZE - 1; i >= 0; i--) {
@@ -93,6 +91,7 @@ void FallingSandEngine::update() {
 					}
 				}
 				
+				chunk.is_active = was_activated;
 				if (was_activated) {
 					set_chunk_activity(y - 1, x, true);
 					set_chunk_activity(y - 1, x + 1, true);
@@ -108,11 +107,45 @@ void FallingSandEngine::update() {
     }
 }
 
-void FallingSandEngine::set_cell(const int y, const int x, const Element &element, bool activate_chunk) {
+void FallingSandEngine::set_cell(const int y, const int x, const Element &element, const bool activate_chunk) {
 	set_element_at(y, x, element, activate_chunk);
 }
 
 void FallingSandEngine::swap_elements(const int y1, const int x1, const int y2, const int x2, bool activate_chunk) {
+	if (x1 < 0 || x1 >= WORLD_WIDTH || y1 < 0 || y1 >= WORLD_HEIGHT) {
+		// First point is outside
+		if (x2 < 0 || x2 >= WORLD_WIDTH || y2 < 0 || y2 >= WORLD_HEIGHT) {
+			// Second point is outside
+
+			// do nothing
+		} else {
+			// Second point is NOT outside
+
+			const int chunk2_y = y2 / CHUNK_SIZE, chunk2_x = x2 / CHUNK_SIZE;
+			const int inside_chunk2_y = y2 % CHUNK_SIZE, inside_chunk2_x = x2 % CHUNK_SIZE;
+			Chunk& chunk2 = chunks[chunk2_y][chunk2_x];
+			chunk2.elements[inside_chunk2_y][inside_chunk2_x] = Element(Substance::AIR);
+			chunk2.is_active |= activate_chunk;
+		}
+
+		return;
+	} else {
+		// First point is NOT outside
+		if (x2 < 0 || x2 >= WORLD_WIDTH || y2 < 0 || y2 >= WORLD_HEIGHT) {
+			// Second point is outside
+			const int chunk1_y = y1 / CHUNK_SIZE, chunk1_x = x1 / CHUNK_SIZE;
+			const int inside_chunk1_y = y1 % CHUNK_SIZE, inside_chunk1_x = x1 % CHUNK_SIZE;
+			Chunk& chunk1 = chunks[chunk1_y][chunk1_x];
+			chunk1.elements[inside_chunk1_y][inside_chunk1_x] = Element(Substance::AIR);
+			chunk1.is_active |= activate_chunk;
+			return;
+		} else {
+			// Second point is NOT outside
+
+			// do nothing
+		}
+	}
+
 	const int chunk1_y = y1 / CHUNK_SIZE, chunk1_x = x1 / CHUNK_SIZE;
 	const int chunk2_y = y2 / CHUNK_SIZE, chunk2_x = x2 / CHUNK_SIZE;
 
@@ -131,6 +164,10 @@ void FallingSandEngine::swap_elements(const int y1, const int x1, const int y2, 
 }
 
 Element FallingSandEngine::get_element_at(const int y, const int x) const {
+	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
+		return Element(Substance::NOTHING);
+	}
+
 	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
 	const Chunk& chunk = chunks[chunk_y][chunk_x];
 	
@@ -139,7 +176,11 @@ Element FallingSandEngine::get_element_at(const int y, const int x) const {
 	return chunk.elements[inside_chunk_y][inside_chunk_x];
 }
 
-void FallingSandEngine::set_element_at(const int y, const int x, const Element &element, bool activate_chunk) {
+void FallingSandEngine::set_element_at(const int y, const int x, const Element &element, const bool activate_chunk) {
+	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
+		return;
+	}
+
 	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
 	Chunk& chunk = chunks[chunk_y][chunk_x];
 
