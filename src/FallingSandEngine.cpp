@@ -40,6 +40,19 @@ void FallingSandEngine::set_chunk_activity(const int chunk_y, const int chunk_x,
 	}
 }
 
+void FallingSandEngine::reverse_element_flow(const int y, const int x) {
+	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
+		return;
+	}
+
+	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
+	Chunk& chunk = chunks[chunk_y][chunk_x];
+	
+	const int inside_chunk_y = y % CHUNK_SIZE, inside_chunk_x = x % CHUNK_SIZE;
+
+	chunk.elements[inside_chunk_y][inside_chunk_x].reverse_flow();
+}
+
 void FallingSandEngine::update() {
     for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
@@ -166,13 +179,13 @@ void FallingSandEngine::swap_elements(const int y1, const int x1, const int y2, 
 	chunk2.is_active |= activate_chunk;
 }
 
-Element FallingSandEngine::get_element_at(const int y, const int x) const {
+const Element& FallingSandEngine::get_element_at(const int y, const int x) {
 	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
 		return Element(Substance::NOTHING);
 	}
 
 	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
-	const Chunk& chunk = chunks[chunk_y][chunk_x];
+	Chunk& chunk = chunks[chunk_y][chunk_x];
 	
 	const int inside_chunk_y = y % CHUNK_SIZE, inside_chunk_x = x % CHUNK_SIZE;
 

@@ -18,7 +18,7 @@ public:
 
 	void set_cell(const int y, const int x, const Element &element, const bool activate_chunk);
 
-    Element get_element_at(const int y, const int x) const;
+    const Element& get_element_at(const int y, const int x);
     void set_element_at(const int y, const int x, const Element &element, const bool activate_chunk);
 
     void swap_elements(const int y1, const int x1, const int y2, const int x2, bool activate_chunk);
@@ -26,6 +26,8 @@ public:
 	bool apply_law(const Substance substance, const int y, const int x);
 
 	void set_chunk_activity(const int chunk_y, const int chunk_x, const bool activity);
+
+	void reverse_element_flow(const int y, const int x);
 	
 	~FallingSandEngine();
 
