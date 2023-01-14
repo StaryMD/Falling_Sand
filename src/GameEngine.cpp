@@ -26,6 +26,8 @@ void GameEngine::setup() {
 	fps_text.setFillColor(sf::Color::Green);
 	fps_text.setFont(font);
 	fps_text.setCharacterSize(15);
+
+	chosen_substance = Substance::SAND;
 }
 
 void GameEngine::run() {
@@ -71,36 +73,48 @@ void GameEngine::handle_events() {
 				}
 				break;
 			}
+			case sf::Event::KeyPressed: {
+				if (event.key.code != sf::Keyboard::Key::Unknown) {
+					input_handler.key_is_pressed[event.key.code] = true;
+				}
+				break;
+			}
+			case sf::Event::KeyReleased: {
+				if (event.key.code != sf::Keyboard::Key::Unknown) {
+					input_handler.key_is_pressed[event.key.code] = false;
+				}
+				break;
+			}
 		}
 	}
 }
 
 void GameEngine::handle_user_input() {
-	if (input_handler.mouseLEFT_pressed) {
+	if (input_handler.mouseLEFT_is_pressed) {
 		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
 		
 		if (input_handler.mouseLEFT_was_pressed) {
-			set_line_of_elements(cur_position, input_handler.mouseLEFT_last_press, Element(Substance::SAND));
+			set_line_of_elements(cur_position, input_handler.mouseLEFT_last_press, Element(chosen_substance));
 		}
 		
-		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::SAND), true);
+		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(chosen_substance), true);
 
 		input_handler.mouseLEFT_last_press = cur_position;
 	}
-	if (input_handler.mouseRIGHT_pressed) {
-		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
-		
-		if (input_handler.mouseRIGHT_was_pressed) {
-			set_line_of_elements(cur_position, input_handler.mouseRIGHT_last_press, Element(Substance::STONE));
-		}
 
-		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(Substance::STONE), true);
+	input_handler.mouseLEFT_was_pressed = input_handler.mouseLEFT_is_pressed;
+	input_handler.mouseRIGHT_was_pressed = input_handler.mouseRIGHT_is_pressed;
 
-		input_handler.mouseRIGHT_last_press = cur_position;
+
+	if (input_handler.key_is_pressed[sf::Keyboard::Key::Num1]) {
+		chosen_substance = Substance::AIR;
 	}
-
-	input_handler.mouseLEFT_was_pressed = input_handler.mouseLEFT_pressed;
-	input_handler.mouseRIGHT_was_pressed = input_handler.mouseRIGHT_pressed;
+	if (input_handler.key_is_pressed[sf::Keyboard::Key::Num2]) {
+		chosen_substance = Substance::SAND;
+	}
+	if (input_handler.key_is_pressed[sf::Keyboard::Key::Num3]) {
+		chosen_substance = Substance::STONE;
+	}
 }
 
 void GameEngine::show_fps() {

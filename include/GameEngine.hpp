@@ -40,4 +40,6 @@ private:
 	sf::Text fps_text;
 	sf::Font font;
 
+	Substance chosen_substance;
+
 };
