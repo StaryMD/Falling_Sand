@@ -51,3 +51,8 @@ bool FallingSandEngine::law_for_SAND(const int y, const int x) {
 bool FallingSandEngine::law_for_STONE(const int y, const int x) {
 	return false;
 }
+
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+bool FallingSandEngine::law_for_WATER(const int y, const int x) {
+	return false;
+}

@@ -20,8 +20,6 @@ public:
 	void mouseLEFT_switch();
 	void mouseRIGHT_switch();
 
-	void keyboard_key_switch(const sf::Keyboard::Key key);
-
 private:
 
 };

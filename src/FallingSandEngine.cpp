@@ -26,6 +26,9 @@ bool FallingSandEngine::apply_law(const Substance substance, const int y, const 
 		case Substance::STONE: {
 			return law_for_STONE(y, x);
 		}
+		case Substance::WATER: {
+			return law_for_WATER(y, x);
+		}
 	}
 
 	return false;

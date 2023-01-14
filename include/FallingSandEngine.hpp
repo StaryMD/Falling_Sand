@@ -38,5 +38,6 @@ private:
 	bool law_for_AIR(const int y, const int x);
 	bool law_for_SAND(const int y, const int x);
 	bool law_for_STONE(const int y, const int x);
+	bool law_for_WATER(const int y, const int x);
 
 };

@@ -115,6 +115,9 @@ void GameEngine::handle_user_input() {
 	if (input_handler.key_is_pressed[sf::Keyboard::Key::Num3]) {
 		chosen_substance = Substance::STONE;
 	}
+	if (input_handler.key_is_pressed[sf::Keyboard::Key::Num4]) {
+		chosen_substance = Substance::WATER;
+	}
 }
 
 void GameEngine::show_fps() {
