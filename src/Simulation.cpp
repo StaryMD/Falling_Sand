@@ -68,8 +68,8 @@ bool FallingSandEngine::law_for_WATER(const int y, const int x) {
 		}
 
 		const int direction = get_element_at(y, x).flow_direction;
-		const int first_x  = x + (direction ? 1 : -1);
-		const int second_x = x + (direction ? -1 : 1);
+		const int first_x  = x + direction;
+		const int second_x = x - direction;
 
 		const Substance first_subs = get_element_at(y + 1, first_x).substance;
 		const Substance second_subs = get_element_at(y + 1, second_x).substance;
