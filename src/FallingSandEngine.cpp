@@ -10,6 +10,8 @@ FallingSandEngine::FallingSandEngine() {
             chunks[y][x] = Chunk(y, x);
         }
     }
+
+	future_update_scheme = std::vector<bool>(CHUNK_NUM_HEIGHT * CHUNK_NUM_WIDTH);
 }
 
 bool FallingSandEngine::apply_law(const Substance substance, const int y, const int x) {
@@ -53,13 +55,20 @@ void FallingSandEngine::reverse_element_flow(const int y, const int x) {
 	chunk.elements[inside_chunk_y][inside_chunk_x].reverse_flow();
 }
 
+void FallingSandEngine::update_future_update_scheme(const int chunk_y, const int chunk_x, const bool activity) {
+	if (chunk_y >= 0 && chunk_y < CHUNK_NUM_HEIGHT && chunk_x >= 0 && chunk_x < CHUNK_NUM_WIDTH) {
+		future_update_scheme[chunk_y * CHUNK_NUM_WIDTH + chunk_x] = activity;
+	}
+}
+
 void FallingSandEngine::update() {
+	std::fill(future_update_scheme.begin(), future_update_scheme.end(), 0);
+
     for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
         for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
 			Chunk &chunk = chunks[y][x];
 
             if (chunk.is_active) {
-				bool there_is_more = false;
 				bool was_activated = false;
 				
 				for (int i = 0; i < CHUNK_SIZE; i++) {
@@ -69,22 +78,20 @@ void FallingSandEngine::update() {
 						if (SUBS_IS_INVERSELY_UPDATED(substance) == false) {
 							was_activated |= apply_law(substance, y * CHUNK_SIZE + i, x * CHUNK_SIZE + j);
 						}
-						else {
-							there_is_more = true;
-						}
 					}
 				}
 
-				chunk.is_active = there_is_more;
 				if (was_activated) {
-					set_chunk_activity(y - 1, x, true);
-					set_chunk_activity(y - 1, x + 1, true);
-					set_chunk_activity(y, x + 1, true);
-					set_chunk_activity(y + 1, x + 1, true);
-					set_chunk_activity(y + 1, x, true);
-					set_chunk_activity(y + 1, x - 1, true);
-					set_chunk_activity(y, x - 1, true);
-					set_chunk_activity(y - 1, x - 1, true);
+					update_future_update_scheme(y, x, true);
+				
+					update_future_update_scheme(y - 1, x, true);
+					update_future_update_scheme(y - 1, x + 1, true);
+					update_future_update_scheme(y, x + 1, true);
+					update_future_update_scheme(y + 1, x + 1, true);
+					update_future_update_scheme(y + 1, x, true);
+					update_future_update_scheme(y + 1, x - 1, true);
+					update_future_update_scheme(y, x - 1, true);
+					update_future_update_scheme(y - 1, x - 1, true);
 				}
 			}
         }
@@ -107,20 +114,28 @@ void FallingSandEngine::update() {
 					}
 				}
 				
-				chunk.is_active = was_activated;
 				if (was_activated) {
-					set_chunk_activity(y - 1, x, true);
-					set_chunk_activity(y - 1, x + 1, true);
-					set_chunk_activity(y, x + 1, true);
-					set_chunk_activity(y + 1, x + 1, true);
-					set_chunk_activity(y + 1, x, true);
-					set_chunk_activity(y + 1, x - 1, true);
-					set_chunk_activity(y, x - 1, true);
-					set_chunk_activity(y - 1, x - 1, true);
+					update_future_update_scheme(y, x, true);
+
+					update_future_update_scheme(y - 1, x, true);
+					update_future_update_scheme(y - 1, x + 1, true);
+					update_future_update_scheme(y, x + 1, true);
+					update_future_update_scheme(y + 1, x + 1, true);
+					update_future_update_scheme(y + 1, x, true);
+					update_future_update_scheme(y + 1, x - 1, true);
+					update_future_update_scheme(y, x - 1, true);
+					update_future_update_scheme(y - 1, x - 1, true);
 				}
 			}
         }
     }
+
+
+    for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
+        for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
+			chunks[y][x].is_active = future_update_scheme[y * CHUNK_NUM_WIDTH + x];
+		}
+	}
 }
 
 void FallingSandEngine::set_cell(const int y, const int x, const Element &element, const bool activate_chunk) {
@@ -140,7 +155,8 @@ void FallingSandEngine::swap_elements(const int y1, const int x1, const int y2, 
 			const int inside_chunk2_y = y2 % CHUNK_SIZE, inside_chunk2_x = x2 % CHUNK_SIZE;
 			Chunk& chunk2 = chunks[chunk2_y][chunk2_x];
 			chunk2.elements[inside_chunk2_y][inside_chunk2_x] = Element(Substance::AIR);
-			chunk2.is_active |= activate_chunk;
+
+			update_future_update_scheme(chunk2_y, chunk2_x, activate_chunk);
 		}
 	} else {
 		// First point is NOT outside
@@ -151,7 +167,8 @@ void FallingSandEngine::swap_elements(const int y1, const int x1, const int y2, 
 			const int inside_chunk1_y = y1 % CHUNK_SIZE, inside_chunk1_x = x1 % CHUNK_SIZE;
 			Chunk& chunk1 = chunks[chunk1_y][chunk1_x];
 			chunk1.elements[inside_chunk1_y][inside_chunk1_x] = Element(Substance::AIR);
-			chunk1.is_active |= activate_chunk;
+			
+			update_future_update_scheme(chunk1_y, chunk1_x, activate_chunk);
 		} else {
 			// Second point is NOT outside
 
@@ -168,8 +185,8 @@ void FallingSandEngine::swap_elements(const int y1, const int x1, const int y2, 
 			chunk1.elements[inside_chunk1_y][inside_chunk1_x] = chunk2.elements[inside_chunk2_y][inside_chunk2_x];
 			chunk2.elements[inside_chunk2_y][inside_chunk2_x] = temp;
 
-			chunk1.is_active |= activate_chunk;
-			chunk2.is_active |= activate_chunk;
+			update_future_update_scheme(chunk1_y, chunk1_x, activate_chunk);
+			update_future_update_scheme(chunk2_y, chunk2_x, activate_chunk);
 		}
 	}
 }

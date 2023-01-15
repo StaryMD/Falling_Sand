@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 #include "Element.hpp"
 #include "Chunk.hpp"
@@ -30,11 +31,17 @@ public:
 	void set_chunk_activity(const int chunk_y, const int chunk_x, const bool activity);
 
 	void reverse_element_flow(const int y, const int x);
+
+	void update_future_update_scheme(const int chunk_y, const int chunk_x, const bool activity);
 	
 	~FallingSandEngine();
 
 private:
-    Chunk** chunks;
+	using Chunks_2D_t = Chunk**;
+
+    Chunks_2D_t chunks;
+
+	std::vector<bool> future_update_scheme;
 
     FastRng terrain_rng;
 	
