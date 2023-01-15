@@ -61,14 +61,24 @@ void GameEngine::handle_events() {
 				window.close();
 				break;
 			}
-			case sf::Event::MouseButtonPressed:
+			case sf::Event::MouseButtonPressed: {
+				switch (event.mouseButton.button) {
+					case sf::Mouse::Left:
+						input_handler.mouseLEFT_is_pressed = true;
+						break;
+					case sf::Mouse::Right:
+						input_handler.mouseRIGHT_is_pressed = true;
+						break;
+				}
+				break;
+			}
 			case sf::Event::MouseButtonReleased: {
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
-						input_handler.mouseLEFT_switch();
+						input_handler.mouseLEFT_is_pressed = false;
 						break;
 					case sf::Mouse::Right:
-						input_handler.mouseRIGHT_switch();
+						input_handler.mouseRIGHT_is_pressed = false;
 						break;
 				}
 				break;

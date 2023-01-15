@@ -187,6 +187,19 @@ Element FallingSandEngine::get_element_at(const int y, const int x) {
 	return chunk.elements[inside_chunk_y][inside_chunk_x];
 }
 
+Substance FallingSandEngine::get_substance_at(const int y, const int x) {
+	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
+		return Substance::AIR;
+	}
+
+	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
+	Chunk& chunk = chunks[chunk_y][chunk_x];
+	
+	const int inside_chunk_y = y % CHUNK_SIZE, inside_chunk_x = x % CHUNK_SIZE;
+
+	return chunk.elements[inside_chunk_y][inside_chunk_x].substance;
+}
+
 void FallingSandEngine::set_element_at(const int y, const int x, const Element &element, const bool activate_chunk) {
 	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
 		return;

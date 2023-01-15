@@ -2,8 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "random_generators.hpp"
-
 enum class Substance {
     NOTHING = 0,
     AIR = 1,
@@ -71,10 +69,18 @@ static inline bool SUBS_IS_SOLID(const Substance subs) {
     return SUBS_IS_SOLID_vec[(int) subs];
 }
 
+static inline bool SUBS_NOT_SOLID(const Substance subs) {
+    return false == SUBS_IS_SOLID_vec[(int) subs];
+}
+
 static inline bool SUBS_IS_INVERSELY_UPDATED(const Substance subs) {
     return SUBS_IS_INVERSELY_UPDATED_vec[(int) subs];
 }
 
 static inline bool SUBS_IS_MOVABLE(const Substance subs) {
     return SUBS_IS_MOVABLE_vec[(int) subs];
+}
+
+static inline float SUBS_DENSITY(const Substance subs) {
+    return SUBS_DENSITY_vec[(int) subs];
 }
