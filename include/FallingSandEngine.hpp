@@ -18,7 +18,7 @@ public:
 
 	void set_cell(const int y, const int x, const Element &element, const bool activate_chunk);
 
-    const Element& get_element_at(const int y, const int x);
+    Element get_element_at(const int y, const int x);
     void set_element_at(const int y, const int x, const Element &element, const bool activate_chunk);
 
     void swap_elements(const int y1, const int x1, const int y2, const int x2, bool activate_chunk);

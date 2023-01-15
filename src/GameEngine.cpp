@@ -137,7 +137,7 @@ void GameEngine::set_line_of_elements(const sf::Vector2i &pos1, const sf::Vector
 	float y = pos1.y;
 
 	for (int i = 1; i <= step; i++) {
-		fallingSandEngine.set_cell(y, x, element, true);
+		fallingSandEngine.set_element_at(y, x, element, true);
 		x += dx;
 		y += dy;
 	}
