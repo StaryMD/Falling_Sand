@@ -1,6 +1,6 @@
 #include "RefreshRate.hpp"
 
-#include "algorithm"
+#include <algorithm>
 
 void RefreshRate::setup() {
 	start_clock = sf::Clock();

@@ -1,142 +1,157 @@
 import sys
 import os
 
+BUILD_PATH = 'build'
+BINARY_PATH = 'build/bin'
+EXECUTABLE_PATH = 'build/bin/runme.exe'
+
 SFML_FLAGS = '-lsfml-graphics -lsfml-window -lsfml-system'
 MY_FLAGS = '-Wall -Wextra -std=c++20 -Ofast'
 
 if len(sys.argv) == 2 and sys.argv[1] == 'clean':
-	if os.path.exists('build'):
-		from pathlib import Path
-
-		def rmdir(directory):
-			directory = Path(directory)
-
-			for item in directory.iterdir():
-				if item.is_dir():
-					rmdir(item)
-				else:
-					item.unlink()
-			directory.rmdir()
-
-		rmdir('build')
+	if os.path.exists(BUILD_PATH):
+		from shutil import rmtree
+		
+		rmtree(BUILD_PATH)
 	print('Cleaned build directory')
 else:
 	import subprocess
 	from glob import iglob
-	import mmap
 	import json
 	from collections import defaultdict
+	from re import findall as regex_findall
 	
-	cpp_paths_set = set([f.replace('\\', '/') for f in iglob('src/**/*',     recursive=True) if os.path.isfile(f) and f.endswith('.cpp')])
-	hpp_paths_set = set([f.replace('\\', '/') for f in iglob('include/**/*', recursive=True) if os.path.isfile(f) and f.endswith('.hpp')])
-	# cpp_paths_set = set(sorted(cpp_paths_set))
-	# hpp_paths_set = set(sorted(hpp_paths_set))
+#region Recursively get all files in ./src and ./include
 
-	cpp_dependencies: dict[str, list[str]] = defaultdict(list)
-	hpp_dependent: dict[str, list[str]] = defaultdict(list)
+	cpp_paths_set = set([path.replace('\\', '/') for path in iglob('src/**/*.cpp',     recursive=True)])
+	hpp_paths_set = set([path.replace(	'\\', '/') for path in iglob('include/**/*.hpp', recursive=True)])
 
-	for cpp_path in cpp_paths_set:
-		file = open(cpp_path, 'rb', 0)
-		fancy_map = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-		
+#endregion
+
+#region Get dependencies for each file
+	def read_direct_dependencies(src_file: str) -> set[str]:
+		with open(src_file, 'r') as file:
+			return set(regex_findall(r'#include[^"\n]*"([^"]+)"', file.read()))
+
+	def get_cpp_dependencies(cpp_paths_set: set[str], hpp_paths_set: set[str]) -> dict[str, set[str]]:
+		cpp_dependencies: dict[str, set[str]] = {}
+		hpp_direct_dependencies: dict[str, set[str]] = {}
+
+		for cpp_path in cpp_paths_set:
+			cpp_dependencies[cpp_path] = set("include/" + dep for dep in read_direct_dependencies(cpp_path))
+
 		for hpp_path in hpp_paths_set:
-			hpp_file_name = os.path.basename(hpp_path)
-			hpp_file_name_buffer = hpp_file_name.encode('utf-8')
+			hpp_direct_dependencies[hpp_path] = set("include/" + dep for dep in read_direct_dependencies(hpp_path))
+		
+		for cpp_path in cpp_paths_set:
+			while True:
+				new_dependencies: set[str] = set()
+				
+				for direct_dependency in cpp_dependencies[cpp_path]:
+					direct_dependency_path = direct_dependency
+
+					for indirect_dependency in hpp_direct_dependencies[direct_dependency_path]:
+						indirect_dependency_path = indirect_dependency
+						
+						if indirect_dependency_path not in cpp_dependencies[cpp_path]:
+							new_dependencies.add(indirect_dependency_path)
+				
+				if len(new_dependencies) == 0:
+					break
+
+				cpp_dependencies[cpp_path].update(new_dependencies)
+
+		return cpp_dependencies
+
+	cpp_dependencies: dict[str, set[str]] = get_cpp_dependencies(cpp_paths_set, hpp_paths_set)
+	
+#endregion
+
+#region Decide which files need to be built
+	
+	STATUS_FILE_PATH = BUILD_PATH + '/build_status.json'
+
+	cpp_path_to_build_set: set[str] = set()
+	current_status: dict[str, float] = {}
+	do_build_executable = False
+
+	if os.path.exists(BUILD_PATH) and os.path.exists(STATUS_FILE_PATH):
+		old_status: dict[str, float] = {}
+
+		with open(STATUS_FILE_PATH) as status_file:
+			old_status = json.load(status_file)
+		
+		for cpp_path in cpp_paths_set:
+			last_modification_time = os.path.getmtime(cpp_path)
+
+			for dependency in cpp_dependencies[cpp_path]:
+				last_modification_time = max(last_modification_time, os.path.getmtime(dependency))
 			
-			if fancy_map.find(hpp_file_name_buffer) != -1:
-				cpp_dependencies[cpp_path].append(hpp_path)
-				hpp_dependent[hpp_path].append(cpp_path)
-		
-		# cpp_dependencies[cpp_path] = list(sorted(cpp_dependencies[cpp_path]))
-	
-	cpp_path_to_build_list: set[str] = set({})
-	old_status: dict[str, float] = {}
-	status: dict[str, float] = {}
-	build_executable = False
-	
-	if os.path.exists('build'):
-		if os.path.exists('build/status.json'):
-			with open('build/status.json', 'r') as status_file:
-				old_status = json.load(status_file)
+			cpp_modified = False
 
-			for cpp_path in cpp_paths_set:
-				if cpp_path in old_status.keys() and old_status[cpp_path] == (cpp_path_mtime := os.path.getmtime(cpp_path)):
-					status[cpp_path] = cpp_path_mtime
-					continue
-				
-				# print(cpp_path, "was added/modified")
-				
-				build_executable = True
-				cpp_path_to_build_list.add(cpp_path)
-					
-			for hpp_path in hpp_paths_set:
-				if hpp_path in old_status.keys() and old_status[hpp_path] == (hpp_path_mtime := os.path.getmtime(hpp_path)):
-					status[hpp_path] = hpp_path_mtime
-					continue
-				
-				# print(hpp_path, "was added/modified")
-				build_executable = True
-				
-				for cpp_path in hpp_dependent[hpp_path]:
-					cpp_path_to_build_list.add(cpp_path)
-					
-		else:
-			cpp_path_to_build_list = cpp_paths_set
-			build_executable = True
-	else:
-		os.mkdir('build')
-		
-		cpp_path_to_build_list = cpp_paths_set
-		build_executable = True
-
-	for cpp_path in cpp_path_to_build_list:
-		built_obj_path = 'build'
-		
-		dirs = cpp_path.split('/')[:-1]
-		
-		for dir in dirs:
-			built_obj_path += '/' + dir
-
-			if os.path.exists(built_obj_path):
-				break
+			if cpp_path in old_status.keys():
+				if old_status[cpp_path] < last_modification_time:
+					# print(cpp_path, "was modified")
+					cpp_modified = True
 			else:
-				os.mkdir(built_obj_path)
-		
-		include_list = list(set([os.path.dirname(dep) for dep in cpp_dependencies[cpp_path]]))
-		INCLUDE_FLAGS = ' '.join(['-I ' + flag for flag in include_list])
+				# print(cpp_path, "was added")
+				cpp_modified = True
+			
+			if cpp_modified:
+				do_build_executable = True
+				current_status[cpp_path] = last_modification_time
+				cpp_path_to_build_set.add(cpp_path)
+			else:
+				current_status[cpp_path] = old_status[cpp_path]
+	else:
+		print("Old config not present, building everything")
+		do_build_executable = True
+		cpp_path_to_build_set = cpp_paths_set
 
-		built_obj_path = 'build/' + cpp_path + '.o'
+#endregion
+
+#region Build the necessary object files
+
+	os.makedirs(BUILD_PATH, exist_ok=True)
+
+	for i, cpp_path in enumerate(cpp_path_to_build_set):
+		include_list: set[str] = set(os.path.dirname(dep) for dep in cpp_dependencies[cpp_path])
+		INCLUDE_FLAGS = ' '.join(['-I ' + header for header in include_list])
+
+		built_obj_path = '{0}/{1}.o'.format(BUILD_PATH, cpp_path)
 		
-		command = ' '.join(['g++ -c', MY_FLAGS])
-		command = ' '.join([command, '-o', built_obj_path, cpp_path])
-		command = ' '.join([command, SFML_FLAGS, INCLUDE_FLAGS])
+		os.makedirs(os.path.dirname(built_obj_path), exist_ok=True)
 		
-		print(command)
+		command = 'g++ {0} -c -o {1} {2} {3} {4}'.format(MY_FLAGS, built_obj_path, cpp_path, SFML_FLAGS, INCLUDE_FLAGS)
+		
+		print('%{0:} : {1}'.format(i * 100 // (len(cpp_path_to_build_set) + 1), built_obj_path))
 
 		try:
 			subprocess.check_output(command, shell=True)
-
-			status[cpp_path] = os.path.getmtime(cpp_path)
-
-			for hpp_file_path in cpp_dependencies[cpp_path]:
-				status[hpp_file_path] = os.path.getmtime(hpp_file_path)
 		except:
-			build_executable = False
-	
-	if build_executable or not os.path.exists('runme.exe'):
-		full_obj_list = ['build/' + f + '.o' for f in cpp_paths_set]
+			do_build_executable = False
 
-		command = ' '.join(['g++ -o runme.exe', MY_FLAGS])
-		command = ' '.join([command, ' '.join(full_obj_list)])
-		command = ' '.join([command, SFML_FLAGS])
+#endregion
+	
+#region Build the executable
+	if do_build_executable or not os.path.exists(EXECUTABLE_PATH):
+		os.makedirs(BINARY_PATH, exist_ok=True)
 		
-		print(command)
+		full_obj_list = ' '.join(['{0}/{1}.o'.format(BUILD_PATH, cpp_path) for cpp_path in cpp_paths_set])
+
+		command = 'g++ {0} -o {1} {2} {3}'.format(MY_FLAGS, EXECUTABLE_PATH, full_obj_list, SFML_FLAGS)
+		
+		print('%{0} : {1}'.format(len(cpp_path_to_build_set) * 100 // (len(cpp_path_to_build_set) + 1), EXECUTABLE_PATH))
 
 		try:
 			output = subprocess.check_output(command, shell=True)
 		except:
 			pass
 	
-	with open('build/status.json', 'w') as status_file:
-		json.dump(status, status_file, indent=4)
+	with open(STATUS_FILE_PATH, 'w') as status_file:
+		json.dump(current_status, status_file, indent=4)
+	
+	print('Build finished!')
+
+#endregion
 	
