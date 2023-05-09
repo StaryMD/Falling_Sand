@@ -1,6 +1,7 @@
 {
 	"files.associations": {
-		"functional": "cpp"
+		"functional": "cpp",
+		"new": "cpp"
 	},
 	"cSpell.words": [
 		"endregion",
@@ -9,5 +10,6 @@
 		"runme",
 		"SFML",
 		"Wextra"
-	]
+	],
+	"python.analysis.typeCheckingMode": "basic"
 }

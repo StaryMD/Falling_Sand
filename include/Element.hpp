@@ -23,7 +23,7 @@ struct Element {
 };
 
 
-// PROPERITIES
+// PROPERTIES
 
 static const sf::Color color_of_substance[SUBSTANCE_COUNT] = {
     sf::Color::Red,
