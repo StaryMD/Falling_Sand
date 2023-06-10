@@ -1,21 +1,21 @@
 #ifndef RENDERING_ENGINE_HPP_
 #define RENDERING_ENGINE_HPP_
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 
-#include "RefreshRate.hpp"
 #include "InputHandler.hpp"
+#include "RefreshRate.hpp"
 
 class GameEngine {
  public:
   GameEngine() = delete;
- 
-  GameEngine(const std::string &application_name, const int window_width, const int window_height);
 
-  GameEngine(const std::string &application_name);
+  GameEngine(const std::string& application_name, const int window_width, const int window_height);
+
+  GameEngine(const std::string& application_name);
 
   void setup();
   void run();

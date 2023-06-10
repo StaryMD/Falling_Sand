@@ -1,13 +1,15 @@
-COMPILER = 'g++'
-SOURCE_DIR = 'src'
-INCLUDE_DIR = 'include'
-BUILD_PATH = 'build'
-BINARY_PATH = 'build/bin'
-EXECUTABLE_PATH = 'build/bin/runme.exe'
+COMPILER: str = 'g++'
+SOURCE_DIR: str = 'src'
+INCLUDE_DIR: str = 'include'
+BUILD_PATH: str = 'build'
+BINARY_PATH: str = 'build/bin'
+EXECUTABLE_PATH: str = 'build/bin/runme.exe'
 
-MY_FLAGS = '-Wall -Wextra -Werror -std=c++17 -Ofast'
-INCLUDE_FLAGS = '-Iinclude'
-OTHER_FLAGS = '-lsfml-graphics -lsfml-window -lsfml-system'
+MY_FLAGS: str = '-Wall -Wextra -Werror -std=c++17 -Ofast'
+INCLUDE_FLAGS: str = '-Iinclude'
+OTHER_FLAGS: str = '-lsfml-graphics -lsfml-window -lsfml-system'
+
+RUN_CLANG_FORMAT: bool = True
 
 def clean_build_folder():
 	if os.path.exists(BUILD_PATH):
@@ -160,6 +162,8 @@ def build(just_export_compile_commands=False):
 
 	from subprocess import check_output as subprocess_check_output
 
+	operation_count = len(cpp_path_to_build_list) + 1 + int(RUN_CLANG_FORMAT)
+
 	for i, cpp_path in enumerate(cpp_path_to_build_list):
 		built_obj_path = '{0}/{1}.o'.format(BUILD_PATH, cpp_path)
 
@@ -167,11 +171,15 @@ def build(just_export_compile_commands=False):
 
 		command = '{0} {1} -c -o {2} {3} {4} {5}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, OTHER_FLAGS, INCLUDE_FLAGS)
 
-		print('[{0:3}%] {1}'.format(i * 100 // (len(cpp_path_to_build_list) + 1), built_obj_path))
+		print('[{0:3}%] {1}'.format(i * 100 // operation_count, built_obj_path))
 
 		try:
 			subprocess_check_output(command, shell=True)
 			
+			if RUN_CLANG_FORMAT:
+				format_cmd = 'clang-format -style=file -i ' + cpp_path
+				subprocess_check_output(format_cmd, shell=True)
+
 			current_status[cpp_path] = modification_times[cpp_path]
 		except:
 			pass
@@ -189,7 +197,7 @@ def build(just_export_compile_commands=False):
 
 		command = '{0} {1} -o {2} {3} {4}'.format(COMPILER, MY_FLAGS, EXECUTABLE_PATH, full_obj_list, OTHER_FLAGS)
 
-		print('[{0:3}%] {1}'.format(len(cpp_path_to_build_list) * 100 // (len(cpp_path_to_build_list) + 1), EXECUTABLE_PATH))
+		print('[{0:3}%] {1}'.format(len(cpp_path_to_build_list) * 100 // operation_count, EXECUTABLE_PATH))
 
 		try:
 			subprocess_check_output(command, shell=True)
@@ -198,8 +206,19 @@ def build(just_export_compile_commands=False):
 
 	with open(STATUS_FILE_PATH, 'w') as status_file:
 		json_dump(current_status, status_file, indent=2)
+	
+	if success and RUN_CLANG_FORMAT:
+		try:
+			# command = 'find . -regex \'/(\.cpp|\.c|\.hpp|\.h)$/gm\' -exec clang-format -style=file -i {} \\;'
+			# subprocess_check_output(command, shell=True)
+			pass
+		except:
+			success = False
 
-	print('[100%] Build finished {0}! - {1}'.format('successfully' if success else 'badly', EXECUTABLE_PATH))
+	if success:
+		print('[100%] Build finished {0}! - {1}'.format('successfully' if success else 'badly', EXECUTABLE_PATH))
+	else:
+		print('Build failed')
 
 	#endregion
 

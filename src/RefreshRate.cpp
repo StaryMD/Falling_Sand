@@ -35,14 +35,14 @@ std::pair<T, T> RefreshRate<T>::get_fps_info() const {
   T min_fps = __FLT_MAX__;
   T avg_fps = 0;
 
-  for (const T x: past_fps_buffer_) {
+  for (const T x : past_fps_buffer_) {
     min_fps = std::min(min_fps, x);
     avg_fps += x;
   }
-  
+
   avg_fps /= FPS_BUFFER_SIZE;
 
-  return { avg_fps, min_fps };
+  return {avg_fps, min_fps};
 }
 
 template class RefreshRate<float>;

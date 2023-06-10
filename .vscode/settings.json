@@ -72,8 +72,10 @@
 		"Lato",
 		"lsfml",
 		"Ofast",
+		"Parens",
 		"runme",
 		"SFML",
+		"Struct",
 		"Wextra"
 	],
 	"python.analysis.typeCheckingMode": "basic",

@@ -3,7 +3,7 @@
 
 int main() {
   GameEngine gameEngine("Falling Sand Simulator", WORLD_WIDTH, WORLD_HEIGHT);
-  
+
   gameEngine.run();
 
   return 0;

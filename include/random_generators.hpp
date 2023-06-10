@@ -8,7 +8,6 @@ class FastRng {
   FastRng();
 
   int rand();
-  
 };
 
 #endif /* RANDOM_GENERATORS_HPP_ */
