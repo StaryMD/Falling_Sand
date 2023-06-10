@@ -2,7 +2,7 @@
 #include "common_constants.hpp"
 
 int main() {
-  GameEngine gameEngine(WORLD_WIDTH, WORLD_HEIGHT);
+  GameEngine gameEngine("Falling Sand Simulator", WORLD_WIDTH, WORLD_HEIGHT);
   
   gameEngine.run();
 

@@ -2,13 +2,13 @@
 #define RANDOM_GENERATORS_HPP_
 
 class FastRng {
-	int seed;
+  int seed_;
 
-public:
-	FastRng();
+ public:
+  FastRng();
 
-	int rand();
-	
+  int rand();
+  
 };
 
 #endif /* RANDOM_GENERATORS_HPP_ */

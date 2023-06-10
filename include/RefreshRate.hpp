@@ -1,32 +1,31 @@
 #ifndef REFRESH_RATE_HPP_
 #define REFRESH_RATE_HPP_
 
-#include <SFML/Graphics.hpp>
-#include <chrono>
 #include <deque>
-#include <utility>
 
-constexpr float WANTED_FRAMES_PER_SECOND = 60.0f;
+#include <SFML/Graphics.hpp>
+
+#include "common_constants.hpp"
+
 constexpr float WANTED_SECONDS_PER_FRAME = 1.0f / WANTED_FRAMES_PER_SECOND;
 
-constexpr int FPS_BUFFER_SIZE = 120;
-
+template <typename T>
 class RefreshRate {
-public:
-	void setup();
+ public:
+  RefreshRate();
+  void reset();
 
-	float get_elapsed_time();
-	float get_time_since_last_frame();
-	void reset_time_since_last_frame();
+  T get_elapsed_time() const;
+  T get_time_since_last_frame() const;
+  void reset_time_since_last_frame();
 
-	std::pair<float, float> get_fps_info();
+  std::pair<T, T> get_fps_info() const;
 
-private:
-	sf::Clock start_clock;
-	sf::Clock last_frame_start_clock;
+ private:
+  sf::Clock start_clock;
+  sf::Clock last_frame_start_clock_;
 
-	std::deque<float> past_fps_buffer;
-
+  std::deque<T> past_fps_buffer_;
 };
 
 #endif /* REFRESH_RATE_HPP_ */
