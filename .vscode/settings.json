@@ -67,8 +67,11 @@
 	},
 	"cSpell.words": [
 		"argparser",
+		"bugprone",
+		"Constexpr",
 		"endregion",
 		"Fullscreen",
+		"Iinclude",
 		"Lato",
 		"lsfml",
 		"Ofast",
@@ -76,6 +79,8 @@
 		"runme",
 		"SFML",
 		"Struct",
+		"swappable",
+		"Werror",
 		"Wextra"
 	],
 	"python.analysis.typeCheckingMode": "basic",

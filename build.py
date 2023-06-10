@@ -10,6 +10,7 @@ INCLUDE_FLAGS: str = '-Iinclude'
 OTHER_FLAGS: str = '-lsfml-graphics -lsfml-window -lsfml-system'
 
 RUN_CLANG_FORMAT: bool = True
+RUN_CLANG_TIDY: bool = False
 
 def clean_build_folder():
 	if os.path.exists(BUILD_PATH):
@@ -133,7 +134,7 @@ def build(just_export_compile_commands=False):
 
 	#endregion
 
-	#region Create the commands for building the files
+	#region Create compile_commands.json
 
 	COMPILE_COMMANDS_FILE_PATH = BUILD_PATH + '/compile_commands.json'
 	CURRENT_DIRECTORY = os.getcwd().replace('\\', '/')
@@ -143,7 +144,7 @@ def build(just_export_compile_commands=False):
 	for cpp_path in cpp_paths_set:
 		built_obj_path = '{0}/{1}.o'.format(BUILD_PATH, cpp_path)
 
-		command = '{0} {1} -c -o {2} {3} {4} {5}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, OTHER_FLAGS, INCLUDE_FLAGS)
+		command = '{0} {1} -c -o {2} {3} {4}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, INCLUDE_FLAGS)
 
 		compile_commands.append({'directory' : CURRENT_DIRECTORY, 'command' : command, 'file' : built_obj_path})
 	
@@ -162,7 +163,11 @@ def build(just_export_compile_commands=False):
 
 	from subprocess import check_output as subprocess_check_output
 
-	operation_count = len(cpp_path_to_build_list) + 1 + int(RUN_CLANG_FORMAT)
+	DO_RUN_CLANG_TIDY = RUN_CLANG_TIDY and (len(cpp_path_to_build_list) != 0)
+
+	operation_count = len(cpp_path_to_build_list) + int(DO_RUN_CLANG_TIDY)
+
+	success = True
 
 	for i, cpp_path in enumerate(cpp_path_to_build_list):
 		built_obj_path = '{0}/{1}.o'.format(BUILD_PATH, cpp_path)
@@ -177,19 +182,30 @@ def build(just_export_compile_commands=False):
 			subprocess_check_output(command, shell=True)
 			
 			if RUN_CLANG_FORMAT:
-				format_cmd = 'clang-format -style=file -i ' + cpp_path
-				subprocess_check_output(format_cmd, shell=True)
-
+				command = 'clang-format -style=file -i ' + cpp_path
+				subprocess_check_output(command, shell=True)
+			
 			current_status[cpp_path] = modification_times[cpp_path]
 		except:
-			pass
+			success = False
 
 	#endregion
 
 	#region Build the executable
 
-	success = True
+	DO_RUN_CLANG_TIDY = DO_RUN_CLANG_TIDY and success
 
+	if DO_RUN_CLANG_TIDY:
+		print('[{0:3}%] {1}'.format((operation_count - 1) * 100 // operation_count, 'clang-tidy'))
+
+		command = 'clang-tidy --config-file=.clang-tidy --format-style=file --quiet -p ./build/compile_commands.json ' + ' '.join(cpp_path_to_build_list)
+		print(command)
+
+		try:
+			subprocess_check_output(command, shell=True)
+		except:
+			print('clang-tidy found shit')
+	
 	if len(cpp_path_to_build_list) != 0 or not os.path.exists(EXECUTABLE_PATH):
 		os.makedirs(BINARY_PATH, exist_ok=True)
 
@@ -207,14 +223,6 @@ def build(just_export_compile_commands=False):
 	with open(STATUS_FILE_PATH, 'w') as status_file:
 		json_dump(current_status, status_file, indent=2)
 	
-	if success and RUN_CLANG_FORMAT:
-		try:
-			# command = 'find . -regex \'/(\.cpp|\.c|\.hpp|\.h)$/gm\' -exec clang-format -style=file -i {} \\;'
-			# subprocess_check_output(command, shell=True)
-			pass
-		except:
-			success = False
-
 	if success:
 		print('[100%] Build finished {0}! - {1}'.format('successfully' if success else 'badly', EXECUTABLE_PATH))
 	else:
@@ -231,10 +239,26 @@ if __name__ == '__main__':
 	argparser.add_argument('-b', '--build', action='store_true', help='Build the project')
 	argparser.add_argument('-r', '--rebuild', action='store_true', help='Clean build directory and build anew')
 	argparser.add_argument('-e', '--export_compile_commands', action='store_true', help='Export compile commands without building')
+	argparser.add_argument('-ct', '--clang-tidy', choices='01', action='store', help='Run clang-tidy')
+	argparser.add_argument('-cf', '--clang-format', choices='01', action='store', help='Run clang-format')
 
 	args = argparser.parse_args()
 	
 	import os
+	
+	if (args.__contains__('clang_tidy')):
+		if args.clang_tidy == '1':
+			print('Will run clang-tidy')
+			RUN_CLANG_TIDY = True
+		elif args.clang_tidy == '0':
+			RUN_CLANG_TIDY = False
+
+	if (args.__contains__('clang_format')):
+		if args.clang_format == '1':
+			RUN_CLANG_FORMAT = True
+		elif args.clang_format == '0':
+			print('Will NOT run clang-format')
+			RUN_CLANG_FORMAT = False
 
 	if args.clean == True:
 		clean_build_folder()
