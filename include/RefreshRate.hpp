@@ -1,4 +1,5 @@
-#pragma once
+#ifndef REFRESH_RATE_HPP_
+#define REFRESH_RATE_HPP_
 
 #include <SFML/Graphics.hpp>
 #include <chrono>
@@ -27,3 +28,5 @@ private:
 	std::deque<float> past_fps_buffer;
 
 };
+
+#endif /* REFRESH_RATE_HPP_ */

@@ -1,7 +1,5 @@
-#pragma once
-
-#include <cstdlib>
-#include <ctime>
+#ifndef RANDOM_GENERATORS_HPP_
+#define RANDOM_GENERATORS_HPP_
 
 class FastRng {
 	int seed;
@@ -12,3 +10,5 @@ public:
 	int rand();
 	
 };
+
+#endif /* RANDOM_GENERATORS_HPP_ */

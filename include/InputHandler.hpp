@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INPUT_HANDLER_HPP_
+#define INPUT_HANDLER_HPP_
 
 #include <SFML/Graphics.hpp>
 
@@ -23,3 +24,5 @@ public:
 private:
 
 };
+
+#endif /* INPUT_HANDLER_HPP_ */

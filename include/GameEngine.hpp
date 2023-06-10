@@ -1,10 +1,9 @@
-#pragma once
+#ifndef RENDERING_ENGINE_HPP_
+#define RENDERING_ENGINE_HPP_
 
 #include <SFML/Graphics.hpp>
-#include <functional>
 
 #include "RefreshRate.hpp"
-#include "FallingSandEngine.hpp"
 #include "InputHandler.hpp"
 
 class GameEngine {
@@ -19,15 +18,12 @@ public:
 	void handle_user_input();
 	void handle_events();
 
-	void show_fps();
-
-	void set_line_of_elements(const sf::Vector2i &pos1, const sf::Vector2i &pos2, const Element element);
+	void show_debug_info();
 
 	~GameEngine();
 
 private:
 	sf::RenderWindow window;
-	FallingSandEngine fallingSandEngine;
 	RefreshRate refresh_rate;
 	InputHandler input_handler;
 
@@ -39,7 +35,6 @@ private:
 
 	sf::Text fps_text;
 	sf::Font font;
-
-	Substance chosen_substance;
-
 };
+
+#endif /* RENDERING_ENGINE_HPP_ */

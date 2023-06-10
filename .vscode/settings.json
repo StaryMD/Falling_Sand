@@ -1,15 +1,21 @@
 {
 	"files.associations": {
 		"functional": "cpp",
-		"new": "cpp"
+		"new": "cpp",
+		"cmath": "cpp"
 	},
 	"cSpell.words": [
+		"argparser",
 		"endregion",
+		"Fullscreen",
+		"Lato",
 		"lsfml",
 		"Ofast",
 		"runme",
 		"SFML",
 		"Wextra"
 	],
-	"python.analysis.typeCheckingMode": "basic"
+	"python.analysis.typeCheckingMode": "basic",
+	"python.linting.pylintEnabled": true,
+	"python.linting.enabled": false
 }

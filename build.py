@@ -1,40 +1,45 @@
-import sys
-import os
-
+COMPILER = 'g++'
 SOURCE_DIR = 'src'
 INCLUDE_DIR = 'include'
 BUILD_PATH = 'build'
 BINARY_PATH = 'build/bin'
 EXECUTABLE_PATH = 'build/bin/runme.exe'
 
-SFML_FLAGS = '-lsfml-graphics -lsfml-window -lsfml-system'
-MY_FLAGS = '-Wall -Wextra -std=c++20 -Ofast'
+MY_FLAGS = '-Wall -Wextra -Werror -std=c++17 -Ofast'
+INCLUDE_FLAGS = '-Iinclude'
+OTHER_FLAGS = '-lsfml-graphics -lsfml-window -lsfml-system'
 
-if len(sys.argv) == 2 and sys.argv[1] == 'clean':
+def clean_build_folder():
 	if os.path.exists(BUILD_PATH):
 		from shutil import rmtree
 
 		rmtree(BUILD_PATH)
+	
 	print('Cleaned build directory')
-else:
-	from subprocess import check_output as subprocess_check_output
+
+
+def build(just_export_compile_commands=False):
 	from glob import iglob
 	from json import dump as json_dump, load as json_load
 	from re import findall as regex_findall
 
-#region Recursively get all files in ./src and ./include
+	#region Recursively get all files in ./src and ./include
 
 	cpp_paths_set = [path.replace('\\', '/') for path in iglob(SOURCE_DIR + '/**/*.cpp', recursive=True)]
 	hpp_paths_set = [path.replace('\\', '/') for path in iglob(INCLUDE_DIR + '/**/*.hpp', recursive=True)]
 
-#endregion
+	#endregion
 
-#region Get dependencies for each file
-	def read_direct_dependencies(src_file: str) -> set[str]:
-		with open(src_file, 'r') as file:
-			return set(regex_findall(r'#include[^"\n]*"([^"]+)"', file.read()))
-
+	#region Get dependencies for each file
+	
 	def get_cpp_dependencies(cpp_paths_set: list[str], hpp_paths_set: list[str]) -> dict[str, set[str]]:
+		def read_direct_dependencies(src_file: str) -> set[str]:
+			try:
+				with open(src_file, 'r') as file:
+					return set(regex_findall(r'#include[^"\n]*"([^"]+)"', file.read()))
+			except:
+				return set()
+
 		cpp_dependencies: dict[str, set[str]] = {}
 		hpp_direct_dependencies: dict[str, set[str]] = {}
 
@@ -66,9 +71,9 @@ else:
 
 	cpp_dependencies: dict[str, set[str]] = get_cpp_dependencies(cpp_paths_set, hpp_paths_set)
 
-#endregion
+	#endregion
 
-#region Get modification times of both cpp and hpp files
+	#region Get modification times of both cpp and hpp files
 
 	modification_times: dict[str, float] = {}
 
@@ -78,9 +83,9 @@ else:
 	for hpp_path in hpp_paths_set:
 		modification_times[hpp_path] = os.path.getmtime(hpp_path)
 
-#endregion
+	#endregion
 
-#region Modify modification times for cpp-s according to their dependencies
+	#region Modify modification times for cpp-s according to their dependencies
 
 	for cpp_path in cpp_paths_set:
 		last_modification_time = modification_times[cpp_path]
@@ -90,9 +95,9 @@ else:
 			
 		modification_times[cpp_path] = last_modification_time
 
-#endregion
+	#endregion
 
-#region Decide which files need to be built
+	#region Decide which files need to be built
 
 	STATUS_FILE_PATH = BUILD_PATH + '/build_status.json'
 
@@ -124,23 +129,45 @@ else:
 		print("Old config not present, building everything")
 		cpp_path_to_build_list = cpp_paths_set
 
-#endregion
+	#endregion
 
-#region Build the necessary object files
+	#region Create the commands for building the files
 
+	COMPILE_COMMANDS_FILE_PATH = BUILD_PATH + '/compile_commands.json'
+	CURRENT_DIRECTORY = os.getcwd().replace('\\', '/')
+
+	compile_commands: list[dict[str, str]] = []
+
+	for cpp_path in cpp_paths_set:
+		built_obj_path = '{0}/{1}.o'.format(BUILD_PATH, cpp_path)
+
+		command = '{0} {1} -c -o {2} {3} {4} {5}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, OTHER_FLAGS, INCLUDE_FLAGS)
+
+		compile_commands.append({'directory' : CURRENT_DIRECTORY, 'command' : command, 'file' : built_obj_path})
+	
 	os.makedirs(BUILD_PATH, exist_ok=True)
 
-	for i, cpp_path in enumerate(cpp_path_to_build_list):
-		include_list: set[str] = set(os.path.dirname(dep) for dep in cpp_dependencies[cpp_path])
-		INCLUDE_FLAGS = ' '.join(['-I ' + header for header in include_list])
+	with open(COMPILE_COMMANDS_FILE_PATH, 'w') as file:
+		json_dump(compile_commands, file, indent=2)
 
+	if just_export_compile_commands:
+		print('Exported compile_commands.json')
+		exit()
+
+	#endregion
+
+	#region Build the necessary object files
+
+	from subprocess import check_output as subprocess_check_output
+
+	for i, cpp_path in enumerate(cpp_path_to_build_list):
 		built_obj_path = '{0}/{1}.o'.format(BUILD_PATH, cpp_path)
 
 		os.makedirs(os.path.dirname(built_obj_path), exist_ok=True)
 
-		command = 'g++ {0} -c -o {1} {2} {3} {4}'.format(MY_FLAGS, built_obj_path, cpp_path, SFML_FLAGS, INCLUDE_FLAGS)
+		command = '{0} {1} -c -o {2} {3} {4} {5}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, OTHER_FLAGS, INCLUDE_FLAGS)
 
-		print('%{0:} : {1}'.format(i * 100 // (len(cpp_path_to_build_list) + 1), built_obj_path))
+		print('[{0:3}%] {1}'.format(i * 100 // (len(cpp_path_to_build_list) + 1), built_obj_path))
 
 		try:
 			subprocess_check_output(command, shell=True)
@@ -149,26 +176,55 @@ else:
 		except:
 			pass
 
-#endregion
+	#endregion
 
-#region Build the executable
+	#region Build the executable
+
+	success = True
+
 	if len(cpp_path_to_build_list) != 0 or not os.path.exists(EXECUTABLE_PATH):
 		os.makedirs(BINARY_PATH, exist_ok=True)
 
 		full_obj_list = ' '.join(['{0}/{1}.o'.format(BUILD_PATH, cpp_path) for cpp_path in cpp_paths_set])
 
-		command = 'g++ {0} -o {1} {2} {3}'.format(MY_FLAGS, EXECUTABLE_PATH, full_obj_list, SFML_FLAGS)
+		command = '{0} {1} -o {2} {3} {4}'.format(COMPILER, MY_FLAGS, EXECUTABLE_PATH, full_obj_list, OTHER_FLAGS)
 
-		print('%{0} : {1}'.format(len(cpp_path_to_build_list) * 100 // (len(cpp_path_to_build_list) + 1), EXECUTABLE_PATH))
+		print('[{0:3}%] {1}'.format(len(cpp_path_to_build_list) * 100 // (len(cpp_path_to_build_list) + 1), EXECUTABLE_PATH))
 
 		try:
-			output = subprocess_check_output(command, shell=True)
+			subprocess_check_output(command, shell=True)
 		except:
-			pass
+			success = False
 
 	with open(STATUS_FILE_PATH, 'w') as status_file:
 		json_dump(current_status, status_file, indent=2)
 
-	print('Build finished!')
+	print('[100%] Build finished {0}! - {1}'.format('successfully' if success else 'badly', EXECUTABLE_PATH))
 
-#endregion
+	#endregion
+
+
+if __name__ == '__main__':
+	import argparse
+
+	argparser = argparse.ArgumentParser()
+	argparser.add_argument('-c', '--clean', action='store_true', help='Clean build directory')
+	argparser.add_argument('-b', '--build', action='store_true', help='Build the project')
+	argparser.add_argument('-r', '--rebuild', action='store_true', help='Clean build directory and build anew')
+	argparser.add_argument('-e', '--export_compile_commands', action='store_true', help='Export compile commands without building')
+
+	args = argparser.parse_args()
+	
+	import os
+
+	if args.clean == True:
+		clean_build_folder()
+	elif args.build == True:
+		build(args.export_compile_commands)
+	elif args.rebuild == True:
+		clean_build_folder()
+		build(args.export_compile_commands)
+	elif args.export_compile_commands == True:
+		build(True)
+	else:
+		print('No option given, aborting')
