@@ -198,7 +198,7 @@ def build(just_export_compile_commands=False):
 	if DO_RUN_CLANG_TIDY:
 		print('[{0:3}%] {1}'.format((operation_count - 1) * 100 // operation_count, 'clang-tidy'))
 
-		command = 'clang-tidy --config-file=.clang-tidy --format-style=file --quiet -p ./build/compile_commands.json ' + ' '.join(cpp_path_to_build_list)
+		command = 'clang-tidy --config-file=.clang-tidy --format-style=file -extra-arg=-std=c++17 --quiet -p=./build/compile_commands.json ' + ' '.join(cpp_path_to_build_list)
 		print(command)
 
 		try:
@@ -239,8 +239,8 @@ if __name__ == '__main__':
 	argparser.add_argument('-b', '--build', action='store_true', help='Build the project')
 	argparser.add_argument('-r', '--rebuild', action='store_true', help='Clean build directory and build anew')
 	argparser.add_argument('-e', '--export_compile_commands', action='store_true', help='Export compile commands without building')
-	argparser.add_argument('-ct', '--clang-tidy', choices='01', action='store', help='Run clang-tidy')
-	argparser.add_argument('-cf', '--clang-format', choices='01', action='store', help='Run clang-format')
+	argparser.add_argument('-ct', '--clang-tidy', choices='01', action='store', help='Whether to run clang-tidy')
+	argparser.add_argument('-cf', '--clang-format', choices='01', action='store', help='Whether to run clang-format')
 
 	args = argparser.parse_args()
 	

@@ -3,9 +3,11 @@
 
 #include <cstdint>
 
-enum class Substance : int8_t {
-  kNothing,
-  kSand,
+enum class Substance : uint8_t {
+  kNothing = 0,
+  kSand = 1,
 };
+
+constexpr bool IsSolid(Substance);
 
 #endif /* SUBSTANCE_HPP_ */

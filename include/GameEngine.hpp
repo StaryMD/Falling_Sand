@@ -13,17 +13,16 @@ class GameEngine {
  public:
   GameEngine() = delete;
 
-  GameEngine(const std::string& application_name, const int window_width, const int window_height);
+  GameEngine(const std::string& application_name, int window_width, int window_height);
 
-  GameEngine(const std::string& application_name);
+  explicit GameEngine(const std::string& application_name);
 
-  void setup();
-  void run();
+  void Setup();
+  void Run();
 
-  void handle_user_input();
-  void handle_events();
+  void HandleEvents();
 
-  void show_debug_info();
+  void ShowDebugInfo();
 
   ~GameEngine() = default;
 

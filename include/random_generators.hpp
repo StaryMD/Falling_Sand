@@ -7,7 +7,7 @@ class FastRng {
  public:
   FastRng();
 
-  int rand();
+  int NextRandValue();
 };
 
 #endif /* RANDOM_GENERATORS_HPP_ */

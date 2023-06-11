@@ -1,12 +1,15 @@
 #ifndef INPUT_HANDLER_HPP_
 #define INPUT_HANDLER_HPP_
 
+#include <array>
+
 #include <SFML/Graphics.hpp>
 
 class InputHandler {
  public:
   InputHandler();
 
+ private:
   bool mouseLEFT_is_pressed_;
   bool mouseRIGHT_is_pressed_;
 
@@ -16,10 +19,7 @@ class InputHandler {
   sf::Vector2i mouseLEFT_last_press_;
   sf::Vector2i mouseRIGHT_last_press_;
 
-  bool key_is_pressed_[sf::Keyboard::KeyCount];
-
-  void mouseLEFT_switch();
-  void mouseRIGHT_switch();
+  std::array<bool, sf::Keyboard::KeyCount> key_is_pressed_;
 };
 
 #endif /* INPUT_HANDLER_HPP_ */

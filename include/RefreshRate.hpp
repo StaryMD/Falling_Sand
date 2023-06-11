@@ -7,22 +7,22 @@
 
 #include "common_constants.hpp"
 
-constexpr float WANTED_SECONDS_PER_FRAME = 1.0f / WANTED_FRAMES_PER_SECOND;
+constexpr float kWantedSecondsPerFrame = 1.0F / kWantedFramesPerSecond;
 
 template <typename T>
 class RefreshRate {
  public:
   RefreshRate();
-  void reset();
+  void Reset();
 
-  T get_elapsed_time() const;
-  T get_time_since_last_frame() const;
-  void reset_time_since_last_frame();
+  T GetElapsedTime() const;
+  T GetTimeSinceLastFrame() const;
+  void ResetTimeSinceLastFrame();
 
-  std::pair<T, T> get_fps_info() const;
+  std::pair<T, T> GetFpsInfo() const;
 
  private:
-  sf::Clock start_clock;
+  sf::Clock start_clock_;
   sf::Clock last_frame_start_clock_;
 
   std::deque<T> past_fps_buffer_;
