@@ -5,8 +5,9 @@
 #include <vector>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Text.hpp>
 
-#include "InputHandler.hpp"
+#include "EventHandler.hpp"
 #include "RefreshRate.hpp"
 
 class GameEngine {
@@ -20,25 +21,36 @@ class GameEngine {
   void Setup();
   void Run();
 
-  void HandleEvents();
-
-  void ShowDebugInfo();
-
   ~GameEngine() = default;
 
  private:
+  void HandleInput();
+
+  void Draw();
+
+  void ShowDebugInfo();
+
+  std::string ConstructDebugText() const;
+
   std::string application_name_;
 
   sf::RenderWindow window_;
-  RefreshRate<float> refresh_rate_;
-  InputHandler input_handler_;
+  RefreshRate refresh_rate_;
+  EventHandler event_handler_;
 
   sf::Texture screen_texture_;
   sf::Sprite screen_sprite_;
   std::vector<sf::Uint8> screen_pixels_;
 
-  sf::Text fps_text_;
+  sf::Text text_;
   sf::Font font_;
+
+  bool do_show_debug_screen_{};
+  bool font_loaded_successfully_{};
+
+  double total_frame_elapsed_time_{};
+  double handle_events_elapsed_time_{};
+  double screen_update_elapsed_time_{};
 };
 
 #endif /* RENDERING_ENGINE_HPP_ */

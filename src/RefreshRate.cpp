@@ -1,49 +1,47 @@
 #include "RefreshRate.hpp"
+
 #include "CommonConstants.hpp"
 
-template <typename T>
-RefreshRate<T>::RefreshRate() {
+RefreshRate::RefreshRate() {
   Reset();
 }
 
-template <typename T>
-void RefreshRate<T>::Reset() {
-  start_clock_ = sf::Clock();
-  last_frame_start_clock_ = sf::Clock();
-  past_fps_buffer_ = std::deque<T>(kFpsBufferSize, 0.0F);
+bool RefreshRate::IsTimeForNewFrame() const {
+  return GetFrameElapsedTime() >= kWantedSecondsPerFrame;
 }
 
-template <typename T>
-T RefreshRate<T>::GetElapsedTime() const {
+void RefreshRate::Reset() {
+  frame_counter_ = 0;
+  start_clock_ = sf::Clock();
+  last_frame_start_clock_ = sf::Clock();
+  past_fps_buffer_.fill(0.0);
+}
+
+double RefreshRate::GetTotalElapsedTime() const {
   return start_clock_.getElapsedTime().asSeconds();
 }
 
-template <typename T>
-T RefreshRate<T>::GetTimeSinceLastFrame() const {
+double RefreshRate::GetFrameElapsedTime() const {
   return last_frame_start_clock_.getElapsedTime().asSeconds();
 }
 
-template <typename T>
-void RefreshRate<T>::ResetTimeSinceLastFrame() {
-  past_fps_buffer_.pop_front();
-  past_fps_buffer_.push_back(1.0F / GetTimeSinceLastFrame());
+void RefreshRate::ResetFrameTime() {
+  past_fps_buffer_[(frame_counter_++) % kFpsBufferSize] = static_cast<double>(1.0) / GetFrameElapsedTime();
 
   last_frame_start_clock_.restart();
 }
 
-template <typename T>
-std::pair<T, T> RefreshRate<T>::GetFpsInfo() const {
-  T min_fps = __FLT_MAX__;
-  T avg_fps = 0;
+std::pair<double, double> RefreshRate::GetFpsInfo() const {
+  double min_fps = __DBL_MAX__;
+  double avg_fps = static_cast<double>(0);
 
-  for (const T fps_count : past_fps_buffer_) {
+  for (const double fps_count : past_fps_buffer_) {
     min_fps = std::min(min_fps, fps_count);
     avg_fps += fps_count;
   }
 
-  avg_fps /= kFpsBufferSize;
+  const size_t cat = std::min(frame_counter_, kFpsBufferSize);
+  avg_fps /= static_cast<double>(cat);
 
   return {avg_fps, min_fps};
 }
-
-template class RefreshRate<float>;
