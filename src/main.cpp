@@ -1,5 +1,5 @@
+#include "CommonConstants.hpp"
 #include "GameEngine.hpp"
-#include "common_constants.hpp"
 
 int main() {
   GameEngine game_engine("Falling Sand Simulator", kWorldWidth, kWorldHeight);

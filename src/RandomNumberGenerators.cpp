@@ -1,4 +1,4 @@
-#include "random_generators.hpp"
+#include "RandomNumberGenerators.hpp"
 
 #include <cstdlib>
 #include <ctime>

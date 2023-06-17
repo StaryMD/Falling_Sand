@@ -1,5 +1,5 @@
 #include "RefreshRate.hpp"
-#include "common_constants.hpp"
+#include "CommonConstants.hpp"
 
 template <typename T>
 RefreshRate<T>::RefreshRate() {

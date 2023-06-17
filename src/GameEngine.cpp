@@ -2,6 +2,12 @@
 
 #include <cmath>
 #include <cstddef>
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <utility>
+
+#include "CommonUtility.hpp"
 #include "RefreshRate.hpp"
 
 GameEngine::GameEngine(const std::string& application_name, const int window_width, const int window_height)
@@ -23,75 +29,26 @@ void GameEngine::Setup() {
 
   screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) * 4U);
 
-  refresh_rate_.Reset();
-
   fps_text_.setFillColor(sf::Color::Green);
   fps_text_.setFont(font_);
   fps_text_.setCharacterSize(15U);  // NOLINT
+
+  refresh_rate_.Reset();
 }
 
 void GameEngine::Run() {
   while (window_.isOpen()) {
-    HandleEvents();
+    input_handler_.HandleEvents(window_);
 
     if (refresh_rate_.GetTimeSinceLastFrame() >= kWantedSecondsPerFrame) {
       refresh_rate_.ResetTimeSinceLastFrame();
-    }
-  }
-}
 
-void GameEngine::HandleEvents() {
-  while (window_.pollEvent(event_)) {
-    switch (event_.type) {
-      case sf::Event::Closed: {
-        window_.close();
-        break;
-      }
-        // case sf::Event::MouseButtonPressed: {
-        //   switch (event_.mouseButton.button) {
-        //     case sf::Mouse::Left:
+      if (input_handler_.IsMouseButtonPressed(sf::Mouse::Button::Left)) {
+        const std::pair<sf::Vector2i, sf::Vector2i> drag = input_handler_.GetMouseMovement();
 
-        //       break;
-        //     case sf::Mouse::Right:
-
-        //       break;
-        //     default: {
-        //       // NOTHING
-        //     }
-        //   }
-        //   break;
-        // }
-        // case sf::Event::MouseButtonReleased: {
-        //   switch (event_.mouseButton.button) {
-        //     case sf::Mouse::Left:
-
-        //       break;
-        //     case sf::Mouse::Right:
-
-        //       break;
-        //     default: {
-        //       // NOTHING
-        //     }
-        //   }
-        //   break;
-        // }
-        // case sf::Event::KeyPressed: {
-        //   if (event_.key.code != sf::Keyboard::Key::Unknown) {
-
-        //   }
-        //   break;
-        // }
-        // case sf::Event::KeyReleased: {
-        //   if (event_.key.code != sf::Keyboard::Key::Unknown) {
-
-        //   }
-        //   break;
-        // }
-        // default: {
-        //   // NOTHING
-        // }
-      default: {
-        // NOTHING
+        ExecuteInALine(drag.first, drag.second, [](const float point_on_line_x, const float point_on_line_y) {
+          printf("%f %f\n", point_on_line_x, point_on_line_y);
+        });
       }
     }
   }

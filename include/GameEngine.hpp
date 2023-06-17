@@ -33,8 +33,6 @@ class GameEngine {
   RefreshRate<float> refresh_rate_;
   InputHandler input_handler_;
 
-  sf::Event event_;
-
   sf::Texture screen_texture_;
   sf::Sprite screen_sprite_;
   std::vector<sf::Uint8> screen_pixels_;

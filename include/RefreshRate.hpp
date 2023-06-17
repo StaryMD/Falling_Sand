@@ -5,7 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "common_constants.hpp"
+#include "CommonConstants.hpp"
 
 constexpr float kWantedSecondsPerFrame = 1.0F / kWantedFramesPerSecond;
 
@@ -15,11 +15,11 @@ class RefreshRate {
   RefreshRate();
   void Reset();
 
-  T GetElapsedTime() const;
-  T GetTimeSinceLastFrame() const;
+  [[nodiscard]] T GetElapsedTime() const;
+  [[nodiscard]] T GetTimeSinceLastFrame() const;
   void ResetTimeSinceLastFrame();
 
-  std::pair<T, T> GetFpsInfo() const;
+  [[nodiscard]] std::pair<T, T> GetFpsInfo() const;
 
  private:
   sf::Clock start_clock_;
