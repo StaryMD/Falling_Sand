@@ -1,11 +1,13 @@
 #ifndef ELEMENT_HPP_
 #define ELEMENT_HPP_
 
-#include "Substance.hpp"
+#include <SFML/Graphics/Color.hpp>
+
+#include "world/Substance.hpp"
 
 class Element {
  public:
-  Element() = delete;
+  Element() : substance_(Substance::kNothing) {}
 
   Element(const Element&) = default;
   Element(Element&&) = default;

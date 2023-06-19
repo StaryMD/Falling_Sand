@@ -53,7 +53,7 @@ def build(just_export_compile_commands=False):
 
     for hpp_path in hpp_paths_set:
       hpp_direct_dependencies[hpp_path] = set(INCLUDE_DIR + '/' + dep for dep in read_direct_dependencies(hpp_path))
-
+    
     for cpp_path in cpp_paths_set:
       while True:
         new_dependencies: set[str] = set()
@@ -237,7 +237,7 @@ def build(just_export_compile_commands=False):
     if COPY_ASSETS_FOLDER:
       from shutil import copytree as shutil_copytree
 
-      BUILD_ASSETS_FOLDER = EXECUTABLE_PATH + '/' + ASSETS_FOLDER
+      BUILD_ASSETS_FOLDER = BINARY_PATH + '/' + ASSETS_FOLDER
       
       shutil_copytree(ASSETS_FOLDER, BUILD_ASSETS_FOLDER, dirs_exist_ok=True)
 
