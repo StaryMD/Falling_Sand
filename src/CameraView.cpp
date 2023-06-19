@@ -24,16 +24,27 @@ CameraView::CameraView(const sf::Vector2u max_size, const sf::Vector2u size, con
 }
 
 void CameraView::Zoom(const float delta, const sf::Vector2i location) {
+  const sf::Vector2<double> mapped_location = MapPixelToCoords(location);
+
   const double prev_zoom_level = GetZoomLevel();
   zoom_level_ = std::clamp(zoom_level_ + static_cast<int>(delta), 0, kZoomLevelCount - 1);
 
   const double ratio = prev_zoom_level / GetZoomLevel();
 
+  if (ratio == 1.0) {
+    return;
+  }
+
   field_of_view_.width = field_of_view_.width * ratio;
   field_of_view_.height = field_of_view_.height * ratio;
 
-  field_of_view_.left += (location.x / GetZoomLevel() - field_of_view_.left) * ratio;
-  field_of_view_.top += (location.y / GetZoomLevel() - field_of_view_.top) * ratio;
+  if (ratio > 1.0) {
+    field_of_view_.left -= (mapped_location.x - field_of_view_.left) * (ratio - 1.0);
+    field_of_view_.top -= (mapped_location.y - field_of_view_.top) * (ratio - 1.0);
+  } else {
+    field_of_view_.left += (mapped_location.x - field_of_view_.left) * ratio;
+    field_of_view_.top += (mapped_location.y - field_of_view_.top) * ratio;
+  }
 
   field_of_view_.left = std::clamp(field_of_view_.left, 0.0, static_cast<double>(max_size_.x) - field_of_view_.width);
   field_of_view_.top = std::clamp(field_of_view_.top, 0.0, static_cast<double>(max_size_.y) - field_of_view_.height);
@@ -45,6 +56,13 @@ void CameraView::MovePosition(const sf::Vector2i delta) {
 
   field_of_view_.left = std::clamp(field_of_view_.left, 0.0, static_cast<double>(max_size_.x) - field_of_view_.width);
   field_of_view_.top = std::clamp(field_of_view_.top, 0.0, static_cast<double>(max_size_.y) - field_of_view_.height);
+}
+
+sf::Vector2<double> CameraView::MapPixelToCoords(const sf::Vector2i position) const {
+  sf::Vector2<double> camera_position{field_of_view_.left, field_of_view_.top};
+  sf::Vector2<double> local_position{static_cast<double>(position.x), static_cast<double>(position.y)};
+
+  return camera_position + local_position / GetZoomLevel();
 }
 
 double CameraView::GetZoomLevel() const {

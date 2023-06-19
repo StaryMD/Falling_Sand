@@ -18,7 +18,7 @@ class CameraView {
 
   void MovePosition(sf::Vector2i delta);
 
-  [[nodiscard]] double GetZoomLevel() const;
+  [[nodiscard]] sf::Vector2<double> MapPixelToCoords(sf::Vector2i position) const;
 
   [[nodiscard]] sf::Rect<double> GetFieldOfView() const;
 
@@ -27,8 +27,10 @@ class CameraView {
   sf::Rect<double> field_of_view_;
   int zoom_level_;
 
-  static constexpr int kZoomLevelCount = 7;
-  static constexpr std::array<double, kZoomLevelCount> kZoomLevels{1.0, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0};
+  [[nodiscard]] double GetZoomLevel() const;
+
+  static constexpr int kZoomLevelCount = 6;
+  static constexpr std::array<double, kZoomLevelCount> kZoomLevels{1.0, 2.0, 4.0, 8.0, 16.0, 32.0};
 };
 
 #endif /* CAMERA_VIEW_HPP_ */

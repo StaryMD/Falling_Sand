@@ -14,23 +14,16 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include "CameraView.hpp"
+#include "CommonConstants.hpp"
 #include "CommonUtility.hpp"
 #include "FallingSandEngine.hpp"
 #include "RefreshRate.hpp"
 
-GameEngine::GameEngine(const std::string& application_name, const unsigned window_width, const unsigned window_height)
-    : application_name_(application_name),
-      window_(sf::VideoMode(window_width, window_height), application_name_),
-      sand_engine_(window_.getSize()),
-      camera_view_(window_.getSize(), window_.getSize(), window_.getSize() / 2U) {
-  Setup();
-}
-
 GameEngine::GameEngine(const std::string& application_name)
     : application_name_(application_name),
       window_(sf::VideoMode::getDesktopMode(), application_name_, sf::Style::Fullscreen),
-      sand_engine_(window_.getSize()),
-      camera_view_(window_.getSize(), window_.getSize(), window_.getSize() / 2U) {
+      sand_engine_(sf::Vector2u(kWorldWidth, kWorldHeight)),
+      camera_view_(sf::Vector2u(kWorldWidth, kWorldHeight), window_.getSize(), window_.getSize() / 2U) {
   Setup();
 }
 
@@ -80,6 +73,10 @@ void GameEngine::HandleInput() {
   sf::Clock timer;
 
   event_handler_.HandleEvents(window_);
+
+  if (event_handler_.IsKeyPressed(sf::Keyboard::Key::Escape)) {
+    window_.close();
+  }
 
   if (event_handler_.GetMouseWheelScrollDelta() != 0) {
     camera_view_.Zoom(event_handler_.GetMouseWheelScrollDelta(), event_handler_.GetMouseScrollWheelLocation());
@@ -133,6 +130,7 @@ std::string GameEngine::ConstructDebugText() const {
   const double compute_elapsed_time = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
 
   const sf::Vector2i mouse_position = ToVector2i(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
+  const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
   const sf::Rect<double> camera_fov = camera_view_.GetFieldOfView();
 
   std::ostringstream debug_string;
@@ -149,8 +147,9 @@ std::string GameEngine::ConstructDebugText() const {
                << "TOTAL DRAW %: " << screen_update_elapsed_time << '\n'
                << "TOTAL COMP %: " << compute_elapsed_time << '\n'
                << '\n'
+               << "MOUSE PIXEL : " << mouse_position.x << ' ' << mouse_position.y << '\n'
                << "CAMERA POS : " << camera_fov.left << ' ' << camera_fov.top << '\n'
-               << "MOUSE POS : " << mouse_position.x << ' ' << mouse_position.y << '\n';
+               << "MOUSE COORD : " << mouse_coord.x << ' ' << mouse_coord.y << '\n';
 
   return debug_string.str();
 }

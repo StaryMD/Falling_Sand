@@ -3,8 +3,8 @@
 
 #include <corecrt.h>
 
-constexpr int kWorldWidth = 1600;
-constexpr int kWorldHeight = 800;
+constexpr unsigned kWorldWidth = 5000;
+constexpr unsigned kWorldHeight = 5000;
 
 constexpr int kChunkSize = 16;
 constexpr int kChunkNumWidth = kWorldWidth / kChunkSize;
