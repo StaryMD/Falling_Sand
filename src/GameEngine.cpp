@@ -76,30 +76,31 @@ void GameEngine::HandleInput() {
 
   event_handler_.HandleEvents(window_);
 
-  if (event_handler_.IsKeyPressed(sf::Keyboard::Key::Escape)) {
-    window_.close();
+  if (window_.hasFocus()) {
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Key::Escape)) {
+      window_.close();
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F3)) {
+      do_show_debug_screen_ = !do_show_debug_screen_;
+    }
+
+    if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {
+      const auto drag = event_handler_.GetMouseMovement();
+
+      sand_engine_.PlaceElementInLine(ToVector2<int>(camera_view_.MapPixelToCoords(drag.first)),
+                                      ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)),
+                                      engine::Substance::kSand);
+    }
+
+    if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {
+      camera_view_.MovePosition(event_handler_.GetMouseMovementDelta());
+    }
+
+    if (event_handler_.GetMouseWheelScrollDelta() != 0) {
+      camera_view_.Zoom(event_handler_.GetMouseWheelScrollDelta(), event_handler_.GetMouseScrollWheelLocation());
+    }
   }
-
-  if (event_handler_.GetMouseWheelScrollDelta() != 0) {
-    camera_view_.Zoom(event_handler_.GetMouseWheelScrollDelta(), event_handler_.GetMouseScrollWheelLocation());
-  }
-
-  if (event_handler_.IsKeyPressed(sf::Keyboard::F3)) {
-    do_show_debug_screen_ = !do_show_debug_screen_;
-  }
-
-  if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {
-    const auto drag = event_handler_.GetMouseMovement();
-
-    sand_engine_.PlaceElementInLine(ToVector2<int>(camera_view_.MapPixelToCoords(drag.first)),
-                                    ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)),
-                                    engine::Substance::kSand);
-  }
-
-  if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {
-    camera_view_.MovePosition(event_handler_.GetMouseMovementDelta());
-  }
-
   handle_events_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
 

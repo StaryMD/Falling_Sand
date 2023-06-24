@@ -48,7 +48,7 @@ class EventHandler {
 
   void SetMouseButtonUp(sf::Mouse::Button mouse_button);
   void SetMouseButtonDown(sf::Mouse::Button mouse_button);
-  void UpdateMouseLocation(sf::Vector2i location);
+  void UpdateMouseLocation();
 
   sf::Vector2i mouse_location_;
   sf::Vector2i prev_mouse_location_;
@@ -63,7 +63,7 @@ class EventHandler {
   std::array<bool, sf::Mouse::ButtonCount> mouse_button_was_down_;
 
   std::vector<sf::Keyboard::Key> keys_to_update_;
-  std::vector<sf::Keyboard::Key> mouse_buttons_to_update_;
+  std::vector<sf::Mouse::Button> mouse_buttons_to_update_;
 };
 
 #endif /* INPUT_HANDLER_HPP_ */

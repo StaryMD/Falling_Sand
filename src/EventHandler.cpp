@@ -2,6 +2,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Mouse.hpp>
 
 #include "CameraView.hpp"
 
@@ -12,12 +13,12 @@ void EventHandler::HandleEvents(sf::RenderWindow& window) {
   }
 
   for (int i = static_cast<int>(mouse_buttons_to_update_.size()) - 1; i >= 0; --i) {
-    key_was_down_[mouse_buttons_to_update_[i]] = key_is_down_[mouse_buttons_to_update_[i]];
+    mouse_button_was_down_[mouse_buttons_to_update_[i]] = mouse_button_is_down_[mouse_buttons_to_update_[i]];
     mouse_buttons_to_update_.pop_back();
   }
 
   mouse_wheel_scroll_delta_ = 0;
-  prev_mouse_location_ = mouse_location_;
+  UpdateMouseLocation();
 
   for (sf::Event event; window.pollEvent(event);) {
     switch (event.type) {
@@ -28,27 +29,25 @@ void EventHandler::HandleEvents(sf::RenderWindow& window) {
       case sf::Event::KeyPressed: {
         if (event.key.code != sf::Keyboard::Key::Unknown) {
           SetKeyDown(event.key.code);
-          keys_to_update_.push_back((event.key.code));
+          keys_to_update_.push_back(event.key.code);
         }
         break;
       }
       case sf::Event::KeyReleased: {
         if (event.key.code != sf::Keyboard::Key::Unknown) {
           SetKeyUp(event.key.code);
-          keys_to_update_.push_back((event.key.code));
+          keys_to_update_.push_back(event.key.code);
         }
         break;
       }
       case sf::Event::MouseButtonPressed: {
         SetMouseButtonUp(event.mouseButton.button);
+        mouse_buttons_to_update_.push_back(event.mouseButton.button);
       } break;
       case sf::Event::MouseButtonReleased: {
         SetMouseButtonDown(event.mouseButton.button);
+        mouse_buttons_to_update_.push_back(event.mouseButton.button);
       } break;
-      case sf::Event::MouseMoved: {
-        UpdateMouseLocation(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
-        break;
-      }
       case sf::Event::MouseWheelScrolled: {
         mouse_wheel_scroll_delta_ = event.mouseWheelScroll.delta;
         mouse_wheel_scroll_location_ = {event.mouseWheelScroll.x, event.mouseWheelScroll.y};
@@ -117,9 +116,9 @@ bool EventHandler::IsMouseButtonReleased(sf::Keyboard::Key mouse_button) const {
   return !mouse_button_is_down_[mouse_button] && mouse_button_was_down_[mouse_button];
 }
 
-void EventHandler::UpdateMouseLocation(const sf::Vector2i location) {
+void EventHandler::UpdateMouseLocation() {
   prev_mouse_location_ = mouse_location_;
-  mouse_location_ = location;
+  mouse_location_ = sf::Mouse::getPosition();
 }
 
 std::pair<sf::Vector2i, sf::Vector2i> EventHandler::GetMouseMovement() const {

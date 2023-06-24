@@ -12,7 +12,7 @@
 World::World(const sf::Vector2i size) : size_(size) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {
-    element = Element(engine::Substance::kAir);
+    element = Element(engine::Substance::kNothing);
   }
 }
 
