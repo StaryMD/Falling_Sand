@@ -15,10 +15,11 @@ enum class Substance : uint8_t {
   kStone = 3,
   kWater = 4,
 
-  kSubstanceCount
+  kSubstanceCount,
+  kInvalid,
 };
 
-constexpr bool IsSolid(Substance);
+bool IsSolid(Substance);
 
 }  // namespace engine
 

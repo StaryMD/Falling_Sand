@@ -1,17 +1,19 @@
 #include "CameraView.hpp"
 
-#include <algorithm>
-
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include "CommonUtility.hpp"
+
 CameraView::CameraView(const sf::Vector2i max_size, const sf::Vector2i size, const sf::Vector2i pos_center)
-    : max_size_(max_size), zoom_level_(kStartingZoomLevel) {
+    : max_size_(max_size), zoom_level_(0) {
   const sf::Vector2<double> local_size = {static_cast<double>(size.x), static_cast<double>(size.y)};
   const sf::Vector2<double> local_pos_center = {static_cast<double>(pos_center.x), static_cast<double>(pos_center.y)};
 
   constexpr double kHalf = 0.5;
   field_of_view_ = sf::Rect<double>(local_pos_center - local_size * kHalf, local_size);
+
+  Zoom(kStartingZoomLevel, pos_center);
 }
 
 CameraView::CameraView(const sf::Vector2u max_size, const sf::Vector2u size, const sf::Vector2u pos_center)
@@ -21,6 +23,8 @@ CameraView::CameraView(const sf::Vector2u max_size, const sf::Vector2u size, con
 
   constexpr double kHalf = 0.5;
   field_of_view_ = sf::Rect<double>(local_pos_center - local_size * kHalf, local_size);
+
+  Zoom(kStartingZoomLevel, ToVector2<int>(pos_center));
 }
 
 void CameraView::Zoom(const float delta, const sf::Vector2i location) {

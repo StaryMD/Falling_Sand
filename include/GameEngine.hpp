@@ -52,6 +52,7 @@ class GameEngine {
   sf::Font font_;
 
   bool do_show_debug_screen_{true};
+
   bool font_loaded_successfully_{};
 
   double total_frame_elapsed_time_{};

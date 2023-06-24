@@ -34,6 +34,8 @@ class World {
   sf::Vector2i size_;
 
   std::vector<Element> elements_;
+
+  [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
 };
 
 #endif /* WORLD_HPP_ */
