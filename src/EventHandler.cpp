@@ -12,7 +12,7 @@ void EventHandler::HandleEvents(sf::RenderWindow& window) {
   }
 
   for (int i = static_cast<int>(mouse_buttons_to_update_.size()) - 1; i >= 0; --i) {
-    key_was_down_[mouse_buttons_to_update_[i]] = key_is_down_[mouse_buttons_to_update_[i]];
+    mouse_button_was_down_[mouse_buttons_to_update_[i]] = mouse_button_is_down_[mouse_buttons_to_update_[i]];
     mouse_buttons_to_update_.pop_back();
   }
 
@@ -28,25 +28,27 @@ void EventHandler::HandleEvents(sf::RenderWindow& window) {
       case sf::Event::KeyPressed: {
         if (event.key.code != sf::Keyboard::Key::Unknown) {
           SetKeyDown(event.key.code);
-          keys_to_update_.push_back((event.key.code));
+          keys_to_update_.push_back(event.key.code);
         }
         break;
       }
       case sf::Event::KeyReleased: {
         if (event.key.code != sf::Keyboard::Key::Unknown) {
           SetKeyUp(event.key.code);
-          keys_to_update_.push_back((event.key.code));
+          keys_to_update_.push_back(event.key.code);
         }
         break;
       }
       case sf::Event::MouseButtonPressed: {
         SetMouseButtonUp(event.mouseButton.button);
+        mouse_buttons_to_update_.push_back(event.mouseButton.button);
       } break;
       case sf::Event::MouseButtonReleased: {
         SetMouseButtonDown(event.mouseButton.button);
+        mouse_buttons_to_update_.push_back(event.mouseButton.button);
       } break;
       case sf::Event::MouseMoved: {
-        UpdateMouseLocation(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
+        UpdateMouseLocation({event.mouseMove.x, event.mouseMove.y});
         break;
       }
       case sf::Event::MouseWheelScrolled: {

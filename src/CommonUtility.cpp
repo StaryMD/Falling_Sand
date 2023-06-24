@@ -16,7 +16,7 @@ void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point
   float point_on_line_x = static_cast<float>(start_point.x);
   float point_on_line_y = static_cast<float>(start_point.y);
 
-  for (int i = 0; i < step_count; i++) {
+  for (int i = 0; i <= step_count; i++) {
     do_function(point_on_line_x, point_on_line_y);
     point_on_line_x += move_x;
     point_on_line_y += move_y;

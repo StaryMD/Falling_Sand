@@ -63,7 +63,7 @@ class EventHandler {
   std::array<bool, sf::Mouse::ButtonCount> mouse_button_was_down_;
 
   std::vector<sf::Keyboard::Key> keys_to_update_;
-  std::vector<sf::Keyboard::Key> mouse_buttons_to_update_;
+  std::vector<sf::Mouse::Button> mouse_buttons_to_update_;
 };
 
 #endif /* INPUT_HANDLER_HPP_ */
