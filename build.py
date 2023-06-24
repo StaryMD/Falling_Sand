@@ -234,12 +234,12 @@ def build(just_export_compile_commands=False):
 
   #region Copy assets folder
   
-    if COPY_ASSETS_FOLDER:
-      from shutil import copytree as shutil_copytree
+  if COPY_ASSETS_FOLDER:
+    from shutil import copytree as shutil_copytree
 
-      BUILD_ASSETS_FOLDER = BINARY_PATH + '/' + ASSETS_FOLDER
-      
-      shutil_copytree(ASSETS_FOLDER, BUILD_ASSETS_FOLDER, dirs_exist_ok=True)
+    BUILD_ASSETS_FOLDER = BINARY_PATH + '/' + ASSETS_FOLDER
+    
+    shutil_copytree(ASSETS_FOLDER, BUILD_ASSETS_FOLDER, dirs_exist_ok=True)
 
   #endregion
 

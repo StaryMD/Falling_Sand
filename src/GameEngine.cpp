@@ -1,9 +1,5 @@
 #include "GameEngine.hpp"
 
-#include <SFML/Graphics/Transformable.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Window/Mouse.hpp>
 #include <cmath>
 #include <cstddef>
 #include <iomanip>
@@ -12,6 +8,10 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Transformable.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Mouse.hpp>
 
 #include "CameraView.hpp"
 #include "CommonConstants.hpp"
@@ -22,8 +22,9 @@
 GameEngine::GameEngine(const std::string& application_name)
     : application_name_(application_name),
       window_(sf::VideoMode::getDesktopMode(), application_name_, sf::Style::Fullscreen),
-      sand_engine_(sf::Vector2u(kWorldWidth, kWorldHeight)),
-      camera_view_(sf::Vector2u(kWorldWidth, kWorldHeight), window_.getSize(), window_.getSize() / 2U) {
+      sand_engine_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight)),
+      camera_view_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize(),
+                   window_.getSize() / 2U) {
   Setup();
 }
 
@@ -95,7 +96,7 @@ void GameEngine::HandleInput() {
   }
 
   if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {
-    camera_view_.MovePosition(event_handler_.GetMouseMovement().first - event_handler_.GetMouseMovement().second);
+    camera_view_.MovePosition(event_handler_.GetMouseMovementDelta());
   }
 
   handle_events_elapsed_time_ = timer.getElapsedTime().asSeconds();
@@ -124,7 +125,7 @@ void GameEngine::ShowDebugInfo() {
 std::string GameEngine::ConstructDebugText() const {
   const auto [avg_fps, min_fps] = refresh_rate_.GetFpsInfo();
   const double total_frame_elapsed_time = total_frame_elapsed_time_;
-  const double total_frame_percentage = total_frame_elapsed_time_ / kWantedSecondsPerFrame * 100.0;
+  const double total_frame_percentage = total_frame_elapsed_time_ / constants::kWantedSecondsPerFrame * 100.0;
   // const double handle_events_elapsed_time = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double screen_update_elapsed_time = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double compute_elapsed_time = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
@@ -134,7 +135,7 @@ std::string GameEngine::ConstructDebugText() const {
   const sf::Rect<double> camera_fov = camera_view_.GetFieldOfView();
 
   std::ostringstream debug_string;
-  debug_string << std::setprecision(kDebugRealDigitCount) << std::fixed;
+  debug_string << std::setprecision(constants::kDebugDigitPrecision) << std::fixed;
 
   debug_string << "FC: " << refresh_rate_.GetFrameCount() << '\n'
                << '\n'

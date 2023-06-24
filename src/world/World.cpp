@@ -1,17 +1,18 @@
 #include "world/World.hpp"
 
-#include <SFML/Graphics/Color.hpp>
 #include <cstdlib>
 
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include "CommonConstants.hpp"
 #include "world/Element.hpp"
 #include "world/Substance.hpp"
 
 World::World(const sf::Vector2i size) : size_(size) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {
-    element = Element(static_cast<Substance>(rand() % kSubstanceCount));
+    element = Element(static_cast<engine::Substance>(rand() % engine::kSubstanceCount));
   }
 }
 
@@ -26,19 +27,8 @@ Element World::GetElementAt(const sf::Vector2i pos) const {
   return GetElementAt(index);
 }
 
-const std::vector<sf::Color> kColors{
-    sf::Color(150, 0, 0),
-    sf::Color(255 / kSubstanceCount * static_cast<int>(Substance::kSubs1)),
-    sf::Color(255 / kSubstanceCount * static_cast<int>(Substance::kSubs2)),
-    sf::Color(255 / kSubstanceCount * static_cast<int>(Substance::kSubs3)),
-    sf::Color(255 / kSubstanceCount * static_cast<int>(Substance::kSubs4)),
-    sf::Color(255 / kSubstanceCount * static_cast<int>(Substance::kSubs5)),
-    sf::Color(255 / kSubstanceCount * static_cast<int>(Substance::kSubs6)),
-    sf::Color(255 / kSubstanceCount * static_cast<int>(Substance::kSubs7)),
-};
-
 sf::Color World::GetColorAt(const size_t index) const {
-  return kColors[static_cast<int>(GetElementAt(index).GetSubstance())];
+  return ColorOf(GetElementAt(index).GetSubstance());
 }
 
 sf::Color World::GetColorAt(sf::Vector2i pos) const {

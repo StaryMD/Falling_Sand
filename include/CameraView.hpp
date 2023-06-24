@@ -1,9 +1,9 @@
 #ifndef CAMERA_VIEW_HPP_
 #define CAMERA_VIEW_HPP_
 
-#include <SFML/Graphics/Rect.hpp>
 #include <array>
 
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
 class CameraView {

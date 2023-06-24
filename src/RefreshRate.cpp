@@ -7,7 +7,7 @@ RefreshRate::RefreshRate() {
 }
 
 bool RefreshRate::IsTimeForNewFrame() const {
-  return GetFrameElapsedTime() >= kWantedSecondsPerFrame;
+  return GetFrameElapsedTime() >= constants::kWantedSecondsPerFrame;
 }
 
 void RefreshRate::Reset() {
@@ -26,7 +26,7 @@ double RefreshRate::GetFrameElapsedTime() const {
 }
 
 void RefreshRate::ResetFrameTime() {
-  past_fps_buffer_[(frame_counter_++) % kFpsBufferSize] = static_cast<double>(1.0) / GetFrameElapsedTime();
+  past_fps_buffer_[(frame_counter_++) % constants::kFpsBufferSize] = static_cast<double>(1.0) / GetFrameElapsedTime();
 
   last_frame_start_clock_.restart();
 }
@@ -40,7 +40,7 @@ std::pair<double, double> RefreshRate::GetFpsInfo() const {
     avg_fps += fps_count;
   }
 
-  const size_t cat = std::min(frame_counter_, kFpsBufferSize);
+  const size_t cat = std::min(frame_counter_, constants::kFpsBufferSize);
   avg_fps /= static_cast<double>(cat);
 
   return {avg_fps, min_fps};

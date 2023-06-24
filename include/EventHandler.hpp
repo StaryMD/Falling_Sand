@@ -40,6 +40,8 @@ class EventHandler {
 
   [[nodiscard]] std::pair<sf::Vector2i, sf::Vector2i> GetMouseMovement() const;
 
+  [[nodiscard]] sf::Vector2i GetMouseMovementDelta() const;
+
  private:
   void SetKeyDown(sf::Keyboard::Key key_code);
   void SetKeyUp(sf::Keyboard::Key key_code);

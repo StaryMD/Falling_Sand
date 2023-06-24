@@ -8,8 +8,6 @@
 
 #include "CommonConstants.hpp"
 
-constexpr double kWantedSecondsPerFrame = 1.0 / kWantedFramesPerSecond;
-
 class RefreshRate {
  public:
   using Frame_counter_t = uint64_t;
@@ -35,7 +33,7 @@ class RefreshRate {
   sf::Clock start_clock_;
   sf::Clock last_frame_start_clock_;
 
-  std::array<double, kFpsBufferSize> past_fps_buffer_;
+  std::array<double, constants::kFpsBufferSize> past_fps_buffer_;
 };
 
 #endif /* REFRESH_RATE_HPP_ */

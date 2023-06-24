@@ -7,19 +7,19 @@
 
 class Element {
  public:
-  Element() : substance_(Substance::kNothing) {}
+  Element() : substance_(engine::Substance::kNothing) {}
 
   Element(const Element&) = default;
   Element(Element&&) = default;
   Element& operator=(const Element&) = default;
   Element& operator=(Element&&) = default;
 
-  explicit Element(const Substance subs) : substance_(subs) {}
+  explicit Element(const engine::Substance subs) : substance_(subs) {}
 
-  [[nodiscard]] Substance GetSubstance() const { return substance_; }
+  [[nodiscard]] engine::Substance GetSubstance() const { return substance_; }
 
  private:
-  Substance substance_;
+  engine::Substance substance_;
 };
 
 #endif /* ELEMENT_HPP_ */

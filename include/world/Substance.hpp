@@ -2,6 +2,11 @@
 #define SUBSTANCE_HPP_
 
 #include <cstdint>
+#include <vector>
+
+#include <SFML/Graphics/Color.hpp>
+
+namespace engine {
 
 enum class Substance : uint8_t {
   kNothing = 0,
@@ -16,6 +21,10 @@ enum class Substance : uint8_t {
 
 constexpr int kSubstanceCount = 7;
 
+sf::Color ColorOf(Substance substance);
+
 constexpr bool IsSolid(Substance);
+
+}  // namespace engine
 
 #endif /* SUBSTANCE_HPP_ */

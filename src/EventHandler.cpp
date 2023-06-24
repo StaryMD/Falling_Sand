@@ -2,6 +2,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
+
 #include "CameraView.hpp"
 
 void EventHandler::HandleEvents(sf::RenderWindow& window) {
@@ -131,4 +132,8 @@ float EventHandler::GetMouseWheelScrollDelta() const {
 
 sf::Vector2i EventHandler::GetMouseScrollWheelLocation() const {
   return mouse_wheel_scroll_location_;
+}
+
+sf::Vector2i EventHandler::GetMouseMovementDelta() const {
+  return prev_mouse_location_ - mouse_location_;
 }
