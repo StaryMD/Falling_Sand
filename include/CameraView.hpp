@@ -29,7 +29,10 @@ class CameraView {
 
   [[nodiscard]] double GetZoomLevel() const;
 
+  void ClampViewToMaxSize();
+
   static constexpr int kZoomLevelCount = 6;
+  static constexpr int kStartingZoomLevel = 2;
   static constexpr std::array<double, kZoomLevelCount> kZoomLevels{1.0, 2.0, 4.0, 8.0, 16.0, 32.0};
 };
 

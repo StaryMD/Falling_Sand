@@ -18,6 +18,8 @@ class Element {
 
   [[nodiscard]] engine::Substance GetSubstance() const { return substance_; }
 
+  [[nodiscard]] sf::Color GetColor() const;
+
  private:
   engine::Substance substance_;
 };

@@ -5,12 +5,12 @@
 
 namespace constants {
 
-constexpr unsigned kWorldWidth = 2000;
-constexpr unsigned kWorldHeight = 2000;
-
 constexpr int kChunkSize = 16;
-constexpr int kChunkNumWidth = kWorldWidth / kChunkSize;
-constexpr int kChunkNumHeight = kWorldHeight / kChunkSize;
+constexpr int kChunkNumHorizontal = 200;
+constexpr int kChunkNumVertical = 200;
+
+constexpr unsigned kWorldWidth = kChunkSize * kChunkNumHorizontal;
+constexpr unsigned kWorldHeight = kChunkSize * kChunkNumVertical;
 
 constexpr double kWantedFramesPerSecond = 60.0F;
 constexpr size_t kFpsBufferSize = 120;

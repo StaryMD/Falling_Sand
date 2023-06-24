@@ -22,3 +22,7 @@ void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point
     point_on_line_y += move_y;
   }
 }
+
+sf::Vector2i ToVector2i(const sf::Vector2f vector) {
+  return {static_cast<int>(vector.x), static_cast<int>(vector.y)};
+}

@@ -10,18 +10,13 @@ namespace engine {
 
 enum class Substance : uint8_t {
   kNothing = 0,
-  kSubs1 = 1,
-  kSubs2 = 2,
-  kSubs3 = 3,
-  kSubs4 = 4,
-  kSubs5 = 5,
-  kSubs6 = 6,
-  kSubs7 = 7,
+  kAir = 1,
+  kSand = 2,
+  kStone = 3,
+  kWater = 4,
+
+  kSubstanceCount
 };
-
-constexpr int kSubstanceCount = 7;
-
-sf::Color ColorOf(Substance substance);
 
 constexpr bool IsSolid(Substance);
 

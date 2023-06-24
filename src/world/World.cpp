@@ -12,7 +12,7 @@
 World::World(const sf::Vector2i size) : size_(size) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {
-    element = Element(static_cast<engine::Substance>(rand() % engine::kSubstanceCount));
+    element = Element(engine::Substance::kNothing);
   }
 }
 
@@ -28,18 +28,10 @@ Element World::GetElementAt(const sf::Vector2i pos) const {
 }
 
 sf::Color World::GetColorAt(const size_t index) const {
-  return ColorOf(GetElementAt(index).GetSubstance());
+  return GetElementAt(index).GetColor();
 }
 
 sf::Color World::GetColorAt(sf::Vector2i pos) const {
-  if (pos.x < 0 || pos.y < 0 || pos.x >= size_.x || pos.y >= size_.y) {
-    pos /= 4;
-
-    if ((pos.x + pos.y) & 1) {
-      return {100, 0, 100};  //NOLINT
-    }
-    return {0, 0, 0};  //NOLINT
-  }
   const size_t index = pos.y * size_.x + pos.x;
   return GetColorAt(index);
 }
