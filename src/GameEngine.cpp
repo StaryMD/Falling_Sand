@@ -18,6 +18,7 @@
 #include "CommonUtility.hpp"
 #include "FallingSandEngine.hpp"
 #include "RefreshRate.hpp"
+#include "world/Substance.hpp"
 
 GameEngine::GameEngine(const std::string& application_name)
     : application_name_(application_name),
@@ -88,11 +89,11 @@ void GameEngine::HandleInput() {
   }
 
   if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {
-    // const auto drag = event_handler_.GetMouseMovement();
+    const auto drag = event_handler_.GetMouseMovement();
 
-    // ExecuteInALine(drag.first, drag.second, [](const float point_on_line_x, const float point_on_line_y) {
-    //   printf("%f %f\n", point_on_line_x, point_on_line_y);
-    // });
+    sand_engine_.PlaceElementInLine(ToVector2<int>(camera_view_.MapPixelToCoords(drag.first)),
+                                    ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)),
+                                    engine::Substance::kSand);
   }
 
   if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {
@@ -130,7 +131,7 @@ std::string GameEngine::ConstructDebugText() const {
   const double screen_update_elapsed_time = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double compute_elapsed_time = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
 
-  const sf::Vector2i mouse_position = ToVector2i(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
+  const sf::Vector2i mouse_position = ToVector2<int>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
   const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
   const sf::Rect<double> camera_fov = camera_view_.GetFieldOfView();
 

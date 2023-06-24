@@ -22,6 +22,10 @@ class World {
 
   [[nodiscard]] Element GetElementAt(sf::Vector2i pos) const;
 
+  void SetElementAt(size_t index, Element element);
+
+  void SetElementAt(sf::Vector2i pos, Element element);
+
   [[nodiscard]] sf::Color GetColorAt(sf::Vector2i pos) const;
 
   [[nodiscard]] sf::Color GetColorAt(size_t index) const;

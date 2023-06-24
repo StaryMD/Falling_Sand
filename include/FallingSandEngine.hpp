@@ -7,6 +7,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "CameraView.hpp"
+#include "world/Substance.hpp"
 #include "world/World.hpp"
 
 class FallingSandEngine {
@@ -18,6 +19,8 @@ class FallingSandEngine {
   explicit FallingSandEngine(sf::Vector2u size);
 
   void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes, sf::Vector2u screen_size) const;
+
+  void PlaceElementInLine(sf::Vector2i start_pos, sf::Vector2i end_pos, engine::Substance substance);
 
  private:
   World world_;
