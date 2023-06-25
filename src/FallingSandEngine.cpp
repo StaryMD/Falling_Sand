@@ -51,7 +51,7 @@ void FallingSandEngine::Setup() {
 }
 
 void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes,
-                                sf::Vector2u screen_size) {
+                                const sf::Vector2u screen_size) {
   const sf::Rect<double> view = camera_view.GetFieldOfView();
   const double step_x = view.width / screen_size.x;
   const double step_y = view.height / screen_size.y;
@@ -72,16 +72,6 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   d_queue_.enqueueReadBuffer(d_output_buffer_, CL_TRUE, 0, GetPixelCount() * sizeof(sf::Color), bytes.data());
 
   d_queue_.finish();
-
-  // double world_coord_y = view.top;
-
-  // for (unsigned screen_y = 0; screen_y < screen_size.y; ++screen_y, world_coord_y += step_y) {
-  //   double world_coord_x = view.left;
-
-  //   for (unsigned screen_x = 0; screen_x < screen_size.x; ++screen_x, world_coord_x += step_x) {
-  //     *(pixel_it++) = world_.GetColorAt({static_cast<int>(world_coord_x), static_cast<int>(world_coord_y)});
-  //   }
-  // }
 }
 
 void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const sf::Vector2i end_pos,

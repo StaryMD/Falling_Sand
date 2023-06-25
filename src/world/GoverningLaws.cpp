@@ -1,5 +1,4 @@
 #include <SFML/System/Vector2.hpp>
-#include <cstdio>
 
 #include "CommonConstants.hpp"
 #include "world/Element.hpp"
@@ -11,20 +10,72 @@ void World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const 
 
 template <>
 void World::GovernLaw<engine::Substance::kSand>(const Element /*element*/, const sf::Vector2i position) {
-  if (position.x == 0 || position.x == constants::kWorldWidth - 1 || position.y == constants::kWorldHeight - 1) {
+  if (position.y == constants::kWorldHeight - 1) {
     return;
   }
 
-  // const size_t index = position.y * constants::kWorldWidth + position.x;
+  const int index = position.y * constants::kWorldWidth + position.x;
 
-  if (!engine::IsSolid(GetElementAt(position - sf::Vector2i(0, 1)).GetSubstance())) {}
+  if (!engine::IsSolid(GetElementAt(index + constants::kWorldWidth).GetSubstance())) {
+    SwapElements(index, index + constants::kWorldWidth);
+  }
+
+  if (rng_.NextRandValue() & 1) {
+    if (position.x > 0 && !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth - 1);
+    }
+    if (position.x < constants::kWorldWidth - 1 && !engine::IsSolid(GetElementAt(index + 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth + 1);
+    }
+  } else {
+    if (position.x < constants::kWorldWidth - 1 && !engine::IsSolid(GetElementAt(index + 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth + 1);
+    }
+    if (position.x > 0 && !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth - 1);
+    }
+  }
 }
 
 template <>
 void World::GovernLaw<engine::Substance::kStone>(const Element /*element*/, const sf::Vector2i /*position*/) {}
 
 template <>
-void World::GovernLaw<engine::Substance::kWater>(const Element /*element*/, const sf::Vector2i /*position*/) {}
+void World::GovernLaw<engine::Substance::kWater>(const Element /*element*/, const sf::Vector2i position) {
+  if (position.y == constants::kWorldHeight - 1) {
+    return;
+  }
+
+  const int index = position.y * constants::kWorldWidth + position.x;
+
+  if (!engine::IsSolid(GetElementAt(index + constants::kWorldWidth).GetSubstance())) {
+    SwapElements(index, index + constants::kWorldWidth);
+  }
+
+  if (rng_.NextRandValue() & 1) {
+    if (position.x > 0 && !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth - 1);
+    }
+    if (position.x < constants::kWorldWidth - 1 && !engine::IsSolid(GetElementAt(index + 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth + 1);
+    }
+  } else {
+    if (position.x < constants::kWorldWidth - 1 && !engine::IsSolid(GetElementAt(index + 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth + 1);
+    }
+    if (position.x > 0 && !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
+        !engine::IsSolid(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance())) {
+      SwapElements(index, index + constants::kWorldWidth - 1);
+    }
+  }
+}
 
 void World::GovernLaw(const sf::Vector2i position) {
   const Element element = GetElementAt(position);

@@ -6,6 +6,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include "RandomNumberGenerators.hpp"
 #include "world/Element.hpp"
 
 class World {
@@ -26,6 +27,8 @@ class World {
   [[nodiscard]] sf::Color GetColorAt(sf::Vector2i pos) const;
   [[nodiscard]] sf::Color GetColorAt(size_t index) const;
 
+  void SwapElements(size_t index1, size_t index2);
+
   void Update();
 
   [[nodiscard]] size_t GetElementCount() const { return static_cast<size_t>(size_.x) * size_.y; }
@@ -36,6 +39,7 @@ class World {
   sf::Vector2i size_;
 
   std::vector<Element> elements_;
+  FastRng rng_;
 
   [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
 

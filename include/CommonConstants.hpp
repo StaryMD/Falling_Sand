@@ -9,8 +9,8 @@ constexpr int kChunkSize = 16;
 constexpr int kChunkNumHorizontal = 200;
 constexpr int kChunkNumVertical = 100;
 
-constexpr unsigned kWorldWidth = kChunkSize * kChunkNumHorizontal;
-constexpr unsigned kWorldHeight = kChunkSize * kChunkNumVertical;
+constexpr int kWorldWidth = kChunkSize * kChunkNumHorizontal;
+constexpr int kWorldHeight = kChunkSize * kChunkNumVertical;
 
 constexpr double kWantedFramesPerSecond = 60.0;
 constexpr size_t kFpsBufferSize = 120;

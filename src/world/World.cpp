@@ -17,7 +17,7 @@ World::World(const sf::Vector2i size) : size_(size) {
 World::World(const sf::Vector2u size) : World(sf::Vector2i(static_cast<int>(size.x), static_cast<int>(size.y))) {}
 
 void World::Update() {
-  for (int pos_y = 0; pos_y < size_.y; ++pos_y) {
+  for (int pos_y = size_.y - 1; pos_y >= 0; --pos_y) {
     for (int pos_x = 0; pos_x < size_.x; ++pos_x) {
       GovernLaw(sf::Vector2i(pos_x, pos_y));
     }
@@ -49,4 +49,8 @@ sf::Color World::GetColorAt(const size_t index) const {
 sf::Color World::GetColorAt(const sf::Vector2i pos) const {
   const size_t index = pos.y * size_.x + pos.x;
   return GetColorAt(index);
+}
+
+void World::SwapElements(const size_t index1, const size_t index2) {
+  std::swap(elements_[index1], elements_[index2]);
 }

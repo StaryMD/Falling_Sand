@@ -22,6 +22,8 @@ class Element {
 
  private:
   engine::Substance substance_;
+  uint8_t color_sample_;
+  int8_t speed_;
 };
 
 #endif /* ELEMENT_HPP_ */
