@@ -8,7 +8,8 @@ ASSETS_FOLDER: str = 'assets'
 
 MY_FLAGS: str = '-Wall -Wextra -Werror -std=c++17 -Ofast'
 INCLUDE_FLAGS: str = '-Iinclude'
-OTHER_FLAGS: str = '-lsfml-graphics -lsfml-window -lsfml-system'
+OTHER_FLAGS: str = '-lsfml-graphics -lsfml-window -lsfml-system -lOpenCL'
+OTHER_DEFINITIONS: str = '-DCL_HPP_ENABLE_EXCEPTIONS -DCL_HPP_TARGET_OPENCL_VERSION=300 -DCL_TARGET_OPENCL_VERSION=300'
 
 RUN_CLANG_FORMAT: bool = True
 RUN_CLANG_TIDY: bool = False
@@ -146,7 +147,7 @@ def build(just_export_compile_commands=False):
   for cpp_path in cpp_paths_set:
     built_obj_path = '{0}/{1}.o'.format(BUILD_PATH, cpp_path)
 
-    command = '{0} {1} -c -o {2} {3} {4}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, INCLUDE_FLAGS)
+    command = '{0} {1} -c -o {2} {3} {4} {5}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, INCLUDE_FLAGS, OTHER_DEFINITIONS)
 
     compile_commands.append({'directory' : CURRENT_DIRECTORY, 'command' : command, 'file' : built_obj_path})
   
@@ -176,7 +177,7 @@ def build(just_export_compile_commands=False):
 
     os.makedirs(os.path.dirname(built_obj_path), exist_ok=True)
 
-    command = '{0} {1} -c -o {2} {3} {4} {5}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, OTHER_FLAGS, INCLUDE_FLAGS)
+    command = '{0} {1} -c -o {2} {3} {4} {5} {6}'.format(COMPILER, MY_FLAGS, built_obj_path, cpp_path, OTHER_FLAGS, INCLUDE_FLAGS, OTHER_DEFINITIONS)
 
     print('[{0:3}%] {1}'.format(i * 100 // operation_count, built_obj_path))
 

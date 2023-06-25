@@ -15,7 +15,7 @@ constexpr unsigned kWorldHeight = kChunkSize * kChunkNumVertical;
 constexpr double kWantedFramesPerSecond = 60.0;
 constexpr size_t kFpsBufferSize = 120;
 
-constexpr int kDebugDigitPrecision = 3;
+constexpr int kDebugDigitPrecision = 4;
 constexpr double kDebugRealEpsilon = 1e-7;
 
 constexpr double kWantedSecondsPerFrame = 1.0 / kWantedFramesPerSecond;

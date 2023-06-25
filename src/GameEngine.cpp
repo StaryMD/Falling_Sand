@@ -25,7 +25,7 @@
 GameEngine::GameEngine(const std::string& application_name)
     : application_name_(application_name),
       window_(sf::VideoMode::getDesktopMode(), application_name_, sf::Style::Fullscreen),
-      sand_engine_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight)),
+      sand_engine_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize()),
       camera_view_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize(),
                    window_.getSize() / 2U) {
   Setup();

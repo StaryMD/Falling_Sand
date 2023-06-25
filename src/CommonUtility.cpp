@@ -1,6 +1,8 @@
 #include "CommonUtility.hpp"
 
 #include <cmath>
+#include <fstream>
+#include <sstream>
 
 void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point,
                     const std::function<void(const float point_on_line_x, const float point_on_line_y)>& do_function) {
@@ -20,4 +22,11 @@ void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point
     point_on_line_x += move_x;
     point_on_line_y += move_y;
   }
+}
+
+std::string ReadFileContent(const std::string& filename) {
+  std::ifstream file(filename);
+  std::stringstream str_stream;
+  str_stream << file.rdbuf();
+  return str_stream.str();
 }

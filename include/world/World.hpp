@@ -13,7 +13,6 @@ class World {
   World() = delete;
 
   explicit World(sf::Vector2i size);
-
   explicit World(sf::Vector2u size);
 
   [[nodiscard]] sf::Vector2i GetSize() const { return size_; }
@@ -28,6 +27,10 @@ class World {
   [[nodiscard]] sf::Color GetColorAt(size_t index) const;
 
   void Update();
+
+  [[nodiscard]] size_t GetElementCount() const { return static_cast<size_t>(size_.x) * size_.y; }
+
+  [[nodiscard]] const void* GetElementsPointer() { return elements_.data(); }
 
  private:
   sf::Vector2i size_;
