@@ -1,5 +1,6 @@
 #include "GameEngine.hpp"
 
+#include <SFML/Window/Keyboard.hpp>
 #include <cmath>
 #include <cstddef>
 #include <iomanip>
@@ -85,12 +86,21 @@ void GameEngine::HandleInput() {
       do_show_debug_screen_ = !do_show_debug_screen_;
     }
 
+    if (event_handler_.IsKeyDown(sf::Keyboard::Num1)) {
+      chosen_substance_ = engine::Substance::kAir;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num2)) {
+      chosen_substance_ = engine::Substance::kSand;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num3)) {
+      chosen_substance_ = engine::Substance::kStone;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num4)) {
+      chosen_substance_ = engine::Substance::kWater;
+    }
+
     if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {
       const auto drag = event_handler_.GetMouseMovement();
 
       sand_engine_.PlaceElementInLine(ToVector2<int>(camera_view_.MapPixelToCoords(drag.first)),
-                                      ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)),
-                                      engine::Substance::kSand);
+                                      ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)), chosen_substance_);
     }
 
     if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {

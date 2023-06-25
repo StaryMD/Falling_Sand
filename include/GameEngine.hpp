@@ -11,6 +11,7 @@
 #include "EventHandler.hpp"
 #include "FallingSandEngine.hpp"
 #include "RefreshRate.hpp"
+#include "world/Substance.hpp"
 
 class GameEngine {
  public:
@@ -50,6 +51,8 @@ class GameEngine {
 
   sf::Text text_;
   sf::Font font_;
+
+  engine::Substance chosen_substance_{engine::Substance::kAir};
 
   bool do_show_debug_screen_{true};
 
