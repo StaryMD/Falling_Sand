@@ -19,16 +19,15 @@ class World {
   [[nodiscard]] sf::Vector2i GetSize() const { return size_; }
 
   [[nodiscard]] Element GetElementAt(size_t index) const;
-
   [[nodiscard]] Element GetElementAt(sf::Vector2i pos) const;
 
   void SetElementAt(size_t index, Element element);
-
   void SetElementAt(sf::Vector2i pos, Element element);
 
   [[nodiscard]] sf::Color GetColorAt(sf::Vector2i pos) const;
-
   [[nodiscard]] sf::Color GetColorAt(size_t index) const;
+
+  void Update();
 
  private:
   sf::Vector2i size_;
@@ -36,6 +35,11 @@ class World {
   std::vector<Element> elements_;
 
   [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
+
+  void GovernLaw(sf::Vector2i position);
+
+  template <engine::Substance substance>
+  void GovernLaw(Element element, sf::Vector2i position);
 };
 
 #endif /* WORLD_HPP_ */

@@ -21,6 +21,8 @@ enum class Substance : uint8_t {
 
 bool IsSolid(Substance);
 
+bool IsMovable(Substance);
+
 }  // namespace engine
 
 #endif /* SUBSTANCE_HPP_ */

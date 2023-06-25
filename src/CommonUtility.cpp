@@ -1,7 +1,6 @@
 #include "CommonUtility.hpp"
 
 #include <cmath>
-#include <cstdio>
 
 void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point,
                     const std::function<void(const float point_on_line_x, const float point_on_line_y)>& do_function) {

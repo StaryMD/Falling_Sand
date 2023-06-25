@@ -1,7 +1,5 @@
 #include "FallingSandEngine.hpp"
 
-#include <cstdio>
-
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -40,4 +38,8 @@ void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const s
   ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
     world_.SetElementAt(ToVector2<int, float>({point_on_line_x, point_on_line_y}), Element(substance));
   });
+}
+
+void FallingSandEngine::Update() {
+  world_.Update();
 }

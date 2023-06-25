@@ -19,6 +19,7 @@
 #include "FallingSandEngine.hpp"
 #include "RefreshRate.hpp"
 #include "world/Substance.hpp"
+#include "world/World.hpp"
 
 GameEngine::GameEngine(const std::string& application_name)
     : application_name_(application_name),
@@ -49,8 +50,8 @@ void GameEngine::Run() {
       refresh_rate_.ResetFrameTime();
 
       HandleInput();
-      DrawFrame();
       ComputeNextFrame();
+      DrawFrame();
 
       total_frame_elapsed_time_ = refresh_rate_.GetFrameElapsedTime();
     }
@@ -59,7 +60,6 @@ void GameEngine::Run() {
 
 void GameEngine::DrawFrame() {
   sf::Clock timer;
-  window_.clear(sf::Color(101, 101, 101));  // NOLINT
 
   sand_engine_.PaintOn(camera_view_, screen_pixels_, this->window_.getSize());
   screen_texture_.update(screen_pixels_.data());
@@ -101,11 +101,14 @@ void GameEngine::HandleInput() {
       camera_view_.Zoom(event_handler_.GetMouseWheelScrollDelta(), event_handler_.GetMouseScrollWheelLocation());
     }
   }
+
   handle_events_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
 
 void GameEngine::ComputeNextFrame() {
   sf::Clock timer;
+
+  sand_engine_.Update();
 
   compute_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
@@ -128,7 +131,7 @@ std::string GameEngine::ConstructDebugText() const {
   const auto [avg_fps, min_fps] = refresh_rate_.GetFpsInfo();
   const double total_frame_elapsed_time = total_frame_elapsed_time_;
   const double total_frame_percentage = total_frame_elapsed_time_ / constants::kWantedSecondsPerFrame * 100.0;
-  // const double handle_events_elapsed_time = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
+  const double handle_events_elapsed_time = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double screen_update_elapsed_time = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double compute_elapsed_time = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
 
@@ -137,18 +140,17 @@ std::string GameEngine::ConstructDebugText() const {
   const sf::Rect<double> camera_fov = camera_view_.GetFieldOfView();
 
   std::ostringstream debug_string;
-  debug_string << std::setprecision(constants::kDebugDigitPrecision) << std::fixed;
-
-  debug_string << "FC: " << refresh_rate_.GetFrameCount() << '\n'
+  debug_string << std::setprecision(constants::kDebugDigitPrecision) << std::fixed
+               << "FC: " << refresh_rate_.GetFrameCount() << '\n'
                << '\n'
                << "FPS AVG: " << avg_fps << '\n'
                << "FPS MIN: " << min_fps << '\n'
                << "TOTAL FRAME TIME: " << total_frame_elapsed_time << '\n'
                << "TOTAL FRAME %: " << total_frame_percentage << '\n'
                << '\n'
-               //  << "TOTAL EVENT %: " << handle_events_elapsed_time << '\n'
-               << "TOTAL DRAW %: " << screen_update_elapsed_time << '\n'
+               << "TOTAL EVENT %: " << handle_events_elapsed_time << '\n'
                << "TOTAL COMP %: " << compute_elapsed_time << '\n'
+               << "TOTAL DRAW %: " << screen_update_elapsed_time << '\n'
                << '\n'
                << "MOUSE PIXEL : " << mouse_position.x << ' ' << mouse_position.y << '\n'
                << "CAMERA POS : " << camera_fov.left << ' ' << camera_fov.top << '\n'

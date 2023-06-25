@@ -7,7 +7,7 @@ namespace constants {
 
 constexpr int kChunkSize = 16;
 constexpr int kChunkNumHorizontal = 200;
-constexpr int kChunkNumVertical = 200;
+constexpr int kChunkNumVertical = 100;
 
 constexpr unsigned kWorldWidth = kChunkSize * kChunkNumHorizontal;
 constexpr unsigned kWorldHeight = kChunkSize * kChunkNumVertical;

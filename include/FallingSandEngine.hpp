@@ -22,6 +22,8 @@ class FallingSandEngine {
 
   void PlaceElementInLine(sf::Vector2i start_pos, sf::Vector2i end_pos, engine::Substance substance);
 
+  void Update();
+
  private:
   World world_;
 };

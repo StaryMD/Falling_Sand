@@ -27,10 +27,15 @@ CameraView::CameraView(const sf::Vector2u max_size, const sf::Vector2u size, con
   Zoom(kStartingZoomLevel, ToVector2<int>(pos_center));
 }
 
-void CameraView::Zoom(const float delta, const sf::Vector2i location) {
+void CameraView::Zoom(float delta, const sf::Vector2i location) {
   const sf::Vector2<double> mapped_location = MapPixelToCoords(location);
 
   const double prev_zoom_level = GetZoomLevel();
+  if (delta > 0) {
+    delta = 1.0;
+  } else {
+    delta = -1.0;
+  }
   zoom_level_ = std::clamp(zoom_level_ + static_cast<int>(delta), 0, kZoomLevelCount - 1);
 
   if (prev_zoom_level == GetZoomLevel()) {
