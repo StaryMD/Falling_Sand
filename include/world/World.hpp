@@ -55,7 +55,7 @@ class World {
 
   void UpdateChunkNeighborhood(int chunk_x, int chunk_y);
 
-  void UpdateChunk(int chunk_x, int chunk_y);
+  void UpdateChunk(int chunk_x, int chunk_y, bool activity_ = true);
 
   bool do_not_update_next_element_{};
 };

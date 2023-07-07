@@ -41,6 +41,8 @@ void World::Update() {
 
         if (chunk_was_updated) {
           UpdateChunkNeighborhood(chunk_x, chunk_y);
+        } else {
+          UpdateChunk(chunk_x, chunk_y, false);
         }
       }
     }
@@ -63,8 +65,8 @@ void World::UpdateChunkNeighborhood(const int chunk_x, const int chunk_y) {
   }
 }
 
-void World::UpdateChunk(const int chunk_x, const int chunk_y) {
-  chunk_manager_.SetActive({chunk_x, chunk_y});
+void World::UpdateChunk(const int chunk_x, const int chunk_y, const bool activity_) {
+  chunk_manager_.SetActive({chunk_x, chunk_y}, activity_);
 }
 
 Element World::GetElementAt(const size_t index) const {

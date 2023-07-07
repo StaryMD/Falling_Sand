@@ -19,7 +19,7 @@ class ChunkManager {
 
   [[nodiscard]] sf::Vector2i GetSize() const { return size_; };
 
-  void SetActive(sf::Vector2i position);
+  void SetActive(sf::Vector2i position, bool activity_ = true);
 
  private:
   sf::Vector2i size_;
