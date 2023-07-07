@@ -55,6 +55,8 @@ class GameEngine {
   engine::Substance chosen_substance_{engine::Substance::kAir};
 
   bool do_show_debug_screen_{true};
+  bool do_compute_next_frame_{true};
+  bool do_advance_one_frame_{false};
 
   bool font_loaded_successfully_{};
 

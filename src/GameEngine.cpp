@@ -86,6 +86,16 @@ void GameEngine::HandleInput() {
       do_show_debug_screen_ = !do_show_debug_screen_;
     }
 
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F2)) {
+      do_compute_next_frame_ = !do_compute_next_frame_;
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Space)) {
+      if (!do_compute_next_frame_) {
+        do_advance_one_frame_ = true;
+      }
+    }
+
     if (event_handler_.IsKeyDown(sf::Keyboard::Num1)) {
       chosen_substance_ = engine::Substance::kAir;
     } else if (event_handler_.IsKeyDown(sf::Keyboard::Num2)) {
@@ -118,7 +128,10 @@ void GameEngine::HandleInput() {
 void GameEngine::ComputeNextFrame() {
   sf::Clock timer;
 
-  sand_engine_.Update();
+  if (do_compute_next_frame_ || do_advance_one_frame_) {
+    do_advance_one_frame_ = false;
+    sand_engine_.Update();
+  }
 
   compute_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
