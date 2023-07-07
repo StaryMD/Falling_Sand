@@ -7,16 +7,20 @@
 
 class Element {
  public:
-  Element() : substance_(engine::Substance::kNothing) {}
+  Element();
+
+  explicit Element(engine::Substance subs);
 
   Element(const Element&) = default;
   Element(Element&&) = default;
   Element& operator=(const Element&) = default;
   Element& operator=(Element&&) = default;
 
-  explicit Element(const engine::Substance subs) : substance_(subs) {}
-
   [[nodiscard]] engine::Substance GetSubstance() const { return substance_; }
+
+  [[nodiscard]] int8_t GetSpeed() const { return speed_; }
+
+  void SetSpeed(const int8_t speed) { speed_ = speed; }
 
   [[nodiscard]] sf::Color GetColor() const;
 

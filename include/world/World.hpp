@@ -7,6 +7,8 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "RandomNumberGenerators.hpp"
+#include "world/Chunk.hpp"
+#include "world/ChunkManager.hpp"
 #include "world/Element.hpp"
 
 class World {
@@ -31,6 +33,8 @@ class World {
 
   void Update();
 
+  void SetChunkActivity();
+
   [[nodiscard]] size_t GetElementCount() const { return static_cast<size_t>(size_.x) * size_.y; }
 
   [[nodiscard]] const void* GetElementsPointer() { return elements_.data(); }
@@ -38,15 +42,22 @@ class World {
  private:
   sf::Vector2i size_;
 
+  ChunkManager chunk_manager_;
   std::vector<Element> elements_;
   FastRng rng_;
 
   [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
 
-  void GovernLaw(sf::Vector2i position);
+  bool GovernLaw(sf::Vector2i position);
 
   template <engine::Substance substance>
-  void GovernLaw(Element element, sf::Vector2i position);
+  bool GovernLaw(Element element, sf::Vector2i position);
+
+  void UpdateChunkNeighborhood(int chunk_x, int chunk_y);
+
+  void UpdateChunk(int chunk_x, int chunk_y);
+
+  bool do_not_update_next_element_{};
 };
 
 #endif /* WORLD_HPP_ */

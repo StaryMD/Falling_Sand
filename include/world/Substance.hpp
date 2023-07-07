@@ -23,6 +23,8 @@ bool IsSolid(Substance);
 
 bool IsMovable(Substance);
 
+int8_t GetDensity(Substance);
+
 }  // namespace engine
 
 #endif /* SUBSTANCE_HPP_ */
