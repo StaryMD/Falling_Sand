@@ -1,45 +1,69 @@
-#pragma once
+#ifndef RENDERING_ENGINE_HPP_
+#define RENDERING_ENGINE_HPP_
+
+#include <string>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
-#include <functional>
+#include <SFML/Graphics/Text.hpp>
 
-#include "RefreshRate.hpp"
+#include "CameraView.hpp"
+#include "EventHandler.hpp"
 #include "FallingSandEngine.hpp"
-#include "InputHandler.hpp"
+#include "RefreshRate.hpp"
+#include "world/Substance.hpp"
 
 class GameEngine {
-public:
-	GameEngine(const int window_width, const int window_height);
+ public:
+  GameEngine() = delete;
 
-	GameEngine();
+  GameEngine(const std::string& application_name, unsigned window_width, unsigned window_height);
 
-	void setup();
-	void run();
+  explicit GameEngine(const std::string& application_name);
 
-	void handle_user_input();
-	void handle_events();
+  void Setup();
+  void Run();
 
-	void show_fps();
+  ~GameEngine() = default;
 
-	void set_line_of_elements(const sf::Vector2i &pos1, const sf::Vector2i &pos2, const Element element);
+ private:
+  void HandleInput();
 
-	~GameEngine();
+  void DrawFrame();
 
-private:
-	sf::RenderWindow window;
-	FallingSandEngine fallingSandEngine;
-	RefreshRate refresh_rate;
-	InputHandler input_handler;
+  void ComputeNextFrame();
 
-	sf::Event event;
+  void ShowDebugInfo();
 
-	sf::Texture screen_texture;
-	sf::Sprite screen_sprite;
-	sf::Uint8* screen_pixels;
+  std::string ConstructDebugText() const;
 
-	sf::Text fps_text;
-	sf::Font font;
+  std::string application_name_;
 
-	Substance chosen_substance;
+  RefreshRate refresh_rate_;
+  EventHandler event_handler_;
+  sf::RenderWindow window_;
+  FallingSandEngine sand_engine_;
+  CameraView camera_view_;
 
+  sf::Texture screen_texture_;
+  sf::Sprite screen_sprite_;
+  std::vector<sf::Uint8> screen_pixels_;
+
+  sf::Text text_;
+  sf::Font font_;
+
+  engine::Substance chosen_substance_{engine::Substance::kAir};
+
+  bool do_show_debug_screen_{true};
+  bool do_compute_next_frame_{true};
+  bool do_advance_one_frame_{false};
+
+  bool font_loaded_successfully_{};
+
+  double total_frame_elapsed_time_{};
+  double handle_events_elapsed_time_{};
+  double screen_update_elapsed_time_{};
+  double compute_elapsed_time_{};
 };
+
+#endif /* RENDERING_ENGINE_HPP_ */

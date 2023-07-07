@@ -1,158 +1,183 @@
 #include "GameEngine.hpp"
-#include "FallingSandEngine.hpp"
 
+#include <SFML/Window/Keyboard.hpp>
 #include <cmath>
+#include <cstddef>
+#include <iomanip>
+#include <sstream>
+#include <utility>
 
-GameEngine::GameEngine(const int window_width, const int window_height) {
-	window.create(sf::VideoMode(window_width, window_height), "Falling Sand");
-	setup();
+#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Transformable.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Mouse.hpp>
+
+#include "CameraView.hpp"
+#include "CommonConstants.hpp"
+#include "CommonUtility.hpp"
+#include "FallingSandEngine.hpp"
+#include "RefreshRate.hpp"
+#include "world/Substance.hpp"
+#include "world/World.hpp"
+
+GameEngine::GameEngine(const std::string& application_name)
+    : application_name_(application_name),
+      window_(sf::VideoMode::getDesktopMode(), application_name_, sf::Style::Fullscreen),
+      sand_engine_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize()),
+      camera_view_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize(),
+                   window_.getSize() / 2U) {
+  Setup();
 }
 
-GameEngine::GameEngine() {
-	window.create(sf::VideoMode::getDesktopMode(), "Falling Sand", sf::Style::Fullscreen);
-	setup();
+void GameEngine::Setup() {
+  screen_texture_.create(window_.getSize().x, window_.getSize().y);
+  screen_sprite_.setTexture(screen_texture_);
+
+  font_loaded_successfully_ = font_.loadFromFile("assets/fonts/consola.ttf");
+
+  screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) * sizeof(sf::Color));
+
+  text_.setFont(font_);
+  text_.setCharacterSize(18U);  // NOLINT
+
+  refresh_rate_.Reset();
 }
 
-void GameEngine::setup() {
-	screen_texture.create(window.getSize().x, window.getSize().y);
-	screen_sprite.setTexture(screen_texture);
+void GameEngine::Run() {
+  while (window_.isOpen()) {
+    if (refresh_rate_.IsTimeForNewFrame()) {
+      refresh_rate_.ResetFrameTime();
 
-	font.loadFromFile("fonts/Lato-Regular.ttf");
+      HandleInput();
+      ComputeNextFrame();
+      DrawFrame();
 
-	screen_pixels = new sf::Uint8[window.getSize().x * window.getSize().y * 4];
-
-	refresh_rate.setup();
-
-	fps_text.setFillColor(sf::Color::Green);
-	fps_text.setFont(font);
-	fps_text.setCharacterSize(15);
-
-	chosen_substance = Substance::SAND;
+      total_frame_elapsed_time_ = refresh_rate_.GetFrameElapsedTime();
+    }
+  }
 }
 
-void GameEngine::run() {
-	while (window.isOpen()) {
-		handle_events();
-		
-		if (window.hasFocus()) {
-			handle_user_input();
-		}
+void GameEngine::DrawFrame() {
+  sf::Clock timer;
 
-		if (1 || refresh_rate.get_time_since_last_frame() >= WANTED_SECONDS_PER_FRAME) {
-			refresh_rate.reset_time_since_last_frame();
+  sand_engine_.PaintOn(camera_view_, screen_pixels_, this->window_.getSize());
+  screen_texture_.update(screen_pixels_.data());
+  window_.draw(screen_sprite_);
 
-			fallingSandEngine.draw_world_on_texture(screen_pixels);
-			screen_texture.update(screen_pixels);
+  ShowDebugInfo();
 
-			window.draw(screen_sprite);
-			show_fps();
-			window.display();
-
-			fallingSandEngine.update();
-		}
-	}
+  window_.display();
+  screen_update_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
 
-void GameEngine::handle_events() {
-	while (window.pollEvent(event)) {
-		#pragma GCC diagnostic ignored "-Wswitch"
-		switch (event.type) {
-			case sf::Event::Closed: {
-				window.close();
-				break;
-			}
-			case sf::Event::MouseButtonPressed: {
-				switch (event.mouseButton.button) {
-					case sf::Mouse::Left:
-						input_handler.mouseLEFT_is_pressed = true;
-						break;
-					case sf::Mouse::Right:
-						input_handler.mouseRIGHT_is_pressed = true;
-						break;
-				}
-				break;
-			}
-			case sf::Event::MouseButtonReleased: {
-				switch (event.mouseButton.button) {
-					case sf::Mouse::Left:
-						input_handler.mouseLEFT_is_pressed = false;
-						break;
-					case sf::Mouse::Right:
-						input_handler.mouseRIGHT_is_pressed = false;
-						break;
-				}
-				break;
-			}
-			case sf::Event::KeyPressed: {
-				if (event.key.code != sf::Keyboard::Key::Unknown) {
-					input_handler.key_is_pressed[event.key.code] = true;
-				}
-				break;
-			}
-			case sf::Event::KeyReleased: {
-				if (event.key.code != sf::Keyboard::Key::Unknown) {
-					input_handler.key_is_pressed[event.key.code] = false;
-				}
-				break;
-			}
-		}
-	}
+void GameEngine::HandleInput() {
+  sf::Clock timer;
+
+  event_handler_.HandleEvents(window_);
+
+  if (window_.hasFocus()) {
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Key::Escape)) {
+      window_.close();
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F3)) {
+      do_show_debug_screen_ = !do_show_debug_screen_;
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F2)) {
+      do_compute_next_frame_ = !do_compute_next_frame_;
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Space)) {
+      if (!do_compute_next_frame_) {
+        do_advance_one_frame_ = true;
+      }
+    }
+
+    if (event_handler_.IsKeyDown(sf::Keyboard::Num1)) {
+      chosen_substance_ = engine::Substance::kAir;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num2)) {
+      chosen_substance_ = engine::Substance::kSand;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num3)) {
+      chosen_substance_ = engine::Substance::kStone;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num4)) {
+      chosen_substance_ = engine::Substance::kWater;
+    }
+
+    if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {
+      const auto drag = event_handler_.GetMouseMovement();
+
+      sand_engine_.PlaceElementInLine(ToVector2<int>(camera_view_.MapPixelToCoords(drag.first)),
+                                      ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)), chosen_substance_);
+    }
+
+    if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {
+      camera_view_.MovePosition(event_handler_.GetMouseMovementDelta());
+    }
+
+    if (event_handler_.GetMouseWheelScrollDelta() != 0) {
+      camera_view_.Zoom(event_handler_.GetMouseWheelScrollDelta(), event_handler_.GetMouseScrollWheelLocation());
+    }
+  }
+
+  handle_events_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
 
-void GameEngine::handle_user_input() {
-	if (input_handler.mouseLEFT_is_pressed) {
-		const sf::Vector2i cur_position = sf::Mouse::getPosition(window);
-		
-		if (input_handler.mouseLEFT_was_pressed) {
-			set_line_of_elements(cur_position, input_handler.mouseLEFT_last_press, Element(chosen_substance));
-		}
-		
-		fallingSandEngine.set_cell(cur_position.y, cur_position.x, Element(chosen_substance), true);
+void GameEngine::ComputeNextFrame() {
+  sf::Clock timer;
 
-		input_handler.mouseLEFT_last_press = cur_position;
-	}
+  if (do_compute_next_frame_ || do_advance_one_frame_) {
+    do_advance_one_frame_ = false;
+    sand_engine_.Update();
+  }
 
-	input_handler.mouseLEFT_was_pressed = input_handler.mouseLEFT_is_pressed;
-	input_handler.mouseRIGHT_was_pressed = input_handler.mouseRIGHT_is_pressed;
-
-
-	if (input_handler.key_is_pressed[sf::Keyboard::Key::Num1]) {
-		chosen_substance = Substance::AIR;
-	} else if (input_handler.key_is_pressed[sf::Keyboard::Key::Num2]) {
-		chosen_substance = Substance::SAND;
-	} else if (input_handler.key_is_pressed[sf::Keyboard::Key::Num3]) {
-		chosen_substance = Substance::STONE;
-	} else if (input_handler.key_is_pressed[sf::Keyboard::Key::Num4]) {
-		chosen_substance = Substance::WATER;
-	}
+  compute_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
 
-void GameEngine::show_fps() {
-	const auto [avg_fps, min_fps] = refresh_rate.get_fps_info();
+void GameEngine::ShowDebugInfo() {
+  if (do_show_debug_screen_ && font_loaded_successfully_) {
+    text_.setString(ConstructDebugText());
 
-	fps_text.setString(std::to_string((int) std::round(avg_fps)) + " " + std::to_string((int) std::round(min_fps)));
+    text_.setFillColor(sf::Color::Black);
+    text_.setPosition(3, 3);
+    window_.draw(text_);
 
-	window.draw(fps_text);
+    text_.setFillColor(sf::Color::White);
+    text_.setPosition(1, 1);
+    window_.draw(text_);
+  }
 }
 
-void GameEngine::set_line_of_elements(const sf::Vector2i &pos1, const sf::Vector2i &pos2, const Element element) {
-	float dx = (pos2.x - pos1.x);
-	float dy = (pos2.y - pos1.y);
+std::string GameEngine::ConstructDebugText() const {
+  const auto [avg_fps, min_fps] = refresh_rate_.GetFpsInfo();
+  const double total_frame_elapsed_time = total_frame_elapsed_time_;
+  const double total_frame_percentage = total_frame_elapsed_time_ / constants::kWantedSecondsPerFrame * 100.0;
+  const double handle_events_elapsed_time = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
+  const double screen_update_elapsed_time = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
+  const double compute_elapsed_time = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
 
-	const int step = (abs(dx) >= abs(dy)) ? abs(dx) : abs(dy);
-	dx /= step;
-	dy /= step;
+  const sf::Vector2i mouse_position = ToVector2<int>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
+  const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
+  const sf::Rect<double> camera_fov = camera_view_.GetFieldOfView();
 
-	float x = pos1.x;
-	float y = pos1.y;
+  std::ostringstream debug_string;
+  debug_string << std::setprecision(constants::kDebugDigitPrecision) << std::fixed
+               << "FC: " << refresh_rate_.GetFrameCount() << '\n'
+               << '\n'
+               << "FPS AVG: " << avg_fps << '\n'
+               << "FPS MIN: " << min_fps << '\n'
+               << "TOTAL FRAME TIME: " << total_frame_elapsed_time << '\n'
+               << "TOTAL FRAME %: " << total_frame_percentage << '\n'
+               << '\n'
+               << "TOTAL EVENT %: " << handle_events_elapsed_time << '\n'
+               << "TOTAL COMP %: " << compute_elapsed_time << '\n'
+               << "TOTAL DRAW %: " << screen_update_elapsed_time << '\n'
+               << '\n'
+               << "MOUSE PIXEL : " << mouse_position.x << ' ' << mouse_position.y << '\n'
+               << "CAMERA POS : " << camera_fov.left << ' ' << camera_fov.top << '\n'
+               << "MOUSE COORD : " << mouse_coord.x << ' ' << mouse_coord.y << '\n';
 
-	for (int i = 1; i <= step; i++) {
-		fallingSandEngine.set_element_at(y, x, element, true);
-		x += dx;
-		y += dy;
-	}
-}
-
-GameEngine::~GameEngine() {
-	delete[] screen_pixels;
+  return debug_string.str();
 }

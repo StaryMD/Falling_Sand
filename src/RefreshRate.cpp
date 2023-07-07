@@ -1,38 +1,47 @@
 #include "RefreshRate.hpp"
 
-#include <algorithm>
+#include "CommonConstants.hpp"
 
-void RefreshRate::setup() {
-	start_clock = sf::Clock();
-	last_frame_start_clock = sf::Clock();
-	past_fps_buffer = std::deque<float>(FPS_BUFFER_SIZE, 0.0f);
+RefreshRate::RefreshRate() {
+  Reset();
 }
 
-float RefreshRate::get_elapsed_time() {
-	return start_clock.getElapsedTime().asSeconds();
+bool RefreshRate::IsTimeForNewFrame() const {
+  return GetFrameElapsedTime() >= constants::kWantedSecondsPerFrame;
 }
 
-float RefreshRate::get_time_since_last_frame() {
-	return last_frame_start_clock.getElapsedTime().asSeconds();
+void RefreshRate::Reset() {
+  frame_counter_ = 0;
+  start_clock_ = sf::Clock();
+  last_frame_start_clock_ = sf::Clock();
+  past_fps_buffer_.fill(0.0);
 }
 
-void RefreshRate::reset_time_since_last_frame() {
-	past_fps_buffer.pop_front();
-	past_fps_buffer.push_back(1.0f / get_time_since_last_frame());
-
-	last_frame_start_clock.restart();
+double RefreshRate::GetTotalElapsedTime() const {
+  return start_clock_.getElapsedTime().asSeconds();
 }
 
-std::pair<float, float> RefreshRate::get_fps_info() {
-	float min_fps = __FLT_MAX__;
-	float avg_fps = 0.0f;
+double RefreshRate::GetFrameElapsedTime() const {
+  return last_frame_start_clock_.getElapsedTime().asSeconds();
+}
 
-	for (const float x: past_fps_buffer) {
-		min_fps = std::min(min_fps, x);
-		avg_fps += x;
-	}
-	
-	avg_fps /= FPS_BUFFER_SIZE;
+void RefreshRate::ResetFrameTime() {
+  past_fps_buffer_[(frame_counter_++) % constants::kFpsBufferSize] = static_cast<double>(1.0) / GetFrameElapsedTime();
 
-	return { avg_fps, min_fps };
+  last_frame_start_clock_.restart();
+}
+
+std::pair<double, double> RefreshRate::GetFpsInfo() const {
+  double min_fps = __DBL_MAX__;
+  double avg_fps = static_cast<double>(0);
+
+  for (const double fps_count : past_fps_buffer_) {
+    min_fps = std::min(min_fps, fps_count);
+    avg_fps += fps_count;
+  }
+
+  const size_t cat = std::min(frame_counter_, constants::kFpsBufferSize);
+  avg_fps /= static_cast<double>(cat);
+
+  return {avg_fps, min_fps};
 }

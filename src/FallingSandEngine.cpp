@@ -1,256 +1,86 @@
 #include "FallingSandEngine.hpp"
 
-FallingSandEngine::FallingSandEngine() {
-	chunks = new Chunk*[CHUNK_NUM_HEIGHT];
+#include <CL/opencl.hpp>
+#include <SFML/Config.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <iostream>
+#include <sstream>
 
-    for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
-		chunks[y] = new Chunk[CHUNK_NUM_WIDTH];
+#include "CameraView.hpp"
+#include "CommonUtility.hpp"
+#include "world/Element.hpp"
+#include "world/Substance.hpp"
 
-        for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
-            chunks[y][x] = Chunk(y, x);
-        }
+FallingSandEngine::FallingSandEngine(const sf::Vector2i size, const sf::Vector2u screen_size)
+    : world_(size), screen_size_(screen_size) {
+  Setup();
+}
+
+FallingSandEngine::FallingSandEngine(const sf::Vector2u size, const sf::Vector2u screen_size)
+    : world_(size), screen_size_(screen_size) {
+  Setup();
+}
+
+void FallingSandEngine::Setup() {
+  d_context_ = cl::Context(CL_DEVICE_TYPE_DEFAULT);
+  d_queue_ = cl::CommandQueue(d_context_);
+  d_input_buffer_ = cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
+  d_output_buffer_ = cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));
+
+  std::string kernel_source = ReadFileContent("assets/kernels/PaintOn.cl");
+  cl::Program program(kernel_source);
+
+  std::stringstream build_options;
+  build_options << "-DSCREEN_SIZE_X=" << screen_size_.x << " -DSCREEN_SIZE_Y=" << screen_size_.y
+                << " -DWORLD_SIZE_X=" << world_.GetSize().x << " -DWORLD_SIZE_Y=" << world_.GetSize().y;
+
+  try {
+    program.build(build_options.str().c_str());
+  } catch (const cl::BuildError& error) {
+    const auto build_logs = error.getBuildLog();
+
+    for (const auto& [device, log] : build_logs) {
+      std::cout << "Device " << device.getInfo<CL_DEVICE_NAME>() << " logs:\n" << log << '\n';
     }
+    throw;
+  }
 
-	future_update_scheme = std::vector<bool>(CHUNK_NUM_HEIGHT * CHUNK_NUM_WIDTH);
+  d_kernel_ = cl::Kernel(program, "PaintOn");
 }
 
-bool FallingSandEngine::apply_law(const Substance substance, const int y, const int x) {
-	switch (substance) {
-		case Substance::NOTHING: {
-			return law_for_NOTHING(y, x);
-		}
-		case Substance::AIR: {
-			return law_for_AIR(y, x);
-		}
-		case Substance::SAND: {
-			return law_for_SAND(y, x);
-		}
-		case Substance::STONE: {
-			return law_for_STONE(y, x);
-		}
-		case Substance::WATER: {
-			return law_for_WATER(y, x);
-		}
-	}
+void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes,
+                                const sf::Vector2u screen_size) {
+  const sf::Rect<double> view = camera_view.GetFieldOfView();
+  const double step_x = view.width / screen_size.x;
+  const double step_y = view.height / screen_size.y;
 
-	return false;
+  d_queue_.enqueueWriteBuffer(d_input_buffer_, CL_TRUE, 0, world_.GetElementCount() * sizeof(Element),
+                              world_.GetElementsPointer());
+
+  cl_uint arg_counter = 0;
+  d_kernel_.setArg(arg_counter++, d_input_buffer_);
+  d_kernel_.setArg(arg_counter++, d_output_buffer_);
+  d_kernel_.setArg(arg_counter++, static_cast<float>(view.left));
+  d_kernel_.setArg(arg_counter++, static_cast<float>(view.top));
+  d_kernel_.setArg(arg_counter++, static_cast<float>(step_x));
+  d_kernel_.setArg(arg_counter++, static_cast<float>(step_y));
+
+  d_queue_.enqueueNDRangeKernel(d_kernel_, cl::NullRange, cl::NDRange(screen_size.x, screen_size.y));
+
+  d_queue_.enqueueReadBuffer(d_output_buffer_, CL_TRUE, 0, GetPixelCount() * sizeof(sf::Color), bytes.data());
+
+  d_queue_.finish();
 }
 
-void FallingSandEngine::set_chunk_activity(const int chunk_y, const int chunk_x, const bool activity) {
-	if (chunk_y >= 0 && chunk_y < CHUNK_NUM_HEIGHT && chunk_x >= 0 && chunk_x < CHUNK_NUM_WIDTH) {
-		chunks[chunk_y][chunk_x].is_active = activity;
-	}
+void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const sf::Vector2i end_pos,
+                                           const engine::Substance substance) {
+  ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
+    world_.SetElementAt(ToVector2<int, float>({point_on_line_x, point_on_line_y}), Element(substance));
+  });
 }
 
-void FallingSandEngine::reverse_element_flow(const int y, const int x) {
-	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
-		return;
-	}
-
-	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
-	Chunk& chunk = chunks[chunk_y][chunk_x];
-	
-	const int inside_chunk_y = y % CHUNK_SIZE, inside_chunk_x = x % CHUNK_SIZE;
-
-	chunk.elements[inside_chunk_y][inside_chunk_x].reverse_flow();
-}
-
-void FallingSandEngine::update_future_update_scheme(const int chunk_y, const int chunk_x, const bool activity) {
-	if (chunk_y >= 0 && chunk_y < CHUNK_NUM_HEIGHT && chunk_x >= 0 && chunk_x < CHUNK_NUM_WIDTH) {
-		future_update_scheme[chunk_y * CHUNK_NUM_WIDTH + chunk_x] = activity;
-	}
-}
-
-void FallingSandEngine::update() {
-	std::fill(future_update_scheme.begin(), future_update_scheme.end(), 0);
-
-    for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
-        for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
-			Chunk &chunk = chunks[y][x];
-
-            if (chunk.is_active) {
-				bool was_activated = false;
-				
-				for (int i = 0; i < CHUNK_SIZE; i++) {
-					for (int j = 0; j < CHUNK_SIZE; j++) {
-						const Substance substance = chunk.get_element_at(i, j).substance;
-						
-						if (SUBS_IS_INVERSELY_UPDATED(substance) == false) {
-							was_activated |= apply_law(substance, y * CHUNK_SIZE + i, x * CHUNK_SIZE + j);
-						}
-					}
-				}
-
-				if (was_activated) {
-					update_future_update_scheme(y, x, true);
-				
-					update_future_update_scheme(y - 1, x, true);
-					update_future_update_scheme(y - 1, x + 1, true);
-					update_future_update_scheme(y, x + 1, true);
-					update_future_update_scheme(y + 1, x + 1, true);
-					update_future_update_scheme(y + 1, x, true);
-					update_future_update_scheme(y + 1, x - 1, true);
-					update_future_update_scheme(y, x - 1, true);
-					update_future_update_scheme(y - 1, x - 1, true);
-				}
-			}
-        }
-    }
-
-    for (int y = CHUNK_NUM_HEIGHT - 1; y >= 0; y--) {
-        for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
-			Chunk &chunk = chunks[y][x];
-
-            if (chunk.is_active) {
-				bool was_activated = false;
-
-				for (int i = CHUNK_SIZE - 1; i >= 0; i--) {
-					for (int j = 0; j < CHUNK_SIZE; j++) {
-						const Substance substance = chunk.get_element_at(i, j).substance;
-						
-						if (SUBS_IS_INVERSELY_UPDATED(substance) == true) {
-							was_activated |= apply_law(substance, y * CHUNK_SIZE + i, x * CHUNK_SIZE + j);
-						}
-					}
-				}
-				
-				if (was_activated) {
-					update_future_update_scheme(y, x, true);
-
-					update_future_update_scheme(y - 1, x, true);
-					update_future_update_scheme(y - 1, x + 1, true);
-					update_future_update_scheme(y, x + 1, true);
-					update_future_update_scheme(y + 1, x + 1, true);
-					update_future_update_scheme(y + 1, x, true);
-					update_future_update_scheme(y + 1, x - 1, true);
-					update_future_update_scheme(y, x - 1, true);
-					update_future_update_scheme(y - 1, x - 1, true);
-				}
-			}
-        }
-    }
-
-
-    for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
-        for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
-			chunks[y][x].is_active = future_update_scheme[y * CHUNK_NUM_WIDTH + x];
-		}
-	}
-}
-
-void FallingSandEngine::set_cell(const int y, const int x, const Element &element, const bool activate_chunk) {
-	set_element_at(y, x, element, activate_chunk);
-}
-
-void FallingSandEngine::swap_elements(const int y1, const int x1, const int y2, const int x2, const bool activate_chunk) {
-	if (x1 < 0 || x1 >= WORLD_WIDTH || y1 < 0 || y1 >= WORLD_HEIGHT) {
-		// First point is outside
-
-		if (x2 < 0 || x2 >= WORLD_WIDTH || y2 < 0 || y2 >= WORLD_HEIGHT) {
-			// Second point is outside
-		} else {
-			// Second point is NOT outside
-
-			const int chunk2_y = y2 / CHUNK_SIZE, chunk2_x = x2 / CHUNK_SIZE;
-			const int inside_chunk2_y = y2 % CHUNK_SIZE, inside_chunk2_x = x2 % CHUNK_SIZE;
-			Chunk& chunk2 = chunks[chunk2_y][chunk2_x];
-			chunk2.elements[inside_chunk2_y][inside_chunk2_x] = Element(Substance::AIR);
-
-			update_future_update_scheme(chunk2_y, chunk2_x, activate_chunk);
-		}
-	} else {
-		// First point is NOT outside
-		
-		if (x2 < 0 || x2 >= WORLD_WIDTH || y2 < 0 || y2 >= WORLD_HEIGHT) {
-			// Second point is outside
-			const int chunk1_y = y1 / CHUNK_SIZE, chunk1_x = x1 / CHUNK_SIZE;
-			const int inside_chunk1_y = y1 % CHUNK_SIZE, inside_chunk1_x = x1 % CHUNK_SIZE;
-			Chunk& chunk1 = chunks[chunk1_y][chunk1_x];
-			chunk1.elements[inside_chunk1_y][inside_chunk1_x] = Element(Substance::AIR);
-			
-			update_future_update_scheme(chunk1_y, chunk1_x, activate_chunk);
-		} else {
-			// Second point is NOT outside
-
-			const int chunk1_y = y1 / CHUNK_SIZE, chunk1_x = x1 / CHUNK_SIZE;
-			const int chunk2_y = y2 / CHUNK_SIZE, chunk2_x = x2 / CHUNK_SIZE;
-
-			const int inside_chunk1_y = y1 % CHUNK_SIZE, inside_chunk1_x = x1 % CHUNK_SIZE;
-			const int inside_chunk2_y = y2 % CHUNK_SIZE, inside_chunk2_x = x2 % CHUNK_SIZE;
-
-			Chunk& chunk1 = chunks[chunk1_y][chunk1_x];
-			Chunk& chunk2 = chunks[chunk2_y][chunk2_x];
-
-			const Element temp = chunk1.elements[inside_chunk1_y][inside_chunk1_x];
-			chunk1.elements[inside_chunk1_y][inside_chunk1_x] = chunk2.elements[inside_chunk2_y][inside_chunk2_x];
-			chunk2.elements[inside_chunk2_y][inside_chunk2_x] = temp;
-
-			update_future_update_scheme(chunk1_y, chunk1_x, activate_chunk);
-			update_future_update_scheme(chunk2_y, chunk2_x, activate_chunk);
-		}
-	}
-}
-
-Element FallingSandEngine::get_element_at(const int y, const int x) {
-	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
-		return Element(Substance::AIR);
-	}
-
-	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
-	Chunk& chunk = chunks[chunk_y][chunk_x];
-	
-	const int inside_chunk_y = y % CHUNK_SIZE, inside_chunk_x = x % CHUNK_SIZE;
-
-	return chunk.elements[inside_chunk_y][inside_chunk_x];
-}
-
-Substance FallingSandEngine::get_substance_at(const int y, const int x) {
-	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
-		return Substance::AIR;
-	}
-
-	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
-	Chunk& chunk = chunks[chunk_y][chunk_x];
-	
-	const int inside_chunk_y = y % CHUNK_SIZE, inside_chunk_x = x % CHUNK_SIZE;
-
-	return chunk.elements[inside_chunk_y][inside_chunk_x].substance;
-}
-
-void FallingSandEngine::set_element_at(const int y, const int x, const Element &element, const bool activate_chunk) {
-	if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) {
-		return;
-	}
-
-	const int chunk_y = y / CHUNK_SIZE, chunk_x = x / CHUNK_SIZE;
-	Chunk& chunk = chunks[chunk_y][chunk_x];
-
-	const int inside_chunk_y = y % CHUNK_SIZE, inside_chunk_x = x % CHUNK_SIZE;
-
-	chunk.elements[inside_chunk_y][inside_chunk_x] = element;
-
-	chunk.is_active |= activate_chunk;
-}
-
-FallingSandEngine::~FallingSandEngine() {
-	for (int i = 0; i < CHUNK_NUM_WIDTH; i++) {
-		delete[] chunks[i];
-	}
-	delete[] chunks;
-}
-
-void FallingSandEngine::draw_world_on_texture(sf::Uint8* screen_pixels) {
-	sf::Color* pixel_ptr = (sf::Color *) screen_pixels;
-
-	for (int y = 0; y < CHUNK_NUM_HEIGHT; y++) {
-		for (int x = 0; x < CHUNK_NUM_WIDTH; x++) {
-			for (int i = 0; i < CHUNK_SIZE; i++) {
-				for (int j = 0; j < CHUNK_SIZE; j++) {
-					const Element& element = chunks[y][x].get_element_at(i, j);
-					
-					pixel_ptr[(y * CHUNK_SIZE + i) * WORLD_WIDTH + x * CHUNK_SIZE + j] = color_of_substance[(int) element.substance];
-				}
-			}
-		}
-	}
+void FallingSandEngine::Update() {
+  world_.Update();
 }

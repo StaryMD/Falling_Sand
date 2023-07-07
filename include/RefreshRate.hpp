@@ -1,29 +1,39 @@
-#pragma once
+#ifndef REFRESH_RATE_HPP_
+#define REFRESH_RATE_HPP_
+
+#include <array>
+#include <cstdint>
 
 #include <SFML/Graphics.hpp>
-#include <chrono>
-#include <deque>
-#include <utility>
 
-constexpr float WANTED_FRAMES_PER_SECOND = 60.0f;
-constexpr float WANTED_SECONDS_PER_FRAME = 1.0f / WANTED_FRAMES_PER_SECOND;
-
-constexpr int FPS_BUFFER_SIZE = 120;
+#include "CommonConstants.hpp"
 
 class RefreshRate {
-public:
-	void setup();
+ public:
+  using Frame_counter_t = uint64_t;
 
-	float get_elapsed_time();
-	float get_time_since_last_frame();
-	void reset_time_since_last_frame();
+  RefreshRate();
 
-	std::pair<float, float> get_fps_info();
+  void Reset();
 
-private:
-	sf::Clock start_clock;
-	sf::Clock last_frame_start_clock;
+  void ResetFrameTime();
 
-	std::deque<float> past_fps_buffer;
+  [[nodiscard]] bool IsTimeForNewFrame() const;
 
+  [[nodiscard]] double GetTotalElapsedTime() const;
+  [[nodiscard]] double GetFrameElapsedTime() const;
+
+  [[nodiscard]] std::pair<double, double> GetFpsInfo() const;
+
+  [[nodiscard]] Frame_counter_t GetFrameCount() const { return frame_counter_; };
+
+ private:
+  Frame_counter_t frame_counter_{};
+
+  sf::Clock start_clock_;
+  sf::Clock last_frame_start_clock_;
+
+  std::array<double, constants::kFpsBufferSize> past_fps_buffer_;
 };
+
+#endif /* REFRESH_RATE_HPP_ */

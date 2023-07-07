@@ -1,54 +1,43 @@
-#pragma once
+#ifndef FALLING_SAND_ENGINE_HPP_
+#define FALLING_SAND_ENGINE_HPP_
 
-#include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "Element.hpp"
-#include "Chunk.hpp"
-#include "random_generators.hpp"
-#include "constants.hpp"
+#include <CL/opencl.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
+
+#include "CameraView.hpp"
+#include "world/Substance.hpp"
+#include "world/World.hpp"
 
 class FallingSandEngine {
-public:
+ public:
+  FallingSandEngine() = delete;
 
-	FallingSandEngine();
+  explicit FallingSandEngine(sf::Vector2i size, sf::Vector2u screen_size);
 
-	void update();
+  explicit FallingSandEngine(sf::Vector2u size, sf::Vector2u screen_size);
 
-	void draw_world_on_texture(sf::Uint8* screen_pixels);
+  void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes, sf::Vector2u screen_size);
 
-	void set_cell(const int y, const int x, const Element &element, const bool activate_chunk);
+  void PlaceElementInLine(sf::Vector2i start_pos, sf::Vector2i end_pos, engine::Substance substance);
 
-    Substance get_substance_at(const int y, const int x);
-	
-    Element get_element_at(const int y, const int x);
-    void set_element_at(const int y, const int x, const Element &element, const bool activate_chunk);
+  void Update();
 
-    void swap_elements(const int y1, const int x1, const int y2, const int x2, bool activate_chunk);
-	
-	bool apply_law(const Substance substance, const int y, const int x);
+ private:
+  World world_;
+  sf::Vector2u screen_size_;
 
-	void set_chunk_activity(const int chunk_y, const int chunk_x, const bool activity);
+  cl::Context d_context_;
+  cl::CommandQueue d_queue_;
+  cl::Buffer d_input_buffer_;
+  cl::Buffer d_output_buffer_;
+  cl::Kernel d_kernel_;
 
-	void reverse_element_flow(const int y, const int x);
+  void Setup();
 
-	void update_future_update_scheme(const int chunk_y, const int chunk_x, const bool activity);
-	
-	~FallingSandEngine();
-
-private:
-	using Chunks_2D_t = Chunk**;
-
-    Chunks_2D_t chunks;
-
-	std::vector<bool> future_update_scheme;
-
-    FastRng terrain_rng;
-	
-	bool law_for_NOTHING(const int y, const int x);
-	bool law_for_AIR(const int y, const int x);
-	bool law_for_SAND(const int y, const int x);
-	bool law_for_STONE(const int y, const int x);
-	bool law_for_WATER(const int y, const int x);
-
+  [[nodiscard]] size_t GetPixelCount() const { return static_cast<size_t>(screen_size_.x) * screen_size_.y; }
 };
+
+#endif /* FALLING_SAND_ENGINE_HPP_ */
