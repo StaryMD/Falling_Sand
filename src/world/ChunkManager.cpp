@@ -19,11 +19,11 @@ bool ChunkManager::IsActive(const int pos_index) const {
 }
 
 bool ChunkManager::IsActive(const sf::Vector2i position) const {
-  const int index = position.y * size_.x + position.x;
-  return chunks_[index].IsActive();
+  const int pos_index = position.y * size_.x + position.x;
+  return chunks_[pos_index].IsActive();
 }
 
 void ChunkManager::SetActive(const sf::Vector2i position, const bool activity_) {
-  const int index = position.y * size_.x + position.x;
-  chunks_[index].SetActivity(activity_);
+  const int pos_index = position.y * size_.x + position.x;
+  chunks_[pos_index].SetActivity(activity_);
 }

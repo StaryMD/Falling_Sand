@@ -20,17 +20,16 @@ World::World(const sf::Vector2i size)
 World::World(const sf::Vector2u size) : World(sf::Vector2i(static_cast<int>(size.x), static_cast<int>(size.y))) {}
 
 void World::Update() {
-  using constants::kChunkNumHorizontal;
   using constants::kChunkSize;
 
   do_not_update_next_element_ = false;
 
   for (int chunk_y = chunk_manager_.GetSize().y - 1; chunk_y >= 0; --chunk_y) {
     for (int chunk_x = chunk_manager_.GetSize().x - 1; chunk_x >= 0; --chunk_x) {
-      if (chunk_manager_.IsActive(chunk_y * kChunkNumHorizontal + chunk_x)) {
+      if (chunk_manager_.IsActive(chunk_y * chunk_manager_.GetSize().x + chunk_x)) {
         bool chunk_was_updated = false;
 
-        for (int pos_y = constants::kChunkSize - 1; pos_y >= 0; --pos_y) {
+        for (int pos_y = kChunkSize - 1; pos_y >= 0; --pos_y) {
           for (int pos_x = 0; pos_x < kChunkSize; pos_x += 1 + static_cast<int>(do_not_update_next_element_)) {
             const sf::Vector2i element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
 
@@ -42,7 +41,7 @@ void World::Update() {
         if (chunk_was_updated) {
           UpdateChunkNeighborhood(chunk_x, chunk_y);
         } else {
-          UpdateChunk(chunk_x, chunk_y, false);
+          chunk_manager_.SetActive({chunk_x, chunk_y}, false);
         }
       }
     }
@@ -50,23 +49,19 @@ void World::Update() {
 }
 
 void World::UpdateChunkNeighborhood(const int chunk_x, const int chunk_y) {
-  using constants::kChunkNumHorizontal;
-  using constants::kChunkNumVertical;
+  const int start_chunk_x = std::max(chunk_x - 1, 0);
+  const int start_chunk_y = std::max(chunk_y - 1, 0);
 
-  for (int dy = -1; dy <= 1; ++dy) {
-    for (int dx = -1; dx <= 1; ++dx) {
-      const sf::Vector2i chunk_pos(chunk_x + dx, chunk_y + dy);
+  const int end_chunk_x = std::min(chunk_x + 1, chunk_manager_.GetSize().x - 1);
+  const int end_chunk_y = std::min(chunk_y + 1, chunk_manager_.GetSize().y - 1);
 
-      if (chunk_pos.x >= 0 && chunk_pos.x < kChunkNumHorizontal && chunk_pos.y >= 0 &&
-          chunk_pos.y < kChunkNumVertical) {
-        chunk_manager_.SetActive(chunk_pos);
-      }
+  for (int dy = start_chunk_y; dy <= end_chunk_y; ++dy) {
+    for (int dx = start_chunk_x; dx <= end_chunk_x; ++dx) {
+      const sf::Vector2i chunk_pos(dx, dy);
+
+      chunk_manager_.SetActive(chunk_pos);
     }
   }
-}
-
-void World::UpdateChunk(const int chunk_x, const int chunk_y, const bool activity_) {
-  chunk_manager_.SetActive({chunk_x, chunk_y}, activity_);
 }
 
 Element World::GetElementAt(const size_t index) const {

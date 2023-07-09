@@ -32,6 +32,7 @@ GameEngine::GameEngine(const std::string& application_name)
 }
 
 void GameEngine::Setup() {
+  window_.setVerticalSyncEnabled(true);
   screen_texture_.create(window_.getSize().x, window_.getSize().y);
   screen_sprite_.setTexture(screen_texture_);
 
