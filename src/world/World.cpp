@@ -25,7 +25,7 @@ void World::Update() {
   do_not_update_next_element_ = false;
 
   for (int chunk_y = chunk_manager_.GetSize().y - 1; chunk_y >= 0; --chunk_y) {
-    for (int chunk_x = chunk_manager_.GetSize().x - 1; chunk_x >= 0; --chunk_x) {
+    for (int chunk_x = 0; chunk_x < chunk_manager_.GetSize().x; ++chunk_x) {
       if (chunk_manager_.IsActive(chunk_y * chunk_manager_.GetSize().x + chunk_x)) {
         bool chunk_was_updated = false;
 
@@ -57,9 +57,7 @@ void World::UpdateChunkNeighborhood(const int chunk_x, const int chunk_y) {
 
   for (int dy = start_chunk_y; dy <= end_chunk_y; ++dy) {
     for (int dx = start_chunk_x; dx <= end_chunk_x; ++dx) {
-      const sf::Vector2i chunk_pos(dx, dy);
-
-      chunk_manager_.SetActive(chunk_pos);
+      chunk_manager_.SetActive({dx, dy});
     }
   }
 }

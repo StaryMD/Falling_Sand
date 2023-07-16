@@ -72,6 +72,12 @@ sf::Vector2<double> CameraView::MapPixelToCoords(const sf::Vector2i position) co
   return camera_position + local_position / GetZoomLevel();
 }
 
+sf::Vector2i CameraView::MapCoordsToPixel(const sf::Vector2<double> coords) const {
+  const sf::Vector2<double> camera_position{field_of_view_.left, field_of_view_.top};
+
+  return ToVector2<int>((coords - camera_position) * GetZoomLevel());
+}
+
 double CameraView::GetZoomLevel() const {
   return kZoomLevels[zoom_level_];
 }

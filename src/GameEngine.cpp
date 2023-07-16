@@ -1,17 +1,18 @@
 #include "GameEngine.hpp"
 
-#include <SFML/Window/Keyboard.hpp>
 #include <cmath>
-#include <cstddef>
 #include <iomanip>
 #include <sstream>
 #include <utility>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 
 #include "CameraView.hpp"
@@ -67,6 +68,7 @@ void GameEngine::DrawFrame() {
   screen_texture_.update(screen_pixels_.data());
   window_.draw(screen_sprite_);
 
+  ShowChunkBorders();
   ShowDebugInfo();
 
   window_.display();
@@ -83,12 +85,16 @@ void GameEngine::HandleInput() {
       window_.close();
     }
 
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F2)) {
+      do_compute_next_frame_ = !do_compute_next_frame_;
+    }
+
     if (event_handler_.IsKeyPressed(sf::Keyboard::F3)) {
       do_show_debug_screen_ = !do_show_debug_screen_;
     }
 
-    if (event_handler_.IsKeyPressed(sf::Keyboard::F2)) {
-      do_compute_next_frame_ = !do_compute_next_frame_;
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F5)) {
+      do_show_chunk_borders_ = !do_show_chunk_borders_;
     }
 
     if (event_handler_.IsKeyPressed(sf::Keyboard::Space)) {
@@ -135,6 +141,47 @@ void GameEngine::ComputeNextFrame() {
   }
 
   compute_elapsed_time_ = timer.getElapsedTime().asSeconds();
+}
+
+void GameEngine::ShowChunkBorders() {
+  if (do_show_chunk_borders_) {
+    const float chunk_border_size = static_cast<float>(constants::kChunkSize * camera_view_.GetZoomLevel());
+    const sf::Rect<double> fov = camera_view_.GetFieldOfView();
+
+    const sf::Vector2<double> offset = {fov.left - std::fmod(fov.left, constants::kChunkSize),
+                                        fov.top - std::fmod(fov.top, constants::kChunkSize)};
+
+    const sf::Vector2f pixel_offset = ToVector2<float>(camera_view_.MapCoordsToPixel(offset));
+
+    const int line_count_x = static_cast<int>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 1;
+    const int line_count_y = static_cast<int>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 1;
+
+    std::array<sf::Vertex, 2> line;
+
+    constexpr int kChunkBorderTransparency = 192;
+    const sf::Color chunk_border_color = sf::Color(0, 0, 0, kChunkBorderTransparency);
+
+    line[0] = sf::Vertex({pixel_offset.x, 0}, chunk_border_color);
+    line[1] = sf::Vertex({pixel_offset.x, static_cast<float>(window_.getSize().y)}, chunk_border_color);
+
+    for (int i = 0; i < line_count_x; ++i) {
+      line[0].position.x += chunk_border_size;
+      line[1].position.x += chunk_border_size;
+
+      window_.draw(line.data(), 2, sf::Lines);
+    }
+
+    line[0] = sf::Vertex({0, pixel_offset.y}, sf::Color(0, 0, 0, kChunkBorderTransparency));
+    line[1] = sf::Vertex({static_cast<float>(window_.getSize().x), pixel_offset.y},
+                         sf::Color(0, 0, 0, kChunkBorderTransparency));
+
+    for (int i = 0; i < line_count_y; ++i) {
+      line[0].position.y += chunk_border_size;
+      line[1].position.y += chunk_border_size;
+
+      window_.draw(line.data(), 2, sf::Lines);
+    }
+  }
 }
 
 void GameEngine::ShowDebugInfo() {

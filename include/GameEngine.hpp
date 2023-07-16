@@ -35,6 +35,8 @@ class GameEngine {
 
   void ShowDebugInfo();
 
+  void ShowChunkBorders();
+
   std::string ConstructDebugText() const;
 
   std::string application_name_;
@@ -55,6 +57,8 @@ class GameEngine {
   engine::Substance chosen_substance_{engine::Substance::kAir};
 
   bool do_show_debug_screen_{true};
+  bool do_show_chunk_borders_{true};
+
   bool do_compute_next_frame_{true};
   bool do_advance_one_frame_{false};
 

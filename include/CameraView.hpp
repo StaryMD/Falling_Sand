@@ -14,11 +14,15 @@ class CameraView {
 
   CameraView(sf::Vector2u max_size, sf::Vector2u size, sf::Vector2u pos_center);
 
+  [[nodiscard]] double GetZoomLevel() const;
+
   void Zoom(float delta, sf::Vector2i location);
 
   void MovePosition(sf::Vector2i delta);
 
   [[nodiscard]] sf::Vector2<double> MapPixelToCoords(sf::Vector2i position) const;
+
+  [[nodiscard]] sf::Vector2i MapCoordsToPixel(sf::Vector2<double> coords) const;
 
   [[nodiscard]] sf::Rect<double> GetFieldOfView() const;
 
@@ -26,8 +30,6 @@ class CameraView {
   sf::Vector2i max_size_;
   sf::Rect<double> field_of_view_;
   int zoom_level_;
-
-  [[nodiscard]] double GetZoomLevel() const;
 
   void ClampViewToMaxSize();
 
