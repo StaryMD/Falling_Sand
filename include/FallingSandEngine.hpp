@@ -25,6 +25,8 @@ class FallingSandEngine {
 
   void Update();
 
+  [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
+
  private:
   World world_;
   sf::Vector2u screen_size_;

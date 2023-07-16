@@ -84,3 +84,7 @@ void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const s
 void FallingSandEngine::Update() {
   world_.Update();
 }
+
+bool FallingSandEngine::IsChunkActive(const sf::Vector2i position) const {
+  return world_.IsChunkActive(position);
+}

@@ -1,5 +1,6 @@
 #include "GameEngine.hpp"
 
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -22,6 +23,13 @@
 #include "RefreshRate.hpp"
 #include "world/Substance.hpp"
 #include "world/World.hpp"
+
+constexpr uint32_t kChunkColorOpacity = 0x00000033;
+constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;
+constexpr uint32_t kChunkInactiveColor = 0xFF000000 | kChunkColorOpacity;
+
+constexpr uint32_t kChunkBorderTransparency = 0x00000033;
+constexpr uint32_t kChunkBorderColor = 0x00000000 | kChunkBorderTransparency;
 
 GameEngine::GameEngine(const std::string& application_name)
     : application_name_(application_name),
@@ -68,6 +76,7 @@ void GameEngine::DrawFrame() {
   screen_texture_.update(screen_pixels_.data());
   window_.draw(screen_sprite_);
 
+  ShowChunkActivity();
   ShowChunkBorders();
   ShowDebugInfo();
 
@@ -95,6 +104,10 @@ void GameEngine::HandleInput() {
 
     if (event_handler_.IsKeyPressed(sf::Keyboard::F5)) {
       do_show_chunk_borders_ = !do_show_chunk_borders_;
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F7)) {
+      do_show_chunk_activity_ = !do_show_chunk_activity_;
     }
 
     if (event_handler_.IsKeyPressed(sf::Keyboard::Space)) {
@@ -143,6 +156,43 @@ void GameEngine::ComputeNextFrame() {
   compute_elapsed_time_ = timer.getElapsedTime().asSeconds();
 }
 
+void GameEngine::ShowChunkActivity() {
+  if (do_show_chunk_activity_) {
+    const float chunk_border_size = static_cast<float>(constants::kChunkSize * camera_view_.GetZoomLevel());
+    const sf::Rect<double> fov = camera_view_.GetFieldOfView();
+
+    const sf::Vector2<double> offset = {fov.left - std::fmod(fov.left, constants::kChunkSize),
+                                        fov.top - std::fmod(fov.top, constants::kChunkSize)};
+
+    const sf::Vector2i top_left_chunk_pos =
+        ToVector2<int, double>({fov.left / constants::kChunkSize, fov.top / constants::kChunkSize});
+
+    const sf::Vector2f pixel_offset = ToVector2<float>(camera_view_.MapCoordsToPixel(offset));
+
+    sf::RectangleShape rect_shape({chunk_border_size, chunk_border_size});
+
+    const int visible_chunk_count_x = static_cast<int>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 2;
+    const int visible_chunk_count_y = static_cast<int>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 2;
+
+    for (int relative_chunk_x = 0; relative_chunk_x < visible_chunk_count_x; ++relative_chunk_x) {
+      for (int relative_chunk_y = 0; relative_chunk_y < visible_chunk_count_y; ++relative_chunk_y) {
+        const sf::Vector2i chunk_pos = top_left_chunk_pos + sf::Vector2i(relative_chunk_x, relative_chunk_y);
+        const sf::Vector2f screen_chunk_pos =
+            pixel_offset + ToVector2<float, int>({relative_chunk_x, relative_chunk_y}) * chunk_border_size;
+
+        if (sand_engine_.IsChunkActive(chunk_pos)) {
+          rect_shape.setFillColor(sf::Color(kChunkActiveColor));
+        } else {
+          rect_shape.setFillColor(sf::Color(kChunkInactiveColor));
+        }
+
+        rect_shape.setPosition(screen_chunk_pos);
+        window_.draw(rect_shape);
+      }
+    }
+  }
+}
+
 void GameEngine::ShowChunkBorders() {
   if (do_show_chunk_borders_) {
     const float chunk_border_size = static_cast<float>(constants::kChunkSize * camera_view_.GetZoomLevel());
@@ -158,11 +208,8 @@ void GameEngine::ShowChunkBorders() {
 
     std::array<sf::Vertex, 2> line;
 
-    constexpr int kChunkBorderTransparency = 192;
-    const sf::Color chunk_border_color = sf::Color(0, 0, 0, kChunkBorderTransparency);
-
-    line[0] = sf::Vertex({pixel_offset.x, 0}, chunk_border_color);
-    line[1] = sf::Vertex({pixel_offset.x, static_cast<float>(window_.getSize().y)}, chunk_border_color);
+    line[0] = sf::Vertex({pixel_offset.x, 0}, sf::Color(kChunkBorderColor));
+    line[1] = sf::Vertex({pixel_offset.x, static_cast<float>(window_.getSize().y)}, sf::Color(kChunkBorderColor));
 
     for (int i = 0; i < line_count_x; ++i) {
       line[0].position.x += chunk_border_size;

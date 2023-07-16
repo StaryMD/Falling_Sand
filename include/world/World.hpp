@@ -39,6 +39,8 @@ class World {
 
   [[nodiscard]] const void* GetElementsPointer() { return elements_.data(); }
 
+  [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
+
  private:
   sf::Vector2i size_;
 

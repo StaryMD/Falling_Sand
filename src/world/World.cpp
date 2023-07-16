@@ -22,26 +22,24 @@ World::World(const sf::Vector2u size) : World(sf::Vector2i(static_cast<int>(size
 void World::Update() {
   using constants::kChunkSize;
 
-  do_not_update_next_element_ = false;
-
   for (int chunk_y = chunk_manager_.GetSize().y - 1; chunk_y >= 0; --chunk_y) {
-    for (int chunk_x = 0; chunk_x < chunk_manager_.GetSize().x; ++chunk_x) {
-      if (chunk_manager_.IsActive(chunk_y * chunk_manager_.GetSize().x + chunk_x)) {
-        bool chunk_was_updated = false;
+    for (int pos_y = kChunkSize - 1; pos_y >= 0; --pos_y) {
+      for (int chunk_x = 0; chunk_x < chunk_manager_.GetSize().x; ++chunk_x) {
+        if (chunk_manager_.IsActive({chunk_x, chunk_y})) {
+          bool chunk_was_updated = false;
 
-        for (int pos_y = kChunkSize - 1; pos_y >= 0; --pos_y) {
           for (int pos_x = 0; pos_x < kChunkSize; pos_x += 1 + static_cast<int>(do_not_update_next_element_)) {
             const sf::Vector2i element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
 
             do_not_update_next_element_ = false;
             chunk_was_updated |= GovernLaw(element_position);
           }
-        }
 
-        if (chunk_was_updated) {
-          UpdateChunkNeighborhood(chunk_x, chunk_y);
-        } else {
-          chunk_manager_.SetActive({chunk_x, chunk_y}, false);
+          if (chunk_was_updated) {
+            UpdateChunkNeighborhood(chunk_x, chunk_y);
+          } else {
+            chunk_manager_.SetActive({chunk_x, chunk_y}, true);
+          }
         }
       }
     }
@@ -92,4 +90,8 @@ sf::Color World::GetColorAt(const sf::Vector2i pos) const {
 
 void World::SwapElements(const size_t index1, const size_t index2) {
   std::swap(elements_[index1], elements_[index2]);
+}
+
+bool World::IsChunkActive(const sf::Vector2i position) const {
+  return chunk_manager_.IsActive(position);
 }
