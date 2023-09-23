@@ -77,7 +77,8 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
 void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const sf::Vector2i end_pos,
                                            const engine::Substance substance) {
   ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
-    world_.SetElementAt(ToVector2<int, float>({point_on_line_x, point_on_line_y}), Element(substance));
+    world_.SetElementAt(ToVector2<int, float>({point_on_line_x, point_on_line_y}),
+                        Element(substance, world_.GetCurrentTickUpdateBoolean()));
   });
 }
 
@@ -87,4 +88,8 @@ void FallingSandEngine::Update() {
 
 bool FallingSandEngine::IsChunkActive(const sf::Vector2i position) const {
   return world_.IsChunkActive(position);
+}
+
+Element FallingSandEngine::GetElement(const sf::Vector2i position) const {
+  return world_.GetElementAt(position);
 }

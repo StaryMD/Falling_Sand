@@ -23,6 +23,8 @@ class World {
   [[nodiscard]] Element GetElementAt(size_t index) const;
   [[nodiscard]] Element GetElementAt(sf::Vector2i pos) const;
 
+  [[nodiscard]] engine::Substance GetSubstanceAt(size_t index) const;
+
   void SetElementAt(size_t index, Element element);
   void SetElementAt(sf::Vector2i pos, Element element);
 
@@ -41,6 +43,8 @@ class World {
 
   [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
 
+  [[nodiscard]] uint8_t GetCurrentTickUpdateBoolean() const { return current_update_tick_boolean_; }
+
  private:
   sf::Vector2i size_;
 
@@ -48,7 +52,7 @@ class World {
   std::vector<Element> elements_;
   FastRng rng_;
 
-  [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
+  [[nodiscard]] bool WasNotUpdatedThisTick(Element element) const;
 
   bool GovernLaw(sf::Vector2i position);
 
@@ -58,6 +62,8 @@ class World {
   void UpdateChunkNeighborhood(int chunk_x, int chunk_y);
 
   bool do_not_update_next_element_{};
+
+  uint8_t current_update_tick_boolean_{0};
 };
 
 #endif /* WORLD_HPP_ */

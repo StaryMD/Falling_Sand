@@ -1,5 +1,8 @@
 #include "world/World.hpp"
 
+#include <algorithm>
+#include <array>
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -13,37 +16,39 @@ World::World(const sf::Vector2i size)
     : size_(size), chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {
-    element = Element(engine::Substance::kAir);
+    element = Element(engine::Substance::kAir, current_update_tick_boolean_);
   }
 }
 
 World::World(const sf::Vector2u size) : World(sf::Vector2i(static_cast<int>(size.x), static_cast<int>(size.y))) {}
 
 void World::Update() {
+  using constants::kChunkNumHorizontal;
   using constants::kChunkSize;
 
   for (int chunk_y = chunk_manager_.GetSize().y - 1; chunk_y >= 0; --chunk_y) {
-    for (int pos_y = kChunkSize - 1; pos_y >= 0; --pos_y) {
-      for (int chunk_x = 0; chunk_x < chunk_manager_.GetSize().x; ++chunk_x) {
-        if (chunk_manager_.IsActive({chunk_x, chunk_y})) {
-          bool chunk_was_updated = false;
+    for (int chunk_x = 0; chunk_x < chunk_manager_.GetSize().x; ++chunk_x) {
+      if (chunk_manager_.IsActive({chunk_x, chunk_y})) {
+        bool chunk_suffered_updates = false;
 
-          for (int pos_x = 0; pos_x < kChunkSize; pos_x += 1 + static_cast<int>(do_not_update_next_element_)) {
+        for (int pos_y = 0; pos_y < kChunkSize; ++pos_y) {
+          for (int pos_x = 0; pos_x < kChunkSize; ++pos_x) {
             const sf::Vector2i element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
 
-            do_not_update_next_element_ = false;
-            chunk_was_updated |= GovernLaw(element_position);
+            chunk_suffered_updates |= GovernLaw(element_position);
           }
+        }
 
-          if (chunk_was_updated) {
-            UpdateChunkNeighborhood(chunk_x, chunk_y);
-          } else {
-            chunk_manager_.SetActive({chunk_x, chunk_y}, true);
-          }
+        if (chunk_suffered_updates) {
+          UpdateChunkNeighborhood(chunk_x, chunk_y);
+        } else {
+          chunk_manager_.SetActive({chunk_x, chunk_y}, false);
         }
       }
     }
   }
+
+  current_update_tick_boolean_ = static_cast<uint8_t>(!static_cast<bool>(current_update_tick_boolean_));
 }
 
 void World::UpdateChunkNeighborhood(const int chunk_x, const int chunk_y) {
@@ -60,8 +65,16 @@ void World::UpdateChunkNeighborhood(const int chunk_x, const int chunk_y) {
   }
 }
 
+bool World::WasNotUpdatedThisTick(const Element element) const {
+  return element.GetUnmoved() != current_update_tick_boolean_;
+}
+
 Element World::GetElementAt(const size_t index) const {
   return elements_[index];
+}
+
+engine::Substance World::GetSubstanceAt(const size_t index) const {
+  return elements_[index].GetSubstance();
 }
 
 Element World::GetElementAt(const sf::Vector2i pos) const {
@@ -90,6 +103,8 @@ sf::Color World::GetColorAt(const sf::Vector2i pos) const {
 
 void World::SwapElements(const size_t index1, const size_t index2) {
   std::swap(elements_[index1], elements_[index2]);
+  elements_[index1].SetUnmoved(current_update_tick_boolean_);
+  elements_[index2].SetUnmoved(current_update_tick_boolean_);
 }
 
 bool World::IsChunkActive(const sf::Vector2i position) const {

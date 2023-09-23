@@ -34,6 +34,8 @@ class EventHandler {
   [[nodiscard]] bool IsMouseButtonPressed(sf::Keyboard::Key mouse_button) const;
   [[nodiscard]] bool IsMouseButtonReleased(sf::Keyboard::Key mouse_button) const;
 
+  [[nodiscard]] sf::Vector2i GetMouseLocation() const;
+
   [[nodiscard]] float GetMouseWheelScrollDelta() const;
 
   [[nodiscard]] sf::Vector2i GetMouseScrollWheelLocation() const;

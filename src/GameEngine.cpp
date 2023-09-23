@@ -1,6 +1,5 @@
 #include "GameEngine.hpp"
 
-#include <SFML/Graphics/RectangleShape.hpp>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -9,7 +8,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -21,15 +22,23 @@
 #include "CommonUtility.hpp"
 #include "FallingSandEngine.hpp"
 #include "RefreshRate.hpp"
+#include "world/Element.hpp"
 #include "world/Substance.hpp"
 #include "world/World.hpp"
 
-constexpr uint32_t kChunkColorOpacity = 0x00000033;
-constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;
-constexpr uint32_t kChunkInactiveColor = 0xFF000000 | kChunkColorOpacity;
+constexpr uint32_t kElementTooltipOpacity = 0x000000CCU;
+constexpr uint32_t kElementTooltipRectangleColor = 0x00000000U | kElementTooltipOpacity;
+constexpr uint32_t kElementTooltipOutlineColor = 0x00FFFF00U | kElementTooltipOpacity;
+constexpr uint32_t kElementTooltipTextColor = 0xFFFFFF00U | kElementTooltipOpacity;
 
-constexpr uint32_t kChunkBorderTransparency = 0x00000033;
-constexpr uint32_t kChunkBorderColor = 0x00000000 | kChunkBorderTransparency;
+constexpr unsigned kCharacterSize = 18;
+
+constexpr uint32_t kChunkColorOpacity = 0x00000033U;
+constexpr uint32_t kChunkActiveColor = 0x00FF0000U | kChunkColorOpacity;
+constexpr uint32_t kChunkInactiveColor = 0xFF000000U | kChunkColorOpacity;
+
+constexpr uint32_t kChunkBorderTransparency = 0x00000033U;
+constexpr uint32_t kChunkBorderColor = 0x00000000U | kChunkBorderTransparency;
 
 GameEngine::GameEngine(const std::string& application_name)
     : application_name_(application_name),
@@ -45,12 +54,9 @@ void GameEngine::Setup() {
   screen_texture_.create(window_.getSize().x, window_.getSize().y);
   screen_sprite_.setTexture(screen_texture_);
 
-  font_loaded_successfully_ = font_.loadFromFile("assets/fonts/consola.ttf");
+  font_loaded_successfully_ = consola_font_.loadFromFile("assets/fonts/consola.ttf");
 
   screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) * sizeof(sf::Color));
-
-  text_.setFont(font_);
-  text_.setCharacterSize(18U);  // NOLINT
 
   refresh_rate_.Reset();
 }
@@ -78,6 +84,7 @@ void GameEngine::DrawFrame() {
 
   ShowChunkActivity();
   ShowChunkBorders();
+  ShowElementTooltip();
   ShowDebugInfo();
 
   window_.display();
@@ -106,8 +113,12 @@ void GameEngine::HandleInput() {
       do_show_chunk_borders_ = !do_show_chunk_borders_;
     }
 
-    if (event_handler_.IsKeyPressed(sf::Keyboard::F7)) {
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F6)) {
       do_show_chunk_activity_ = !do_show_chunk_activity_;
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::F7)) {
+      do_show_element_info_ = !do_show_element_info_;
     }
 
     if (event_handler_.IsKeyPressed(sf::Keyboard::Space)) {
@@ -231,17 +242,42 @@ void GameEngine::ShowChunkBorders() {
   }
 }
 
+void GameEngine::ShowElementTooltip() {
+  if (do_show_element_info_ && font_loaded_successfully_) {
+    const sf::Vector2i mouse_position = event_handler_.GetMouseLocation();
+    const sf::Vector2i map_coords = ToVector2<int>(camera_view_.MapPixelToCoords(mouse_position));
+
+    const Element element = sand_engine_.GetElement(map_coords);
+
+    sf::Text tooltip_text(element.GetInformation(), consola_font_, kCharacterSize);
+    tooltip_text.setPosition(ToVector2<float>(mouse_position + sf::Vector2i(15, 10)));
+    tooltip_text.setFillColor(sf::Color(kElementTooltipTextColor));
+
+    sf::Vector2f tooltip_size = {tooltip_text.getGlobalBounds().width, tooltip_text.getGlobalBounds().height};
+
+    sf::RectangleShape tooltip_rect(tooltip_size + sf::Vector2f(10, 2));
+    tooltip_rect.setOrigin({-5, -5});
+    tooltip_rect.setPosition(ToVector2<float>(mouse_position + sf::Vector2i(5, 5)));
+    tooltip_rect.setFillColor(sf::Color(kElementTooltipRectangleColor));
+    tooltip_rect.setOutlineThickness(3.0F);
+    tooltip_rect.setOutlineColor(sf::Color(kElementTooltipOutlineColor));
+
+    window_.draw(tooltip_rect);
+    window_.draw(tooltip_text);
+  }
+}
+
 void GameEngine::ShowDebugInfo() {
   if (do_show_debug_screen_ && font_loaded_successfully_) {
-    text_.setString(ConstructDebugText());
+    sf::Text text(ConstructDebugText(), consola_font_, kCharacterSize);
 
-    text_.setFillColor(sf::Color::Black);
-    text_.setPosition(3, 3);
-    window_.draw(text_);
+    text.setPosition(3, 3);
+    text.setFillColor(sf::Color::Black);
+    window_.draw(text);
 
-    text_.setFillColor(sf::Color::White);
-    text_.setPosition(1, 1);
-    window_.draw(text_);
+    text.setPosition(1, 1);
+    text.setFillColor(sf::Color::White);
+    window_.draw(text);
   }
 }
 

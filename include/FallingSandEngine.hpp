@@ -8,6 +8,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "CameraView.hpp"
+#include "world/Element.hpp"
 #include "world/Substance.hpp"
 #include "world/World.hpp"
 
@@ -26,6 +27,8 @@ class FallingSandEngine {
   void Update();
 
   [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
+
+  [[nodiscard]] Element GetElement(sf::Vector2i position) const;
 
  private:
   World world_;

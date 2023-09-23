@@ -121,6 +121,10 @@ void EventHandler::UpdateMouseLocation() {
   mouse_location_ = sf::Mouse::getPosition();
 }
 
+sf::Vector2i EventHandler::GetMouseLocation() const {
+  return mouse_location_;
+}
+
 std::pair<sf::Vector2i, sf::Vector2i> EventHandler::GetMouseMovement() const {
   return std::make_pair(prev_mouse_location_, mouse_location_);
 }

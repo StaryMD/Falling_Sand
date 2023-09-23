@@ -6,42 +6,52 @@
 #include "world/Substance.hpp"
 #include "world/World.hpp"
 
+using constants::kWorldWidth;
+using engine::GetDensity;
+using engine::IsSolid;
+using engine::Substance;
+
 template <>
-bool World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const sf::Vector2i /*position*/) {
+bool World::GovernLaw<Substance::kAir>(const Element /*element*/, const sf::Vector2i /*position*/) {
   return false;
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kSand>(const Element /*element*/, const sf::Vector2i position) {
-  if (position.y == constants::kWorldHeight - 1) {
+bool World::GovernLaw<Substance::kSand>(const Element /*element*/, const sf::Vector2i position) {
+  if ((position.y == constants::kWorldHeight - 1)) {
     return false;
   }
 
-  const int index = position.y * constants::kWorldWidth + position.x;
+  const int index = position.y * kWorldWidth + position.x;
 
-  if (!engine::IsSolid(GetElementAt(index + constants::kWorldWidth).GetSubstance())) {
-    SwapElements(index, index + constants::kWorldWidth);
+  if (!WasNotUpdatedThisTick(GetElementAt(index))) {
+    return false;
   }
 
-  const bool can_fall_left = position.x > 0 && !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
-                             !engine::IsSolid(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance());
-  const bool can_fall_right = position.x < constants::kWorldWidth - 1 &&
-                              !engine::IsSolid(GetElementAt(index + 1).GetSubstance()) &&
-                              !engine::IsSolid(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance());
+  if (!IsSolid(GetSubstanceAt(index + kWorldWidth))) {
+    SwapElements(index, index + kWorldWidth);
+  }
+
+  const bool can_fall_left = position.x > 0 && !IsSolid(GetSubstanceAt(index - 1)) &&
+                             !IsSolid(GetSubstanceAt(index + kWorldWidth - 1)) &&
+                             WasNotUpdatedThisTick(GetElementAt(index + kWorldWidth - 1));
+  const bool can_fall_right = position.x < kWorldWidth - 1 && !IsSolid(GetSubstanceAt(index + 1)) &&
+                              !IsSolid(GetSubstanceAt(index + kWorldWidth + 1)) &&
+                              WasNotUpdatedThisTick(GetElementAt(index + kWorldWidth + 1));
 
   if (can_fall_left && !can_fall_right) {
-    SwapElements(index, index + constants::kWorldWidth - 1);
+    SwapElements(index, index + kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    SwapElements(index, index + constants::kWorldWidth + 1);
+    SwapElements(index, index + kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (rng_.NextRandValue() & 1) {
-      SwapElements(index, index + constants::kWorldWidth - 1);
+      SwapElements(index, index + kWorldWidth - 1);
     } else {
-      SwapElements(index, index + constants::kWorldWidth + 1);
+      SwapElements(index, index + kWorldWidth + 1);
     }
     return true;
   }
@@ -50,70 +60,71 @@ bool World::GovernLaw<engine::Substance::kSand>(const Element /*element*/, const
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kStone>(const Element /*element*/, const sf::Vector2i /*position*/) {
+bool World::GovernLaw<Substance::kStone>(const Element /*element*/, const sf::Vector2i /*position*/) {
   return false;
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kWater>(const Element element, const sf::Vector2i position) {
-  const int index = position.y * constants::kWorldWidth + position.x;
+bool World::GovernLaw<Substance::kWater>(const Element element, const sf::Vector2i position) {
+  const int index = position.y * kWorldWidth + position.x;
+
+  if (!WasNotUpdatedThisTick(GetElementAt(index))) {
+    return false;
+  }
 
   const bool can_fall_down = position.y != constants::kWorldHeight - 1 &&
-                             (engine::GetDensity(engine::Substance::kWater) >
-                              engine::GetDensity(GetElementAt(index + constants::kWorldWidth).GetSubstance()));
-
+                             (GetDensity(Substance::kWater) > GetDensity(GetSubstanceAt(index + kWorldWidth)) &&
+                              WasNotUpdatedThisTick(GetElementAt(index + kWorldWidth)));
   if (can_fall_down) {
-    SwapElements(index, index + constants::kWorldWidth);
+    SwapElements(index, index + kWorldWidth);
     return true;
   }
 
   const bool can_fall_left = position.y != constants::kWorldHeight - 1 && position.x > 0 &&
-                             (engine::GetDensity(engine::Substance::kWater) >
-                              engine::GetDensity(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance()));
-  const bool can_fall_right = position.y != constants::kWorldHeight - 1 && position.x < constants::kWorldWidth - 1 &&
-                              (engine::GetDensity(engine::Substance::kWater) >
-                               engine::GetDensity(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance()));
+                             (GetDensity(Substance::kWater) > GetDensity(GetSubstanceAt(index + kWorldWidth - 1)) &&
+                              WasNotUpdatedThisTick(GetElementAt(index + kWorldWidth - 1)));
+  const bool can_fall_right = position.y != constants::kWorldHeight - 1 && position.x < kWorldWidth - 1 &&
+                              (GetDensity(Substance::kWater) > GetDensity(GetSubstanceAt(index + kWorldWidth + 1)) &&
+                               WasNotUpdatedThisTick(GetElementAt(index + kWorldWidth + 1)));
 
   if (can_fall_left && !can_fall_right) {
-    elements_[index].SetSpeed(-1);
-    SwapElements(index, index + constants::kWorldWidth - 1);
+    elements_[index].SetDirection(0);
+    SwapElements(index, index + kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    elements_[index].SetSpeed(1);
-    SwapElements(index, index + constants::kWorldWidth + 1);
+    elements_[index].SetDirection(1);
+    SwapElements(index, index + kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
-    if (element.GetSpeed() < 0) {
-      SwapElements(index, index + constants::kWorldWidth - 1);
+    if (element.GetDirection() == 0) {
+      SwapElements(index, index + kWorldWidth - 1);
     } else {
-      SwapElements(index, index + constants::kWorldWidth + 1);
+      SwapElements(index, index + kWorldWidth + 1);
     }
     return true;
   }
 
-  const bool can_go_left = position.x > 0 && (engine::GetDensity(engine::Substance::kWater) >
-                                              engine::GetDensity(GetElementAt(index - 1).GetSubstance()));
-  const bool can_go_right =
-      position.x < constants::kWorldWidth - 1 &&
-      (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetElementAt(index + 1).GetSubstance()));
+  const bool can_slide_left =
+      position.x > 0 && (GetDensity(Substance::kWater) > GetDensity(GetSubstanceAt(index - 1)) &&
+                         WasNotUpdatedThisTick(GetElementAt(index - 1)));
+  const bool can_slide_right =
+      position.x < kWorldWidth - 1 && (GetDensity(Substance::kWater) > GetDensity(GetSubstanceAt(index + 1)) &&
+                                       WasNotUpdatedThisTick(GetElementAt(index + 1)));
 
-  if (can_go_left && !can_go_right) {
-    do_not_update_next_element_ = true;
-    elements_[index].SetSpeed(-1);
+  if (can_slide_left && !can_slide_right) {
+    elements_[index].SetDirection(0);
     SwapElements(index, index - 1);
     return true;
   }
-  if (can_go_right && !can_go_left) {
-    do_not_update_next_element_ = true;
-    elements_[index].SetSpeed(1);
+  if (can_slide_right && !can_slide_left) {
+    elements_[index].SetDirection(1);
     SwapElements(index, index + 1);
     return true;
   }
-  if (can_go_left && can_go_right) {
-    do_not_update_next_element_ = true;
-    if (element.GetSpeed() < 0) {
+  if (can_slide_left && can_slide_right) {
+    if (element.GetDirection() == 0) {
       SwapElements(index, index - 1);
     } else {
       SwapElements(index, index + 1);
@@ -128,17 +139,17 @@ bool World::GovernLaw(const sf::Vector2i position) {
   const Element element = GetElementAt(position);
 
   switch (element.GetSubstance()) {
-    case engine::Substance::kAir: {
-      return GovernLaw<engine::Substance::kAir>(element, position);
+    case Substance::kAir: {
+      return GovernLaw<Substance::kAir>(element, position);
     }
-    case engine::Substance::kSand: {
-      return GovernLaw<engine::Substance::kSand>(element, position);
+    case Substance::kSand: {
+      return GovernLaw<Substance::kSand>(element, position);
     }
-    case engine::Substance::kStone: {
-      return GovernLaw<engine::Substance::kStone>(element, position);
+    case Substance::kStone: {
+      return GovernLaw<Substance::kStone>(element, position);
     }
-    case engine::Substance::kWater: {
-      return GovernLaw<engine::Substance::kWater>(element, position);
+    case Substance::kWater: {
+      return GovernLaw<Substance::kWater>(element, position);
     }
     default: {
       // unreachable (hopefully)

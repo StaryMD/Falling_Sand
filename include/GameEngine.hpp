@@ -35,9 +35,11 @@ class GameEngine {
 
   void ShowDebugInfo();
 
+  void ShowChunkBorders();
+
   void ShowChunkActivity();
 
-  void ShowChunkBorders();
+  void ShowElementTooltip();
 
   std::string ConstructDebugText() const;
 
@@ -53,14 +55,14 @@ class GameEngine {
   sf::Sprite screen_sprite_;
   std::vector<sf::Uint8> screen_pixels_;
 
-  sf::Text text_;
-  sf::Font font_;
+  sf::Font consola_font_;
 
   engine::Substance chosen_substance_{engine::Substance::kAir};
 
   bool do_show_debug_screen_{true};
-  bool do_show_chunk_borders_{false};
-  bool do_show_chunk_activity_{false};
+  bool do_show_chunk_borders_{true};
+  bool do_show_chunk_activity_{true};
+  bool do_show_element_info_{true};
 
   bool do_compute_next_frame_{true};
   bool do_advance_one_frame_{false};
