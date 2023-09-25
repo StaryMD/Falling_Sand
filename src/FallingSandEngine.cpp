@@ -29,8 +29,8 @@ void FallingSandEngine::Setup() {
   d_input_buffer_ = cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
   d_output_buffer_ = cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));
 
-  std::string kernel_source = ReadFileContent("assets/kernels/PaintOn.cl");
-  cl::Program program(kernel_source);
+  const std::string kernel_source = ReadFileContent("assets/kernels/PaintOn.cl");
+  const cl::Program program(kernel_source);
 
   std::stringstream build_options;
   build_options << "-DSCREEN_SIZE_X=" << screen_size_.x << " -DSCREEN_SIZE_Y=" << screen_size_.y

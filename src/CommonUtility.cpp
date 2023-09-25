@@ -25,7 +25,7 @@ void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point
 }
 
 std::string ReadFileContent(const std::string& filename) {
-  std::ifstream file(filename);
+  const std::ifstream file(filename);
   std::stringstream str_stream;
   str_stream << file.rdbuf();
   return str_stream.str();

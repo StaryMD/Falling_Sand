@@ -70,7 +70,7 @@ void GameEngine::Run() {
 }
 
 void GameEngine::DrawFrame() {
-  sf::Clock timer;
+  const sf::Clock timer;
 
   sand_engine_.PaintOn(camera_view_, screen_pixels_, this->window_.getSize());
   screen_texture_.update(screen_pixels_.data());
@@ -85,7 +85,7 @@ void GameEngine::DrawFrame() {
 }
 
 void GameEngine::HandleInput() {
-  sf::Clock timer;
+  const sf::Clock timer;
 
   event_handler_.HandleEvents(window_);
 
@@ -146,7 +146,7 @@ void GameEngine::HandleInput() {
 }
 
 void GameEngine::ComputeNextFrame() {
-  sf::Clock timer;
+  const sf::Clock timer;
 
   if (do_compute_next_frame_ || do_advance_one_frame_) {
     do_advance_one_frame_ = false;

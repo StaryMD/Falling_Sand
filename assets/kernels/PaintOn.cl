@@ -16,7 +16,7 @@
 
 struct Element {
   uchar subs;
-  uchar color_sample;
+  // uchar color_sample;
   uchar filling[1];
 };
 
