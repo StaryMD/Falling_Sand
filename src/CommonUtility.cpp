@@ -1,8 +1,13 @@
 #include "CommonUtility.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <sstream>
+#include <string>
+
+#include <SFML/System/Vector2.hpp>
 
 void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point,
                     const std::function<void(const float point_on_line_x, const float point_on_line_y)>& do_function) {

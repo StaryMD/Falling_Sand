@@ -1,10 +1,12 @@
 #include "EventHandler.hpp"
 
+#include <utility>
+
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-
-#include "CameraView.hpp"
 
 void EventHandler::HandleEvents(sf::RenderWindow& window) {
   for (int i = static_cast<int>(keys_to_update_.size()) - 1; i >= 0; --i) {

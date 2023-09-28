@@ -3,8 +3,10 @@
 
 #include <array>
 #include <cstdint>
+#include <utility>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Clock.hpp>
 
 #include "CommonConstants.hpp"
 

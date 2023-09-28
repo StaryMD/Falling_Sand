@@ -1,8 +1,10 @@
 #include "world/ChunkManager.hpp"
 
+#include <cstddef>
+
 #include <SFML/System/Vector2.hpp>
 
-#include "CommonConstants.hpp"
+#include "world/Chunk.hpp"
 
 ChunkManager::ChunkManager(const sf::Vector2i size) : size_(size) {
   chunks_.resize(static_cast<size_t>(size_.x) * size_.y);

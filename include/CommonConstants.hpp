@@ -1,7 +1,7 @@
 #ifndef COMMON_CONSTANTS_HPP_
 #define COMMON_CONSTANTS_HPP_
 
-#include <corecrt.h>
+#include <cstddef>
 
 namespace constants {
 

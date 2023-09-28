@@ -9,8 +9,6 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/WindowHandle.hpp>
 
-#include "RefreshRate.hpp"
-
 class EventHandler {
  public:
   EventHandler() {

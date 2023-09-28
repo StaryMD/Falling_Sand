@@ -1,20 +1,28 @@
 #include "GameEngine.hpp"
 
-#include <SFML/Graphics/RectangleShape.hpp>
+#include <array>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <iomanip>
+#include <ios>
 #include <sstream>
+#include <string>
 #include <utility>
 
-#include <SFML/Graphics.hpp>
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/Transformable.hpp>
-#include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/WindowStyle.hpp>
 
 #include "CameraView.hpp"
 #include "CommonConstants.hpp"
@@ -22,7 +30,6 @@
 #include "FallingSandEngine.hpp"
 #include "RefreshRate.hpp"
 #include "world/Substance.hpp"
-#include "world/World.hpp"
 
 constexpr uint32_t kChunkColorOpacity = 0x00000033;
 constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;

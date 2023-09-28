@@ -1,4 +1,3 @@
-#include "CommonConstants.hpp"
 #include "GameEngine.hpp"
 
 int main() {

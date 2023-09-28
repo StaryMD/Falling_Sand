@@ -1,5 +1,7 @@
 #include "CameraView.hpp"
 
+#include <algorithm>
+
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 

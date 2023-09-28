@@ -1,6 +1,7 @@
 #include "world/Substance.hpp"
 
 #include <array>
+#include <cstdint>
 
 namespace engine {
 

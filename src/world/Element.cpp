@@ -1,5 +1,11 @@
 #include "world/Element.hpp"
 
+#include <vector>
+
+#include <SFML/Graphics/Color.hpp>
+
+#include "world/Substance.hpp"
+
 Element::Element() : substance_(engine::Substance::kNothing) {
   speed_ = -1;
 }

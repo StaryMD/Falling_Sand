@@ -27,6 +27,7 @@ if(${USE_CLANG_TIDY})
     -format-style='file';
     -extra-arg=-std=c++${MY_CPP_VERSION};
     --quiet;
+    --use-color;
     -p=${CMAKE_BINARY_DIR}/compile_commands.json;
   )
 endif()

@@ -1,5 +1,11 @@
 #include "RefreshRate.hpp"
 
+#include <algorithm>
+#include <cstddef>
+#include <utility>
+
+#include <SFML/System/Clock.hpp>
+
 #include "CommonConstants.hpp"
 
 RefreshRate::RefreshRate() {

@@ -1,12 +1,20 @@
 #include "FallingSandEngine.hpp"
 
+#include <cstddef>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
 #include <CL/opencl.hpp>
+
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <iostream>
-#include <sstream>
 
 #include "CameraView.hpp"
 #include "CommonUtility.hpp"
@@ -24,7 +32,38 @@ FallingSandEngine::FallingSandEngine(const sf::Vector2u size, const sf::Vector2u
 }
 
 void FallingSandEngine::Setup() {
-  d_context_ = cl::Context(CL_DEVICE_TYPE_DEFAULT);
+  {
+    std::vector<cl::Platform> platforms;
+    cl::Platform::get(&platforms);
+
+    std::unique_ptr<cl::Device> best_device = nullptr;
+    size_t device_speed_best = 0;
+
+    for (const cl::Platform& platform : platforms) {
+      std::vector<cl::Device> devices;
+      platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
+
+      for (const cl::Device& device : devices) {
+        const size_t max_compute_units = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>();
+        const size_t max_clock_frequency = device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>();
+
+        const size_t device_speed = max_compute_units * max_clock_frequency;
+
+        if (device_speed > device_speed_best) {
+          device_speed_best = device_speed;
+          best_device = std::make_unique<cl::Device>(device);
+        }
+      }
+    }
+
+    if (best_device == nullptr) {
+      std::cout << "Not good man\n";
+    }
+
+    d_context_ = cl::Context(*best_device);
+
+    std::cout << "Using device: " << best_device->getInfo<CL_DEVICE_NAME>() << '\n';
+  }
   d_queue_ = cl::CommandQueue(d_context_);
   d_input_buffer_ = cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
   d_output_buffer_ = cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));

@@ -2,9 +2,9 @@
 #define COMMON_UTILITY_HPP_
 
 #include <functional>
+#include <string>
 
 #include <SFML/System/Vector2.hpp>
-#include <string>
 
 void ExecuteInALine(sf::Vector2i start_point, sf::Vector2i end_point,
                     const std::function<void(const float point_on_line_x, const float point_on_line_y)>& do_function);
