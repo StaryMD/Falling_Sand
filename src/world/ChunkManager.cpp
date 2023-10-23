@@ -1,6 +1,7 @@
 #include "world/ChunkManager.hpp"
 
 #include <cstddef>
+#include <cstdint>
 
 #include <SFML/System/Vector2.hpp>
 

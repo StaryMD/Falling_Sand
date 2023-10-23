@@ -2,7 +2,6 @@
 #define SUBSTANCE_HPP_
 
 #include <cstdint>
-#include <vector>
 
 #include <SFML/Graphics/Color.hpp>
 
