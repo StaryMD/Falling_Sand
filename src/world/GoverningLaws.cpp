@@ -7,7 +7,66 @@
 #include "world/World.hpp"
 
 template <>
-bool World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const sf::Vector2i /*position*/) {
+bool World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const sf::Vector2i position) {
+  const int index = position.y * constants::kWorldWidth + position.x;
+
+  const bool can_fall_down = CanAccess({position.x, position.y - 1}) &&
+                             (engine::GetDensity(engine::Substance::kAir) >
+                              engine::GetDensity(GetElementAt(index - constants::kWorldWidth).GetSubstance()));
+
+  if (can_fall_down) {
+    SwapElements(index, index - constants::kWorldWidth);
+    return true;
+  }
+
+  const bool can_fall_left = CanAccess({position.x - 1, position.y - 1}) &&
+                             (engine::GetDensity(engine::Substance::kAir) >
+                              engine::GetDensity(GetElementAt(index - constants::kWorldWidth - 1).GetSubstance()));
+  const bool can_fall_right = CanAccess({position.x + 1, position.y - 1}) &&
+                              (engine::GetDensity(engine::Substance::kAir) >
+                               engine::GetDensity(GetElementAt(index - constants::kWorldWidth + 1).GetSubstance()));
+
+  if (can_fall_left && !can_fall_right) {
+    SwapElements(index, index - constants::kWorldWidth - 1);
+    return true;
+  }
+  if (can_fall_right && !can_fall_left) {
+    SwapElements(index, index - constants::kWorldWidth + 1);
+    return true;
+  }
+  if (can_fall_left && can_fall_right) {
+    if (rng_.NextRandValue() & 1) {
+      SwapElements(index, index - constants::kWorldWidth - 1);
+    } else {
+      SwapElements(index, index - constants::kWorldWidth + 1);
+    }
+    return true;
+  }
+
+  const bool can_go_left =
+      CanAccessWithRandomVisit({position.x - 1, position.y}) &&
+      (engine::GetDensity(engine::Substance::kAir) > engine::GetDensity(GetElementAt(index - 1).GetSubstance()));
+  const bool can_go_right =
+      CanAccessWithRandomVisit({position.x + 1, position.y}) &&
+      (engine::GetDensity(engine::Substance::kAir) > engine::GetDensity(GetElementAt(index + 1).GetSubstance()));
+
+  if (can_go_left && !can_go_right) {
+    SwapElements(index, index - 1);
+    return true;
+  }
+  if (can_go_right && !can_go_left) {
+    SwapElements(index, index + 1);
+    return true;
+  }
+  if (can_go_left && can_go_right) {
+    if (rng_.NextRandValue() & 1) {
+      SwapElements(index, index - 1);
+    } else {
+      SwapElements(index, index + 1);
+    }
+    return true;
+  }
+
   return false;
 }
 

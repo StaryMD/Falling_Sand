@@ -138,5 +138,5 @@ bool World::CanAccessWithRandomVisit(const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
   const bool skip_visit_check = 0 == (rng_.NextRandValue() % constants::kChanceToIgnoreVisitedness);
 
-  return !skip_visit_check && !visited_[index];
+  return !(skip_visit_check || visited_[index]);
 }
