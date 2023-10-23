@@ -7,7 +7,6 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "RandomNumberGenerators.hpp"
-#include "world/Chunk.hpp"
 #include "world/ChunkManager.hpp"
 #include "world/Element.hpp"
 
@@ -46,6 +45,7 @@ class World {
 
   ChunkManager chunk_manager_;
   std::vector<Element> elements_;
+  std::vector<bool> visited_;
   FastRng rng_;
 
   [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
@@ -57,7 +57,9 @@ class World {
 
   void UpdateChunkNeighborhood(int chunk_x, int chunk_y);
 
-  bool do_not_update_next_element_{};
+  [[nodiscard]] bool CanAccess(sf::Vector2i position);
+
+  [[nodiscard]] bool CanAccessWithRandomVisit(sf::Vector2i position);
 };
 
 #endif /* WORLD_HPP_ */

@@ -10,7 +10,6 @@
 #include <string>
 #include <utility>
 
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>

@@ -13,19 +13,18 @@ bool World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const 
 
 template <>
 bool World::GovernLaw<engine::Substance::kSand>(const Element /*element*/, const sf::Vector2i position) {
-  if (position.y == constants::kWorldHeight - 1) {
-    return false;
-  }
-
   const int index = position.y * constants::kWorldWidth + position.x;
 
-  if (!engine::IsSolid(GetElementAt(index + constants::kWorldWidth).GetSubstance())) {
+  if (CanAccess({position.x, position.y + 1}) &&
+      !engine::IsSolid(GetElementAt(index + constants::kWorldWidth).GetSubstance())) {
     SwapElements(index, index + constants::kWorldWidth);
+    return true;
   }
 
-  const bool can_fall_left = position.x > 0 && !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
+  const bool can_fall_left = CanAccess({position.x - 1, position.y + 1}) &&
+                             !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
                              !engine::IsSolid(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance());
-  const bool can_fall_right = position.x < constants::kWorldWidth - 1 &&
+  const bool can_fall_right = CanAccess({position.x + 1, position.y + 1}) &&
                               !engine::IsSolid(GetElementAt(index + 1).GetSubstance()) &&
                               !engine::IsSolid(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance());
 
@@ -58,7 +57,7 @@ template <>
 bool World::GovernLaw<engine::Substance::kWater>(const Element element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
-  const bool can_fall_down = position.y != constants::kWorldHeight - 1 &&
+  const bool can_fall_down = CanAccess({position.x, position.y + 1}) &&
                              (engine::GetDensity(engine::Substance::kWater) >
                               engine::GetDensity(GetElementAt(index + constants::kWorldWidth).GetSubstance()));
 
@@ -67,10 +66,10 @@ bool World::GovernLaw<engine::Substance::kWater>(const Element element, const sf
     return true;
   }
 
-  const bool can_fall_left = position.y != constants::kWorldHeight - 1 && position.x > 0 &&
+  const bool can_fall_left = CanAccess({position.x - 1, position.y + 1}) &&
                              (engine::GetDensity(engine::Substance::kWater) >
                               engine::GetDensity(GetElementAt(index + constants::kWorldWidth - 1).GetSubstance()));
-  const bool can_fall_right = position.y != constants::kWorldHeight - 1 && position.x < constants::kWorldWidth - 1 &&
+  const bool can_fall_right = CanAccess({position.x + 1, position.y + 1}) &&
                               (engine::GetDensity(engine::Substance::kWater) >
                                engine::GetDensity(GetElementAt(index + constants::kWorldWidth + 1).GetSubstance()));
 
@@ -93,26 +92,24 @@ bool World::GovernLaw<engine::Substance::kWater>(const Element element, const sf
     return true;
   }
 
-  const bool can_go_left = position.x > 0 && (engine::GetDensity(engine::Substance::kWater) >
-                                              engine::GetDensity(GetElementAt(index - 1).GetSubstance()));
+  const bool can_go_left =
+      CanAccessWithRandomVisit({position.x - 1, position.y}) &&
+      (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetElementAt(index - 1).GetSubstance()));
   const bool can_go_right =
-      position.x < constants::kWorldWidth - 1 &&
+      CanAccessWithRandomVisit({position.x + 1, position.y}) &&
       (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetElementAt(index + 1).GetSubstance()));
 
   if (can_go_left && !can_go_right) {
-    do_not_update_next_element_ = true;
     elements_[index].SetSpeed(-1);
     SwapElements(index, index - 1);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    do_not_update_next_element_ = true;
     elements_[index].SetSpeed(1);
     SwapElements(index, index + 1);
     return true;
   }
   if (can_go_left && can_go_right) {
-    do_not_update_next_element_ = true;
     if (element.GetSpeed() < 0) {
       SwapElements(index, index - 1);
     } else {

@@ -19,12 +19,15 @@ class ChunkManager {
 
   [[nodiscard]] sf::Vector2i GetSize() const { return size_; };
 
-  void SetActive(sf::Vector2i position, bool activity_ = true);
+  void SetNextActive(sf::Vector2i position, bool activity_ = true);
+
+  void SwapBuffers();
 
  private:
   sf::Vector2i size_;
 
   std::vector<Chunk> chunks_;
+  int8_t current_step_{};
 };
 
 #endif /* CHUNK_MANAGER_HPP_ */

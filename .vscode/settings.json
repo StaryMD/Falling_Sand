@@ -84,6 +84,7 @@
 		"SFML",
 		"Struct",
 		"swappable",
+		"Visitedness",
 		"Werror",
 		"Wextra"
 	],
@@ -94,5 +95,25 @@
 		"editor.defaultFormatter": "ms-python.python"
 	},
 	"python.formatting.provider": "none",
-	"OpenCL.explorer.localizedProperties": true
+	"OpenCL.explorer.localizedProperties": true,
+	"workbench.colorCustomizations": {
+		"activityBar.activeBackground": "#0d59c8",
+		"activityBar.background": "#0d59c8",
+		"activityBar.foreground": "#e7e7e7",
+		"activityBar.inactiveForeground": "#e7e7e799",
+		"activityBarBadge.background": "#5a0628",
+		"activityBarBadge.foreground": "#e7e7e7",
+		"commandCenter.border": "#e7e7e799",
+		"sash.hoverBorder": "#0d59c8",
+		"statusBar.background": "#0a4498",
+		"statusBar.foreground": "#e7e7e7",
+		"statusBarItem.hoverBackground": "#0d59c8",
+		"statusBarItem.remoteBackground": "#0a4498",
+		"statusBarItem.remoteForeground": "#e7e7e7",
+		"titleBar.activeBackground": "#0a4498",
+		"titleBar.activeForeground": "#e7e7e7",
+		"titleBar.inactiveBackground": "#0a449899",
+		"titleBar.inactiveForeground": "#e7e7e799"
+	},
+	"peacock.color": "#0a4498"
 }
