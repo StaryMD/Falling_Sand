@@ -44,10 +44,10 @@ bool World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const 
   }
 
   const bool can_go_left =
-      CanAccessWithRandomVisit({position.x - 1, position.y}) &&
+      CanAccessWithRandomVisit({position.x - 1, position.y}, engine::Substance::kAir) &&
       (engine::GetDensity(engine::Substance::kAir) > engine::GetDensity(GetElementAt(index - 1).GetSubstance()));
   const bool can_go_right =
-      CanAccessWithRandomVisit({position.x + 1, position.y}) &&
+      CanAccessWithRandomVisit({position.x + 1, position.y}, engine::Substance::kAir) &&
       (engine::GetDensity(engine::Substance::kAir) > engine::GetDensity(GetElementAt(index + 1).GetSubstance()));
 
   if (can_go_left && !can_go_right) {
@@ -143,36 +143,60 @@ bool World::GovernLaw<engine::Substance::kWater>(const Element element, const sf
     return true;
   }
   if (can_fall_left && can_fall_right) {
-    if (element.GetSpeed() < 0) {
+    if (rng_.NextRandValue() & 1) {
+      elements_[index].SetSpeed(-1);
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
+      elements_[index].SetSpeed(1);
       SwapElements(index, index + constants::kWorldWidth + 1);
     }
     return true;
   }
 
-  const bool can_go_left =
-      CanAccessWithRandomVisit({position.x - 1, position.y}) &&
-      (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetElementAt(index - 1).GetSubstance()));
-  const bool can_go_right =
-      CanAccessWithRandomVisit({position.x + 1, position.y}) &&
-      (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetElementAt(index + 1).GetSubstance()));
+  int go_left_tiles = 0;
+  for (int i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kWater); ++i) {
+    const bool can_go_left =
+        CanAccessWithRandomVisit({position.x - i, position.y}, engine::Substance::kWater) &&
+        (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetElementAt(index - i).GetSubstance()));
+
+    if (can_go_left) {
+      go_left_tiles = i;
+    } else {
+      break;
+    }
+  }
+
+  int go_right_tiles = 0;
+  for (int i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kWater); ++i) {
+    const bool can_go_right =
+        CanAccessWithRandomVisit({position.x + i, position.y}, engine::Substance::kWater) &&
+        (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetElementAt(index + i).GetSubstance()));
+
+    if (can_go_right) {
+      go_right_tiles = i;
+    } else {
+      break;
+    }
+  }
+
+  const bool can_go_left = go_left_tiles > 0;
+  const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
     elements_[index].SetSpeed(-1);
-    SwapElements(index, index - 1);
+    SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
     elements_[index].SetSpeed(1);
-    SwapElements(index, index + 1);
+    SwapElements(index, index + go_right_tiles);
     return true;
   }
   if (can_go_left && can_go_right) {
     if (element.GetSpeed() < 0) {
-      SwapElements(index, index - 1);
+      SwapElements(index, index - go_left_tiles);
     } else {
-      SwapElements(index, index + 1);
+      SwapElements(index, index + go_right_tiles);
     }
     return true;
   }

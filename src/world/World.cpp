@@ -34,23 +34,20 @@ void World::Update() {
         if (chunk_manager_.IsActive({chunk_x, chunk_y})) {
           bool chunk_was_updated = false;
 
+          int pos_x = 0;
+          int step_x = 1;
+
           if (rng_.NextRandValue() & 1) {
-            for (int pos_x = 0; pos_x < kChunkSize; ++pos_x) {
-              const sf::Vector2i element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
-              const int index = element_position.y * constants::kWorldWidth + element_position.x;
+            pos_x = kChunkSize - 1;
+            step_x = -1;
+          }
 
-              if (not visited_[index]) {
-                chunk_was_updated |= GovernLaw(element_position);
-              }
-            }
-          } else {
-            for (int pos_x = kChunkSize - 1; pos_x >= 0; --pos_x) {
-              const sf::Vector2i element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
-              const int index = element_position.y * constants::kWorldWidth + element_position.x;
+          for (int _ = 0; _ != kChunkSize; ++_, pos_x += step_x) {
+            const sf::Vector2i element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
+            const int index = element_position.y * constants::kWorldWidth + element_position.x;
 
-              if (not visited_[index]) {
-                chunk_was_updated |= GovernLaw(element_position);
-              }
+            if (not visited_[index]) {
+              chunk_was_updated |= GovernLaw(element_position);
             }
           }
 
@@ -127,7 +124,7 @@ bool World::CanAccess(const sf::Vector2i position) {
   return !visited_[index];
 }
 
-bool World::CanAccessWithRandomVisit(const sf::Vector2i position) {
+bool World::CanAccessWithRandomVisit(const sf::Vector2i position, const engine::Substance original_subs) {
   const bool is_inside =
       position.y < constants::kWorldHeight && position.y >= 0 && position.x >= 0 && position.x < constants::kWorldWidth;
 
@@ -136,7 +133,11 @@ bool World::CanAccessWithRandomVisit(const sf::Vector2i position) {
   }
 
   const int index = position.y * constants::kWorldWidth + position.x;
-  const bool skip_visit_check = 0 == (rng_.NextRandValue() % constants::kChanceToIgnoreVisitedness);
+
+  const int8_t chance_to_ignore_visitedness = engine::GetChanceToIgnoreVisitedness(original_subs);
+
+  const bool skip_visit_check =
+      (chance_to_ignore_visitedness != -1) && (0 == (rng_.NextRandValue() % chance_to_ignore_visitedness));
 
   return !(skip_visit_check || visited_[index]);
 }

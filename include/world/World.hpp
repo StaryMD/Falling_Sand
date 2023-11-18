@@ -59,7 +59,7 @@ class World {
 
   [[nodiscard]] bool CanAccess(sf::Vector2i position);
 
-  [[nodiscard]] bool CanAccessWithRandomVisit(sf::Vector2i position);
+  [[nodiscard]] bool CanAccessWithRandomVisit(sf::Vector2i position, engine::Substance original_subs);
 };
 
 #endif /* WORLD_HPP_ */

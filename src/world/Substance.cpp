@@ -15,6 +15,11 @@ const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsMovableV
 
 const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kDensityVector = {0, 1, 3, 4, 2};
 
+const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kChanceToIgnoreVisitednessVector = {-1, -1, -1,
+                                                                                                           -1, 5};
+
+const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kHorizontalTravelVector = {1, 1, 1, 1, 4};
+
 bool IsSolid(const Substance subs) {
   return kIsSolidVector[static_cast<int>(subs)];
 }
@@ -25,6 +30,14 @@ bool IsMovable(const Substance subs) {
 
 int8_t GetDensity(const Substance subs) {
   return kDensityVector[static_cast<int>(subs)];
+}
+
+int8_t GetChanceToIgnoreVisitedness(const Substance subs) {
+  return kChanceToIgnoreVisitednessVector[static_cast<int>(subs)];
+}
+
+int8_t GetHorizontalTravel(const Substance subs) {
+  return kHorizontalTravelVector[static_cast<int>(subs)];
 }
 
 }  // namespace engine

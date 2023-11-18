@@ -24,6 +24,10 @@ bool IsMovable(Substance);
 
 int8_t GetDensity(Substance);
 
+int8_t GetChanceToIgnoreVisitedness(Substance);
+
+int8_t GetHorizontalTravel(Substance);
+
 }  // namespace engine
 
 #endif /* SUBSTANCE_HPP_ */

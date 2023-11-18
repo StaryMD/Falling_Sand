@@ -20,8 +20,6 @@ constexpr double kDebugRealEpsilon = 1e-7;
 
 constexpr double kWantedSecondsPerFrame = 1.0 / kWantedFramesPerSecond;
 
-constexpr int kChanceToIgnoreVisitedness = 6;
-
 }  // namespace constants
 
 #endif /* COMMON_CONSTANTS_HPP_ */
