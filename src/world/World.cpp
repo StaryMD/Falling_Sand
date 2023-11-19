@@ -74,11 +74,11 @@ void World::UpdateChunkNeighborhood(const int chunk_x, const int chunk_y) {
   }
 }
 
-Element World::GetElementAt(const size_t index) const {
+Element& World::GetElementAt(const size_t index) {
   return elements_[index];
 }
 
-Element World::GetElementAt(const sf::Vector2i pos) const {
+Element& World::GetElementAt(const sf::Vector2i pos) {
   const size_t index = pos.y * size_.x + pos.x;
   return GetElementAt(index);
 }
@@ -91,15 +91,6 @@ void World::SetElementAt(const sf::Vector2i pos, const Element element) {
   const size_t index = pos.y * size_.x + pos.x;
   SetElementAt(index, element);
   chunk_manager_.SetNextActive(pos / constants::kChunkSize);
-}
-
-sf::Color World::GetColorAt(const size_t index) const {
-  return GetElementAt(index).GetColor();
-}
-
-sf::Color World::GetColorAt(const sf::Vector2i pos) const {
-  const size_t index = pos.y * size_.x + pos.x;
-  return GetColorAt(index);
 }
 
 void World::SwapElements(const size_t index1, const size_t index2) {

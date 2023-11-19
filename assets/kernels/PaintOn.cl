@@ -17,7 +17,8 @@
 struct Element {
   uchar subs;
   // uchar color_sample;
-  uchar filling[1];
+  uchar horizontal_speed_;
+  float vertical_speed_;
 };
 
 __constant unsigned colors[] = {0xFF000000U, 0xFFD0D0D0U, 0xFF00FFFFU, 0xFF333333U, 0xFFFF6600U};

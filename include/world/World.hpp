@@ -19,8 +19,8 @@ class World {
 
   [[nodiscard]] sf::Vector2i GetSize() const { return size_; }
 
-  [[nodiscard]] Element GetElementAt(size_t index) const;
-  [[nodiscard]] Element GetElementAt(sf::Vector2i pos) const;
+  [[nodiscard]] Element& GetElementAt(size_t index);
+  [[nodiscard]] Element& GetElementAt(sf::Vector2i pos);
 
   void SetElementAt(size_t index, Element element);
   void SetElementAt(sf::Vector2i pos, Element element);
@@ -53,7 +53,7 @@ class World {
   bool GovernLaw(sf::Vector2i position);
 
   template <engine::Substance substance>
-  bool GovernLaw(Element element, sf::Vector2i position);
+  bool GovernLaw(Element& element, sf::Vector2i position);
 
   void UpdateChunkNeighborhood(int chunk_x, int chunk_y);
 

@@ -1,4 +1,6 @@
 #include <SFML/System/Vector2.hpp>
+#include <cmath>
+#include <cstdio>
 
 #include "CommonConstants.hpp"
 #include "RandomNumberGenerators.hpp"
@@ -7,7 +9,7 @@
 #include "world/World.hpp"
 
 template <>
-bool World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const sf::Vector2i position) {
+bool World::GovernLaw<engine::Substance::kAir>(Element& /*element*/, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
   const bool can_fall_down = CanAccess({position.x, position.y - 1}) &&
@@ -71,14 +73,32 @@ bool World::GovernLaw<engine::Substance::kAir>(const Element /*element*/, const 
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kSand>(const Element /*element*/, const sf::Vector2i position) {
+bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
-  if (CanAccess({position.x, position.y + 1}) &&
-      !engine::IsSolid(GetElementAt(index + constants::kWorldWidth).GetSubstance())) {
-    SwapElements(index, index + constants::kWorldWidth);
+  const int max_fall_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
+
+  int go_down_tiles = 0;
+  for (int i = 1; i <= max_fall_distance; ++i) {
+    const bool can_go_down = CanAccess({position.x, position.y + i}) &&
+                             !engine::IsSolid(GetElementAt({position.x, position.y + i}).GetSubstance());
+
+    if (can_go_down) {
+      go_down_tiles = i;
+    } else {
+      break;
+    }
+  }
+
+  const bool can_go_down = go_down_tiles > 0;
+
+  if (can_go_down) {
+    element.GravityAffect();
+    SwapElements(index, index + constants::kWorldWidth * go_down_tiles);
     return true;
   }
+
+  element.StopFall();
 
   const bool can_fall_left = CanAccess({position.x - 1, position.y + 1}) &&
                              !engine::IsSolid(GetElementAt(index - 1).GetSubstance()) &&
@@ -108,22 +128,38 @@ bool World::GovernLaw<engine::Substance::kSand>(const Element /*element*/, const
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kStone>(const Element /*element*/, const sf::Vector2i /*position*/) {
+bool World::GovernLaw<engine::Substance::kStone>(Element& /*element*/, const sf::Vector2i /*position*/) {
   return false;
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kWater>(const Element element, const sf::Vector2i position) {
+bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
-  const bool can_fall_down = CanAccess({position.x, position.y + 1}) &&
-                             (engine::GetDensity(engine::Substance::kWater) >
-                              engine::GetDensity(GetElementAt(index + constants::kWorldWidth).GetSubstance()));
+  const int max_fall_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
 
-  if (can_fall_down) {
-    SwapElements(index, index + constants::kWorldWidth);
+  int go_down_tiles = 0;
+  for (int i = 1; i <= max_fall_distance; ++i) {
+    const bool can_go_down = CanAccess({position.x, position.y + i}) &&
+                             (engine::GetDensity(engine::Substance::kWater) >
+                              engine::GetDensity(GetElementAt(index + constants::kWorldWidth * i).GetSubstance()));
+
+    if (can_go_down) {
+      go_down_tiles = i;
+    } else {
+      break;
+    }
+  }
+
+  const bool can_go_down = go_down_tiles > 0;
+
+  if (can_go_down) {
+    element.GravityAffect();
+    SwapElements(index, index + constants::kWorldWidth * go_down_tiles);
     return true;
   }
+
+  element.StopFall();
 
   const bool can_fall_left = CanAccess({position.x - 1, position.y + 1}) &&
                              (engine::GetDensity(engine::Substance::kWater) >
@@ -205,7 +241,7 @@ bool World::GovernLaw<engine::Substance::kWater>(const Element element, const sf
 }
 
 bool World::GovernLaw(const sf::Vector2i position) {
-  const Element element = GetElementAt(position);
+  Element& element = GetElementAt(position);
 
   switch (element.GetSubstance()) {
     case engine::Substance::kAir: {

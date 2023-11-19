@@ -16,18 +16,25 @@ class Element {
   Element& operator=(const Element&) = default;
   Element& operator=(Element&&) = default;
 
-  [[nodiscard]] engine::Substance GetSubstance() const { return substance_; }
+  [[nodiscard]] engine::Substance GetSubstance() const;
 
-  [[nodiscard]] int8_t GetSpeed() const { return speed_; }
+  [[nodiscard]] int8_t GetSpeed() const;
 
-  void SetSpeed(const int8_t speed) { speed_ = speed; }
+  void SetSpeed(int8_t speed);
 
   [[nodiscard]] sf::Color GetColor() const;
+
+  [[nodiscard]] float GetVerticalSpeed() const;
+
+  void GravityAffect();
+
+  void StopFall();
 
  private:
   engine::Substance substance_;
   // uint8_t color_sample_;
-  int8_t speed_;
+  int8_t horizontal_speed_;
+  float vertical_speed_;
 };
 
 #endif /* ELEMENT_HPP_ */
