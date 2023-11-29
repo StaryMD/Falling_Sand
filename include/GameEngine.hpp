@@ -45,8 +45,6 @@ class GameEngine {
 
   std::string ConstructDebugText() const;
 
-  std::string application_name_;
-
   RefreshRate refresh_rate_;
   EventHandler event_handler_;
   sf::RenderWindow window_;
@@ -68,8 +66,6 @@ class GameEngine {
 
   bool do_compute_next_frame_{true};
   bool do_advance_one_frame_{false};
-
-  bool font_loaded_successfully_{};
 
   double total_frame_elapsed_time_{};
   double handle_events_elapsed_time_{};

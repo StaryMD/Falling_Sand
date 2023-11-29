@@ -12,13 +12,11 @@ constexpr float kMaxVerticalSpeed = 4.0F;
 
 Element::Element() : substance_(engine::Substance::kNothing) {
   horizontal_speed_ = -1;
-  //NOLINTNEXTLINE(readability-magic-numbers)
   vertical_speed_ = kDefaultVerticalSpeed;
 }
 
 Element::Element(const engine::Substance subs) : substance_(subs) {
   horizontal_speed_ = -1;
-  //NOLINTNEXTLINE(readability-magic-numbers)
   vertical_speed_ = kDefaultVerticalSpeed;
 }
 

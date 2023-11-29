@@ -4,8 +4,10 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <iomanip>
 #include <ios>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -38,8 +40,7 @@ constexpr uint32_t kChunkBorderTransparency = 0x00000033;
 constexpr uint32_t kChunkBorderColor = 0x00000000 | kChunkBorderTransparency;
 
 GameEngine::GameEngine(const std::string& application_name)
-    : application_name_(application_name),
-      window_(sf::VideoMode::getDesktopMode(), application_name_, sf::Style::Fullscreen),
+    : window_(sf::VideoMode::getDesktopMode(), application_name, sf::Style::Fullscreen),
       sand_engine_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize()),
       camera_view_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize(),
                    window_.getSize() / 2U) {
@@ -51,7 +52,12 @@ void GameEngine::Setup() {
   screen_texture_.create(window_.getSize().x, window_.getSize().y);
   screen_sprite_.setTexture(screen_texture_);
 
-  font_loaded_successfully_ = font_.loadFromFile("assets/fonts/consola.ttf");
+  const bool font_loaded_successfully =
+      font_.loadFromFile(std::filesystem::current_path().string() + "/" + "assets/fonts/consola.ttf");
+
+  if (not font_loaded_successfully) {
+    std::cerr << "Font could not be loaded\n";
+  }
 
   screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) * sizeof(sf::Color));
 
@@ -238,7 +244,7 @@ void GameEngine::ShowChunkBorders() {
 }
 
 void GameEngine::ShowDebugInfo() {
-  if (do_show_debug_screen_ && font_loaded_successfully_) {
+  if (do_show_debug_screen_) {
     text_.setString(ConstructDebugText());
 
     text_.setFillColor(sf::Color::Black);

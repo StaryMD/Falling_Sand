@@ -1,6 +1,7 @@
 #include "FallingSandEngine.hpp"
 
 #include <cstddef>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -36,7 +37,7 @@ void FallingSandEngine::Setup() {
     std::vector<cl::Platform> platforms;
     cl::Platform::get(&platforms);
 
-    std::unique_ptr<cl::Device> best_device = nullptr;
+    cl::Device best_device;
     size_t device_speed_best = 0;
 
     for (const cl::Platform& platform : platforms) {
@@ -51,24 +52,26 @@ void FallingSandEngine::Setup() {
 
         if (device_speed > device_speed_best) {
           device_speed_best = device_speed;
-          best_device = std::make_unique<cl::Device>(device);
+          best_device = device;
         }
       }
     }
 
-    if (best_device == nullptr) {
-      std::cout << "Not good man\n";
+    if (best_device.get() == nullptr) {
+      std::cout << "No devices have been found\n";
     }
 
-    d_context_ = cl::Context(*best_device);
+    d_context_ = cl::Context(best_device);
 
-    std::cout << "Using device: " << best_device->getInfo<CL_DEVICE_NAME>() << '\n';
+    std::cout << "Using device: " << best_device.getInfo<CL_DEVICE_NAME>() << '\n';
   }
+
   d_queue_ = cl::CommandQueue(d_context_);
   d_input_buffer_ = cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
   d_output_buffer_ = cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));
 
-  const std::string kernel_source = ReadFileContent("assets/kernels/PaintOn.cl");
+  const std::string kernel_source =
+      ReadFileContent(std::filesystem::current_path().string() + "/" + "assets/kernels/PaintOn.cl");
   const cl::Program program(kernel_source);
 
   std::stringstream build_options;
