@@ -22,6 +22,9 @@ class World {
   [[nodiscard]] Element& GetElementAt(size_t index);
   [[nodiscard]] Element& GetElementAt(sf::Vector2i pos);
 
+  [[nodiscard]] const Element& GetElementAt(size_t index) const;
+  [[nodiscard]] const Element& GetElementAt(sf::Vector2i pos) const;
+
   void SetElementAt(size_t index, Element element);
   void SetElementAt(sf::Vector2i pos, Element element);
 
@@ -67,6 +70,8 @@ class World {
   [[nodiscard]] bool CanAccess(sf::Vector2i position);
 
   [[nodiscard]] bool CanAccessWithRandomVisit(sf::Vector2i position, engine::Substance original_subs);
+
+  [[nodiscard]] uint8_t NonSolidNeighbourCount(int index) const;
 };
 
 #endif /* WORLD_HPP_ */

@@ -1,6 +1,7 @@
 #ifndef GAME_ENGINE_HPP_
 #define GAME_ENGINE_HPP_
 
+#include <SFML/System/Vector2.hpp>
 #include <string>
 #include <vector>
 

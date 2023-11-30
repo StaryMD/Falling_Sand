@@ -344,6 +344,14 @@ template <>
 bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
+  // Check if it can condense into water
+  const bool has_non_solid_neighbors = NonSolidNeighbourCount(index) > 0;
+  if (has_non_solid_neighbors && (rng_.NextRandValue() < 2)) {
+    element = Element(engine::Substance::kWater);
+    visited_[index] = true;
+    return true;
+  }
+
   const int max_up_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
 
   int go_down_tiles = 0;
@@ -445,7 +453,7 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
     return true;
   }
 
-  return false;
+  return true;
 }
 
 bool World::GovernLaw(const sf::Vector2i position) {

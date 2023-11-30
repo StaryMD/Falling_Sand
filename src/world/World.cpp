@@ -154,6 +154,15 @@ Element& World::GetElementAt(const sf::Vector2i pos) {
   return GetElementAt(index);
 }
 
+const Element& World::GetElementAt(const size_t index) const {
+  return elements_[index];
+}
+
+const Element& World::GetElementAt(const sf::Vector2i pos) const {
+  const size_t index = pos.y * size_.x + pos.x;
+  return GetElementAt(index);
+}
+
 void World::SetElementAt(const size_t index, const Element element) {
   elements_[index] = element;
 }
@@ -202,4 +211,20 @@ bool World::CanAccessWithRandomVisit(const sf::Vector2i position, const engine::
       (chance_to_ignore_visitedness != -1) && (0 == (rng_.NextRandValue() % chance_to_ignore_visitedness));
 
   return !(skip_visit_check || visited_[index]);
+}
+
+uint8_t World::NonSolidNeighbourCount(const int index) const {
+  const int pos_x = index % constants::kWorldWidth;
+  const int pos_y = index / constants::kWorldWidth;
+
+  int ans = 0;
+
+  //NOLINTBEGIN(readability-implicit-bool-conversion)
+  ans += (pos_x - 1 >= 0) && (GetElementAt(index - 1).GetSubstance() == engine::Substance::kAir);
+  ans += (pos_x + 1 < constants::kWorldWidth) && (GetElementAt(index + 1).GetSubstance() == engine::Substance::kAir);
+  ans += (pos_y - 1 >= 0) && (GetElementAt(index - constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
+  ans += (pos_y + 1 < constants::kWorldHeight) &&
+         (GetElementAt(index + constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
+  //NOLINTEND(readability-implicit-bool-conversion)
+  return ans;
 }
