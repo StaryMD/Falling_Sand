@@ -21,7 +21,7 @@ struct Element {
   float vertical_speed_;
 };
 
-__constant unsigned colors[] = {0xFF000000U, 0xFFD0D0D0U, 0xFF00FFFFU, 0xFF333333U, 0xFFFF6600U};
+__constant unsigned colors[] = {0xFF000000U, 0xFFD0D0D0U, 0xFF00FFFFU, 0xFF333333U, 0xFFFF6600U, 0xFF16242CU};
 
 __kernel void PaintOn(__constant struct Element elements[WORLD_SIZE_Y][WORLD_SIZE_X],
                       __global unsigned pixels[SCREEN_SIZE_Y][SCREEN_SIZE_X], const float view_left,

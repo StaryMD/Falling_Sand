@@ -144,6 +144,8 @@ void GameEngine::HandleInput() {
       chosen_substance_ = engine::Substance::kStone;
     } else if (event_handler_.IsKeyDown(sf::Keyboard::Num4)) {
       chosen_substance_ = engine::Substance::kWater;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num5)) {
+      chosen_substance_ = engine::Substance::kOil;
     }
 
     if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {

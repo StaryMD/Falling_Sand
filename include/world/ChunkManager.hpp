@@ -19,7 +19,7 @@ class ChunkManager {
 
   [[nodiscard]] sf::Vector2i GetSize() const { return size_; };
 
-  void SetNextActive(sf::Vector2i position, bool activity_ = true);
+  void SetNextStepActivity(sf::Vector2i position, bool activity_ = true);
 
   void SwapBuffers();
 

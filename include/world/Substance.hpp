@@ -13,6 +13,7 @@ enum class Substance : uint8_t {
   kSand = 2,
   kStone = 3,
   kWater = 4,
+  kOil = 5,
 
   kSubstanceCount,
   kInvalid,

@@ -140,7 +140,7 @@ void World::UpdateChunkNeighborhood(const int chunk_x, const int chunk_y) {
 
   for (int dy = start_chunk_y; dy <= end_chunk_y; ++dy) {
     for (int dx = start_chunk_x; dx <= end_chunk_x; ++dx) {
-      chunk_manager_.SetNextActive({dx, dy});
+      chunk_manager_.SetNextStepActivity({dx, dy});
     }
   }
 }
@@ -161,7 +161,7 @@ void World::SetElementAt(const size_t index, const Element element) {
 void World::SetElementAt(const sf::Vector2i pos, const Element element) {
   const size_t index = pos.y * size_.x + pos.x;
   SetElementAt(index, element);
-  chunk_manager_.SetNextActive(pos / constants::kChunkSize);
+  chunk_manager_.SetNextStepActivity(pos / constants::kChunkSize);
 }
 
 void World::SwapElements(const size_t index1, const size_t index2) {

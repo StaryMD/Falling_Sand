@@ -6,19 +6,19 @@
 namespace engine {
 
 const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsSolidVector = {
-    true, false, true, true, false,
+    true, false, true, true, false, false,
 };
 
 const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsMovableVector = {
-    false, true, true, true, true,
+    false, true, true, true, true, true,
 };
 
-const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kDensityVector = {0, 1, 3, 4, 2};
+const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kDensityVector = {0, 1, 4, 5, 3, 2};
 
 const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kChanceToIgnoreVisitednessVector = {-1, -1, -1,
-                                                                                                           -1, 5};
+                                                                                                           -1, 5,  10};
 
-const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kHorizontalTravelVector = {1, 1, 1, 1, 4};
+const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kHorizontalTravelVector = {1, 1, 1, 1, 4, 1};
 
 bool IsSolid(const Substance subs) {
   return kIsSolidVector[static_cast<int>(subs)];

@@ -26,7 +26,7 @@ bool ChunkManager::IsActive(const sf::Vector2i position) const {
   return chunks_[pos_index].IsActive(current_step_);
 }
 
-void ChunkManager::SetNextActive(const sf::Vector2i position, const bool activity_) {
+void ChunkManager::SetNextStepActivity(const sf::Vector2i position, const bool activity_) {
   const int pos_index = position.y * size_.x + position.x;
   chunks_[pos_index].SetActivity(activity_, static_cast<int8_t>(current_step_ == 0));
 }

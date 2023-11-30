@@ -1,5 +1,5 @@
-#ifndef RENDERING_ENGINE_HPP_
-#define RENDERING_ENGINE_HPP_
+#ifndef GAME_ENGINE_HPP_
+#define GAME_ENGINE_HPP_
 
 #include <string>
 #include <vector>
@@ -73,4 +73,4 @@ class GameEngine {
   double compute_elapsed_time_{};
 };
 
-#endif /* RENDERING_ENGINE_HPP_ */
+#endif /* GAME_ENGINE_HPP_ */
