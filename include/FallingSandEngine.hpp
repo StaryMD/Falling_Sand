@@ -28,6 +28,12 @@ class FallingSandEngine {
 
   [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
 
+  [[nodiscard]] unsigned GetUpdatedChunksCount() const { return world_.GetChunksUpdatedCount(); }
+
+  [[nodiscard]] World& GetWorld() { return world_; }
+
+  [[nodiscard]] const World& GetWorld() const { return world_; }
+
  private:
   World world_;
   sf::Vector2u screen_size_;

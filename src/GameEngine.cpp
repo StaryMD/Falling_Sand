@@ -128,6 +128,14 @@ void GameEngine::HandleInput() {
       }
     }
 
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Up)) {
+      ++sand_engine_.GetWorld().update_threads_;
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Down)) {
+      sand_engine_.GetWorld().update_threads_ = std::max(0, --sand_engine_.GetWorld().update_threads_);
+    }
+
     if (event_handler_.IsKeyDown(sf::Keyboard::Num1)) {
       chosen_substance_ = engine::Substance::kAir;
     } else if (event_handler_.IsKeyDown(sf::Keyboard::Num2)) {
@@ -264,6 +272,7 @@ std::string GameEngine::ConstructDebugText() const {
   const double handle_events_elapsed_time = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double screen_update_elapsed_time = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double compute_elapsed_time = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
+  const unsigned updated_chunks_count = sand_engine_.GetUpdatedChunksCount();
 
   const sf::Vector2i mouse_position = ToVector2<int>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
   const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
@@ -284,7 +293,10 @@ std::string GameEngine::ConstructDebugText() const {
                << '\n'
                << "MOUSE PIXEL : " << mouse_position.x << ' ' << mouse_position.y << '\n'
                << "CAMERA POS : " << camera_fov.left << ' ' << camera_fov.top << '\n'
-               << "MOUSE COORD : " << mouse_coord.x << ' ' << mouse_coord.y << '\n';
+               << "MOUSE COORD : " << mouse_coord.x << ' ' << mouse_coord.y << '\n'
+               << '\n'
+               << "CHUNKS UPDATED : " << updated_chunks_count << '\n'
+               << "UPDATE THREADS : " << sand_engine_.GetWorld().update_threads_ << '\n';
 
   return debug_string.str();
 }

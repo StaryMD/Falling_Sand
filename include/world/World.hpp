@@ -40,6 +40,11 @@ class World {
 
   [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
 
+  [[nodiscard]] unsigned GetChunksUpdatedCount() const { return chunks_updated_count_; }
+
+  //NOLINTNEXTLINE
+  int update_threads_;
+
  private:
   sf::Vector2i size_;
 
@@ -47,6 +52,8 @@ class World {
   std::vector<Element> elements_;
   std::vector<bool> visited_;
   FastRng rng_;
+
+  unsigned chunks_updated_count_;
 
   [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
 
