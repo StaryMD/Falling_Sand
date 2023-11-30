@@ -71,7 +71,7 @@ class World {
 
   [[nodiscard]] bool CanAccessWithRandomVisit(sf::Vector2i position, engine::Substance original_subs);
 
-  [[nodiscard]] uint8_t NonSolidNeighbourCount(int index) const;
+  [[nodiscard]] uint8_t AirNeighbourCount(int index) const;
 };
 
 #endif /* WORLD_HPP_ */

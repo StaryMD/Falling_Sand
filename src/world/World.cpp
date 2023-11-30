@@ -192,28 +192,19 @@ bool World::CanAccess(const sf::Vector2i position) {
 
   const int index = position.y * constants::kWorldWidth + position.x;
 
-  return !visited_[index];
+  return engine::IsMovable(GetElementAt(index).GetSubstance()) && !visited_[index];
 }
 
 bool World::CanAccessWithRandomVisit(const sf::Vector2i position, const engine::Substance original_subs) {
-  const bool is_inside =
-      position.y < constants::kWorldHeight && position.y >= 0 && position.x >= 0 && position.x < constants::kWorldWidth;
-
-  if (not is_inside) {
-    return false;
-  }
-
-  const int index = position.y * constants::kWorldWidth + position.x;
-
   const int8_t chance_to_ignore_visitedness = engine::GetChanceToIgnoreVisitedness(original_subs);
 
   const bool skip_visit_check =
       (chance_to_ignore_visitedness != -1) && (0 == (rng_.NextRandValue() % chance_to_ignore_visitedness));
 
-  return !(skip_visit_check || visited_[index]);
+  return CanAccess(position) && !skip_visit_check;
 }
 
-uint8_t World::NonSolidNeighbourCount(const int index) const {
+uint8_t World::AirNeighbourCount(const int index) const {
   const int pos_x = index % constants::kWorldWidth;
   const int pos_y = index / constants::kWorldWidth;
 

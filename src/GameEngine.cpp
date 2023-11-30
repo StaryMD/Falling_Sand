@@ -148,6 +148,10 @@ void GameEngine::HandleInput() {
       chosen_substance_ = engine::Substance::kOil;
     } else if (event_handler_.IsKeyDown(sf::Keyboard::Num6)) {
       chosen_substance_ = engine::Substance::kSteam;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num7)) {
+      chosen_substance_ = engine::Substance::kFire;
+    } else if (event_handler_.IsKeyDown(sf::Keyboard::Num8)) {
+      chosen_substance_ = engine::Substance::kSmoke;
     }
 
     if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {

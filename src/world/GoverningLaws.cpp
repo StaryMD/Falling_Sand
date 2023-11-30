@@ -16,6 +16,37 @@ template <>
 bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
+  {  // Check if fancy interactions are available
+    bool did_something = false;
+
+    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
+      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
+        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
+        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+        Element& neigh_element = GetElementAt(neigh_pos);
+
+        if (CanAccess(neigh_pos)) {
+          switch (neigh_element.GetSubstance()) {
+            case engine::Substance::kFire: {
+              neigh_element = element;
+              element = Element(engine::Substance::kAir);
+
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
+              break;
+            }
+            default: {
+            }
+          }
+        }
+      }
+    }
+
+    if (did_something) {
+      return true;
+    }
+  }
+
   const int max_fall_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
 
   int go_down_tiles = 0;
@@ -128,6 +159,37 @@ template <>
 bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
+  {  // Check if fancy interactions are available
+    bool did_something = false;
+
+    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
+      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
+        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
+        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+        Element& neigh_element = GetElementAt(neigh_pos);
+
+        if (CanAccess(neigh_pos)) {
+          switch (neigh_element.GetSubstance()) {
+            case engine::Substance::kFire: {
+              element = Element(engine::Substance::kSteam);
+              neigh_element = Element(engine::Substance::kAir);
+
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
+              break;
+            }
+            default: {
+            }
+          }
+        }
+      }
+    }
+
+    if (did_something) {
+      return true;
+    }
+  }
+
   const int max_fall_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
 
   int go_down_tiles = 0;
@@ -235,6 +297,38 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
 template <>
 bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
+
+  {  // Check if fancy interactions are available
+    bool did_something = false;
+
+    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
+      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
+        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
+        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+        Element& neigh_element = GetElementAt(neigh_pos);
+
+        if (CanAccess(neigh_pos)) {
+          switch (neigh_element.GetSubstance()) {
+            case engine::Substance::kFire: {
+              if (rng_.NextRandValue() % 5 == 0) {
+                element = Element(engine::Substance::kFire);
+              }
+
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
+              break;
+            }
+            default: {
+            }
+          }
+        }
+      }
+    }
+
+    if (did_something) {
+      return true;
+    }
+  }
 
   const int max_fall_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
 
@@ -344,8 +438,39 @@ template <>
 bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vector2i position) {
   const int index = position.y * constants::kWorldWidth + position.x;
 
+  {  // Check if fancy interactions are available
+    bool did_something = false;
+
+    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
+      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
+        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
+        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+        Element& neigh_element = GetElementAt(neigh_pos);
+
+        if (CanAccess(neigh_pos)) {
+          switch (neigh_element.GetSubstance()) {
+            case engine::Substance::kFire: {
+              element = Element(engine::Substance::kWater);
+              neigh_element = Element(engine::Substance::kAir);
+
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
+              break;
+            }
+            default: {
+            }
+          }
+        }
+      }
+    }
+
+    if (did_something) {
+      return true;
+    }
+  }
+
   // Check if it can condense into water
-  const bool has_non_solid_neighbors = NonSolidNeighbourCount(index) > 0;
+  const bool has_non_solid_neighbors = AirNeighbourCount(index) > 0;
   if (has_non_solid_neighbors && (rng_.NextRandValue() < 2)) {
     element = Element(engine::Substance::kWater);
     visited_[index] = true;
@@ -452,7 +577,213 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
     }
     return true;
   }
+  return true;
+}
 
+template <>
+bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vector2i position) {
+  const int index = position.y * constants::kWorldWidth + position.x;
+
+  {  // Check if fancy interactions are available
+    bool did_something = false;
+
+    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
+      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
+        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
+        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+        Element& neigh_element = GetElementAt(neigh_pos);
+
+        if (CanAccess(neigh_pos)) {
+          switch (neigh_element.GetSubstance()) {
+            case engine::Substance::kWater: {
+              element = Element(engine::Substance::kAir);
+              neigh_element = Element(engine::Substance::kSteam);
+
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
+              break;
+            }
+            case engine::Substance::kOil: {
+              if (rng_.NextRandValue() % 5 == 0) {
+                neigh_element = Element(engine::Substance::kFire);
+              }
+
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
+              break;
+            }
+            case engine::Substance::kSteam: {
+              element = Element(engine::Substance::kAir);
+              neigh_element = Element(engine::Substance::kWater);
+
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
+              break;
+            }
+            default: {
+            }
+          }
+        }
+      }
+    }
+
+    if (did_something) {
+      return true;
+    }
+  }
+
+  // Check if fire can die
+  if ((AirNeighbourCount(index) > 0) && (rng_.NextRandValue() < 2)) {
+    element = Element(engine::Substance::kAir);
+    visited_[index] = true;
+  }
+
+  // Check if fire can create smoke
+  if (CanAccess({position.x, position.y - 1}) && (rng_.NextRandValue() < 2)) {
+    if (GetElementAt(index - constants::kWorldWidth).GetSubstance() == engine::Substance::kAir) {
+      GetElementAt(index - constants::kWorldWidth) = Element(engine::Substance::kSmoke);
+      visited_[index] = true;
+    }
+  }
+
+  return true;
+}
+
+template <>
+bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vector2i position) {
+  const int index = position.y * constants::kWorldWidth + position.x;
+
+  {  // Check if fancy interactions are available
+    // bool did_something = false;
+
+    // for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
+    //   for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
+    //     const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
+    //     const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+    //     Element& neigh_element = GetElementAt(neigh_pos);
+
+    //     if (CanAccess(neigh_pos)) {
+    //       switch (neigh_element.GetSubstance()) {
+    //         case engine::Substance::kFire: {
+    //           element = Element(engine::Substance::kWater);
+    //           neigh_element = Element(engine::Substance::kAir);
+
+    //           visited_[neigh_index] = visited_[index] = true;
+    //           did_something = true;
+    //           break;
+    //         }
+    //         default: {
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+    // if (did_something) {
+    //   return true;
+    // }
+  }
+
+  const int max_up_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
+
+  int go_down_tiles = 0;
+  for (int i = 1; i <= max_up_distance; ++i) {
+    const bool can_go_up = CanAccess({position.x, position.y - i}) &&
+                           (engine::GetDensity(engine::Substance::kSmoke) >
+                            engine::GetDensity(GetElementAt(index - constants::kWorldWidth * i).GetSubstance()));
+
+    if (can_go_up) {
+      go_down_tiles = i;
+    } else {
+      break;
+    }
+  }
+
+  const bool can_go_up = go_down_tiles > 0;
+
+  if (can_go_up) {
+    element.GravityAffect();
+    SwapElements(index, index - constants::kWorldWidth * go_down_tiles);
+    return true;
+  }
+
+  element.StopFall();
+
+  const bool can_fall_left = CanAccess({position.x - 1, position.y - 1}) &&
+                             (engine::GetDensity(engine::Substance::kSmoke) >
+                              engine::GetDensity(GetElementAt(index - constants::kWorldWidth - 1).GetSubstance()));
+  const bool can_fall_right = CanAccess({position.x + 1, position.y - 1}) &&
+                              (engine::GetDensity(engine::Substance::kSmoke) >
+                               engine::GetDensity(GetElementAt(index - constants::kWorldWidth + 1).GetSubstance()));
+
+  if (can_fall_left && !can_fall_right) {
+    elements_[index].SetSpeed(-1);
+    SwapElements(index, index - constants::kWorldWidth - 1);
+    return true;
+  }
+  if (can_fall_right && !can_fall_left) {
+    elements_[index].SetSpeed(1);
+    SwapElements(index, index - constants::kWorldWidth + 1);
+    return true;
+  }
+  if (can_fall_left && can_fall_right) {
+    if (rng_.NextRandValue() & 1) {
+      elements_[index].SetSpeed(-1);
+      SwapElements(index, index - constants::kWorldWidth - 1);
+    } else {
+      elements_[index].SetSpeed(1);
+      SwapElements(index, index - constants::kWorldWidth + 1);
+    }
+    return true;
+  }
+
+  int go_left_tiles = 0;
+  for (int i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kSmoke); ++i) {
+    const bool can_go_left =
+        CanAccessWithRandomVisit({position.x - i, position.y}, engine::Substance::kSmoke) &&
+        (engine::GetDensity(engine::Substance::kSmoke) > engine::GetDensity(GetElementAt(index - i).GetSubstance()));
+
+    if (can_go_left) {
+      go_left_tiles = i;
+    } else {
+      break;
+    }
+  }
+
+  int go_right_tiles = 0;
+  for (int i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kSmoke); ++i) {
+    const bool can_go_right =
+        CanAccessWithRandomVisit({position.x + i, position.y}, engine::Substance::kSmoke) &&
+        (engine::GetDensity(engine::Substance::kSmoke) > engine::GetDensity(GetElementAt(index + i).GetSubstance()));
+
+    if (can_go_right) {
+      go_right_tiles = i;
+    } else {
+      break;
+    }
+  }
+
+  const bool can_go_left = go_left_tiles > 0;
+  const bool can_go_right = go_right_tiles > 0;
+
+  if (can_go_left && !can_go_right) {
+    elements_[index].SetSpeed(-1);
+    SwapElements(index, index - go_left_tiles);
+    return true;
+  }
+  if (can_go_right && !can_go_left) {
+    elements_[index].SetSpeed(1);
+    SwapElements(index, index + go_right_tiles);
+    return true;
+  }
+  if (can_go_left && can_go_right) {
+    if (element.GetSpeed() < 0) {
+      SwapElements(index, index - go_left_tiles);
+    } else {
+      SwapElements(index, index + go_right_tiles);
+    }
+    return true;
+  }
   return true;
 }
 
@@ -477,6 +808,12 @@ bool World::GovernLaw(const sf::Vector2i position) {
     }
     case engine::Substance::kSteam: {
       return GovernLaw<engine::Substance::kSteam>(element, position);
+    }
+    case engine::Substance::kFire: {
+      return GovernLaw<engine::Substance::kFire>(element, position);
+    }
+    case engine::Substance::kSmoke: {
+      return GovernLaw<engine::Substance::kSmoke>(element, position);
     }
     default: {
       // unreachable (hopefully)
