@@ -6,20 +6,68 @@
 namespace engine {
 
 const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsSolidVector = {
-    true, false, true, true, false, false, false, false, false,
+    true,   // Nothing
+    false,  // Air
+    true,   // Sand
+    true,   // Stone
+    false,  // Water
+    false,  // Oil
+    false,  // Steam
+    false,  // Fire
+    false,  // Smoke
+
 };
 
 const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsMovableVector = {
-    false, true, true, true, true, true, true, false, true,
+    false,  // Nothing
+    true,   // Air
+    true,   // Sand
+    false,  // Stone
+    true,   // Water
+    true,   // Oil
+    true,   // Steam
+    false,  // Fire
+    true,   // Smoke
+
 };
 
-const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kDensityVector = {0, 1, 5, 6, 4, 3, 2, 0, 2};
+const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kDensityVector = {
+    0,  // Nothing
+    3,  // Air
+    6,  // Sand
+    7,  // Stone
+    5,  // Water
+    4,  // Oil
+    2,  // Steam
+    0,  // Fire
+    1,  // Smoke
+};
 
 const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kChanceToIgnoreVisitednessVector = {
-    -1, -1, -1, -1, 5, 10, 2, -1, -1};
+    -1,  // Nothing
+    -1,  // Air
+    -1,  // Sand
+    -1,  // Stone
+    5,   // Water
+    10,  // Oil
+    2,   // Steam
+    -1,  // Fire
+    -1,  // Smoke
 
-const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kHorizontalTravelVector = {1, 1, 1,  1, 4,
-                                                                                                  1, 5, -1, 2};
+};
+
+const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kHorizontalTravelVector = {
+    1,   // Nothing
+    1,   // Air
+    1,   // Sand
+    1,   // Stone
+    4,   // Water
+    1,   // Oil
+    5,   // Steam
+    -1,  // Fire
+    2,   // Smoke
+
+};
 
 bool IsSolid(const Substance subs) {
   return kIsSolidVector[static_cast<int>(subs)];

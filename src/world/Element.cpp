@@ -5,10 +5,15 @@
 #include <SFML/Graphics/Color.hpp>
 
 #include "CommonConstants.hpp"
+#include "RandomNumberGenerators.hpp"
 #include "world/Substance.hpp"
 
 constexpr float kDefaultVerticalSpeed = 0.01F;
 constexpr float kMaxVerticalSpeed = 4.0F;
+
+namespace {
+FastRng element_rng;
+};
 
 Element::Element() : substance_(engine::Substance::kNothing) {
   horizontal_speed_ = -1;
@@ -18,6 +23,17 @@ Element::Element() : substance_(engine::Substance::kNothing) {
 Element::Element(const engine::Substance subs) : substance_(subs) {
   horizontal_speed_ = -1;
   vertical_speed_ = kDefaultVerticalSpeed;
+
+  switch (subs) {
+    case engine::Substance::kAir:
+    case engine::Substance::kSand:
+    case engine::Substance::kStone: {
+      draw_property_ = element_rng.NextRandValue() % 4;
+      break;
+    }
+    default: {
+    }
+  }
 }
 
 const std::vector<sf::Color> kColors{

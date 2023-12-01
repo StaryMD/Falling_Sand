@@ -32,7 +32,7 @@ class Element {
 
  private:
   engine::Substance substance_;
-  // uint8_t color_sample_;
+  uint8_t draw_property_;
   int8_t horizontal_speed_;
   float vertical_speed_;
 };
