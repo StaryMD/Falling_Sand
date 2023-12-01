@@ -61,6 +61,8 @@ class GameEngine {
 
   engine::Substance chosen_substance_{engine::Substance::kAir};
 
+  unsigned tick_count_{};
+
   bool do_show_debug_screen_{true};
   bool do_show_chunk_borders_{false};
   bool do_show_chunk_activity_{false};

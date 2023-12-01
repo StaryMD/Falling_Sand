@@ -84,7 +84,7 @@ void GameEngine::Run() {
 void GameEngine::DrawFrame() {
   const sf::Clock timer;
 
-  sand_engine_.PaintOn(camera_view_, screen_pixels_, this->window_.getSize());
+  sand_engine_.PaintOn(camera_view_, screen_pixels_, this->window_.getSize(), tick_count_);
   screen_texture_.update(screen_pixels_.data());
   window_.draw(screen_sprite_);
 
@@ -179,6 +179,7 @@ void GameEngine::ComputeNextFrame() {
   if (do_compute_next_frame_ || do_advance_one_frame_) {
     do_advance_one_frame_ = false;
     sand_engine_.Update();
+    ++tick_count_;
   }
 
   compute_elapsed_time_ = timer.getElapsedTime().asSeconds();
@@ -289,6 +290,7 @@ std::string GameEngine::ConstructDebugText() const {
   std::ostringstream debug_string;
   debug_string << std::setprecision(constants::kDebugDigitPrecision) << std::fixed
                << "FC: " << refresh_rate_.GetFrameCount() << '\n'
+               << "TC: " << tick_count_ << '\n'
                << '\n'
                << "FPS AVG: " << avg_fps << '\n'
                << "FPS MIN: " << min_fps << '\n'

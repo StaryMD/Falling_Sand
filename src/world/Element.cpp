@@ -24,16 +24,7 @@ Element::Element(const engine::Substance subs) : substance_(subs) {
   horizontal_speed_ = -1;
   vertical_speed_ = kDefaultVerticalSpeed;
 
-  switch (subs) {
-    case engine::Substance::kAir:
-    case engine::Substance::kSand:
-    case engine::Substance::kStone: {
-      draw_property_ = element_rng.NextRandValue() % 4;
-      break;
-    }
-    default: {
-    }
-  }
+  draw_property_ = element_rng.NextRandValue() % 256;
 }
 
 const std::vector<sf::Color> kColors{

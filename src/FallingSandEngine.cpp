@@ -92,7 +92,7 @@ void FallingSandEngine::Setup() {
 }
 
 void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes,
-                                const sf::Vector2u screen_size) {
+                                const sf::Vector2u screen_size, const unsigned tick_counter) {
   const sf::Rect<double> view = camera_view.GetFieldOfView();
   const double step_x = view.width / screen_size.x;
   const double step_y = view.height / screen_size.y;
@@ -107,6 +107,7 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   d_kernel_.setArg(arg_counter++, static_cast<float>(view.top));
   d_kernel_.setArg(arg_counter++, static_cast<float>(step_x));
   d_kernel_.setArg(arg_counter++, static_cast<float>(step_y));
+  d_kernel_.setArg(arg_counter++, tick_counter);
 
   d_queue_.enqueueNDRangeKernel(d_kernel_, cl::NullRange, cl::NDRange(screen_size.x, screen_size.y));
 
