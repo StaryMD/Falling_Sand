@@ -218,19 +218,53 @@ void GameEngine::ShowChunkActivity() {
     const int visible_chunk_count_x = static_cast<int>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 2;
     const int visible_chunk_count_y = static_cast<int>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 2;
 
-    for (int relative_chunk_x = 0; relative_chunk_x < visible_chunk_count_x; ++relative_chunk_x) {
-      for (int relative_chunk_y = 0; relative_chunk_y < visible_chunk_count_y; ++relative_chunk_y) {
-        const sf::Vector2i chunk_pos = top_left_chunk_pos + sf::Vector2i(relative_chunk_x, relative_chunk_y);
-        const sf::Vector2f screen_chunk_pos =
-            ToVector2<float, int>({relative_chunk_x, relative_chunk_y}) * chunk_border_size;
+    for (int relative_chunk_y = 0; relative_chunk_y < visible_chunk_count_y; ++relative_chunk_y) {
+      int consecutive_start = 0;
+      bool consecutive_activeness = sand_engine_.IsChunkActive(top_left_chunk_pos + sf::Vector2i{0, relative_chunk_y});
 
-        if (sand_engine_.IsChunkActive(chunk_pos)) {
+      for (int relative_chunk_x = 1; relative_chunk_x < visible_chunk_count_x; ++relative_chunk_x) {
+        const sf::Vector2i chunk_pos = top_left_chunk_pos + sf::Vector2i(relative_chunk_x, relative_chunk_y);
+
+        const bool active = sand_engine_.IsChunkActive(chunk_pos);
+
+        if (active != consecutive_activeness) {
+          const int consecutive_length = relative_chunk_x - consecutive_start;
+
+          rect_shape.setSize(sf::Vector2f(static_cast<float>(consecutive_length), 1) * chunk_border_size);
+
+          const sf::Vector2f screen_chunk_pos =
+              ToVector2<float>(sf::Vector2(consecutive_start, relative_chunk_y)) * chunk_border_size;
+
+          rect_shape.setPosition(screen_chunk_pos);
+
+          if (consecutive_activeness) {
+            rect_shape.setFillColor(sf::Color(kChunkActiveColor));
+          } else {
+            rect_shape.setFillColor(sf::Color(kChunkInactiveColor));
+          }
+
+          window_.draw(rect_shape);
+
+          consecutive_start = relative_chunk_x;
+          consecutive_activeness = active;
+        }
+      }
+      {
+        const int consecutive_length = visible_chunk_count_x - consecutive_start;
+
+        rect_shape.setSize(sf::Vector2f(static_cast<float>(consecutive_length), 1) * chunk_border_size);
+
+        const sf::Vector2f screen_chunk_pos =
+            ToVector2<float, int>({consecutive_start, relative_chunk_y}) * chunk_border_size;
+
+        rect_shape.setPosition(screen_chunk_pos);
+
+        if (consecutive_activeness) {
           rect_shape.setFillColor(sf::Color(kChunkActiveColor));
         } else {
           rect_shape.setFillColor(sf::Color(kChunkInactiveColor));
         }
 
-        rect_shape.setPosition(screen_chunk_pos);
         window_.draw(rect_shape);
       }
     }
@@ -346,7 +380,7 @@ std::string GameEngine::ConstructDebugText() const {
                << '\n'
                << "CHUNKS UPDATED : " << updated_chunks_count << '\n'
                << "UPDATE THREADS : " << sand_engine_.GetWorld().update_threads_ << '\n'
-               << "zBRUSH RADIUS : " << brush_radius_ << '\n';
+               << "BRUSH RADIUS : " << brush_radius_ << '\n';
 
   return debug_string.str();
 }
