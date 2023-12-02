@@ -1,4 +1,6 @@
 #include <filesystem>
+#include <string>
+
 #include "GameEngine.hpp"
 
 int main(const int /*argc*/, const char** argv) {

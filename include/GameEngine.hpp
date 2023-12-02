@@ -44,6 +44,8 @@ class GameEngine {
 
   void ShowChunkBorders();
 
+  void DrawBrush();
+
   std::string ConstructDebugText() const;
 
   RefreshRate refresh_rate_;
@@ -58,6 +60,8 @@ class GameEngine {
 
   sf::Text text_;
   sf::Font font_;
+
+  int brush_radius_ = 0;
 
   engine::Substance chosen_substance_{engine::Substance::kAir};
 

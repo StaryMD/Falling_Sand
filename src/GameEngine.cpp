@@ -1,5 +1,6 @@
 #include "GameEngine.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -11,12 +12,15 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -35,7 +39,7 @@
 constexpr uint32_t kChunkColorOpacity = 0x00000033;
 constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;
 constexpr uint32_t kChunkInactiveColor = 0xFF000000 | kChunkColorOpacity;
-
+  
 constexpr uint32_t kChunkBorderTransparency = 0x00000033;
 constexpr uint32_t kChunkBorderColor = 0x00000000 | kChunkBorderTransparency;
 
@@ -91,6 +95,7 @@ void GameEngine::DrawFrame() {
   ShowChunkActivity();
   ShowChunkBorders();
   ShowDebugInfo();
+  DrawBrush();
 
   window_.display();
   screen_update_elapsed_time_ = timer.getElapsedTime().asSeconds();
@@ -133,7 +138,15 @@ void GameEngine::HandleInput() {
     }
 
     if (event_handler_.IsKeyPressed(sf::Keyboard::Down)) {
-      sand_engine_.GetWorld().update_threads_ = std::max(0, --sand_engine_.GetWorld().update_threads_);
+      sand_engine_.GetWorld().update_threads_ = std::max(0, sand_engine_.GetWorld().update_threads_ - 1);
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Left)) {
+      ++brush_radius_;
+    }
+
+    if (event_handler_.IsKeyPressed(sf::Keyboard::Right)) {
+      brush_radius_ = std::max(0, brush_radius_ - 1);
     }
 
     if (event_handler_.IsKeyDown(sf::Keyboard::Num1)) {
@@ -193,12 +206,13 @@ void GameEngine::ShowChunkActivity() {
     const sf::Vector2<double> offset = {fov.left - std::fmod(fov.left, constants::kChunkSize),
                                         fov.top - std::fmod(fov.top, constants::kChunkSize)};
 
-    const sf::Vector2i top_left_chunk_pos =
-        ToVector2<int, double>({fov.left / constants::kChunkSize, fov.top / constants::kChunkSize});
-
     const sf::Vector2f pixel_offset = ToVector2<float>(camera_view_.MapCoordsToPixel(offset));
 
     sf::RectangleShape rect_shape({chunk_border_size, chunk_border_size});
+    rect_shape.setOrigin(-pixel_offset);
+
+    const sf::Vector2i top_left_chunk_pos =
+        ToVector2<int, double>({fov.left / constants::kChunkSize, fov.top / constants::kChunkSize});
 
     const int visible_chunk_count_x = static_cast<int>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 2;
     const int visible_chunk_count_y = static_cast<int>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 2;
@@ -207,7 +221,7 @@ void GameEngine::ShowChunkActivity() {
       for (int relative_chunk_y = 0; relative_chunk_y < visible_chunk_count_y; ++relative_chunk_y) {
         const sf::Vector2i chunk_pos = top_left_chunk_pos + sf::Vector2i(relative_chunk_x, relative_chunk_y);
         const sf::Vector2f screen_chunk_pos =
-            pixel_offset + ToVector2<float, int>({relative_chunk_x, relative_chunk_y}) * chunk_border_size;
+            ToVector2<float, int>({relative_chunk_x, relative_chunk_y}) * chunk_border_size;
 
         if (sand_engine_.IsChunkActive(chunk_pos)) {
           rect_shape.setFillColor(sf::Color(kChunkActiveColor));
@@ -274,6 +288,24 @@ void GameEngine::ShowDebugInfo() {
   }
 }
 
+void GameEngine::DrawBrush() {
+
+  const int pixel_size = static_cast<int>(camera_view_.GetZoomLevel());
+  const sf::Vector2i mouse_pos = event_handler_.GetMousePosition();
+
+  const sf::Vector2i coord = ToVector2<int>(camera_view_.MapPixelToCoords(mouse_pos));
+  const auto pointer_tile = camera_view_.MapCoordsToPixel(ToVector2<double>(coord));
+
+  sf::RectangleShape rect_shape(ToVector2<float>(sf::Vector2(pixel_size, pixel_size)));
+  rect_shape.setFillColor(sf::Color(255, 255, 255, 100));
+
+  ExecuteInACircle(brush_radius_, [&](const int point_on_circle_x, const int point_on_circle_y) {
+    rect_shape.setPosition(
+        ToVector2<float>(pointer_tile + sf::Vector2i(point_on_circle_x, point_on_circle_y) * pixel_size));
+    window_.draw(rect_shape);
+  });
+}
+
 std::string GameEngine::ConstructDebugText() const {
   const auto [avg_fps, min_fps] = refresh_rate_.GetFpsInfo();
   const double total_frame_elapsed_time = total_frame_elapsed_time_;
@@ -285,7 +317,7 @@ std::string GameEngine::ConstructDebugText() const {
 
   const sf::Vector2i mouse_position = ToVector2<int>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
   const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
-  const sf::Rect<double> camera_fov = camera_view_.GetFieldOfView();
+  const sf::Vector2<double> camera_fov = camera_view_.GetFieldOfView().getPosition();
 
   std::ostringstream debug_string;
   debug_string << std::setprecision(constants::kDebugDigitPrecision) << std::fixed
@@ -302,7 +334,7 @@ std::string GameEngine::ConstructDebugText() const {
                << "TOTAL DRAW %: " << screen_update_elapsed_time << '\n'
                << '\n'
                << "MOUSE PIXEL : " << mouse_position.x << ' ' << mouse_position.y << '\n'
-               << "CAMERA POS : " << camera_fov.left << ' ' << camera_fov.top << '\n'
+               << "CAMERA POS : " << camera_fov.x << ' ' << camera_fov.y << '\n'
                << "MOUSE COORD : " << mouse_coord.x << ' ' << mouse_coord.y << '\n'
                << '\n'
                << "CHUNKS UPDATED : " << updated_chunks_count << '\n'

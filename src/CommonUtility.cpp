@@ -29,6 +29,71 @@ void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point
   }
 }
 
+void ExecuteInACircle(
+    const int radius,
+    const std::function<void(const int point_on_circle_x, const int point_on_circle_y)>& do_function) {
+  if (radius == 0) {
+    do_function(0, 0);
+    return;
+  }
+
+  //NOLINTBEGIN(readability-identifier-length)
+  int t1 = static_cast<int>(std::sqrt(radius));
+  int x = radius;
+  int y = 0;
+
+  {
+    {
+      do_function(x, y);
+      do_function(-x, y);
+
+      do_function(y, x);
+      do_function(y, -x);
+    }
+
+    ++y;
+    t1 += y;
+    const int t2 = t1 - x;
+    if (t2 >= 0) {
+      t1 = t2;
+      --x;
+    }
+  }
+
+  while (x > y) {
+    {
+      do_function(x, y);
+      do_function(-x, y);
+
+      do_function(y, x);
+      do_function(y, -x);
+
+      do_function(x, -y);
+      do_function(-x, -y);
+
+      do_function(-y, x);
+      do_function(-y, -x);
+    }
+
+    ++y;
+    t1 += y;
+    const int t2 = t1 - x;
+    if (t2 >= 0) {
+      t1 = t2;
+      --x;
+    }
+  }
+
+  if (x == y) {
+    do_function(x, y);
+    do_function(-x, y);
+
+    do_function(x, -y);
+    do_function(-x, -y);
+  }
+  //NOLINTEND(readability-identifier-length)
+}
+
 std::string ReadFileContent(const std::string& filename) {
   const std::ifstream file(filename);
   std::stringstream str_stream;

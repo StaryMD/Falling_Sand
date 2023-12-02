@@ -1,5 +1,8 @@
-#include <SFML/System/Vector2.hpp>
 #include <cmath>
+
+#include <algorithm>
+
+#include <SFML/System/Vector2.hpp>
 
 #include "CommonConstants.hpp"
 #include "RandomNumberGenerators.hpp"
@@ -17,34 +20,34 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
   const int index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
-    bool did_something = false;
+    // bool did_something = false;
 
-    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
-      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
-        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
-        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-        Element& neigh_element = GetElementAt(neigh_pos);
+    // for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
+    //   for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
+    //     const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
+    //     const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+    //     Element& neigh_element = GetElementAt(neigh_pos);
 
-        if (CanAccess(neigh_pos)) {
-          switch (neigh_element.GetSubstance()) {
-            case engine::Substance::kFire: {
-              neigh_element = element;
-              element = Element(engine::Substance::kAir);
+    //     if (CanAccess(neigh_pos)) {
+    //       switch (neigh_element.GetSubstance()) {
+    //         case engine::Substance::kFire: {
+    //           neigh_element = element;
+    //           element = Element(engine::Substance::kAir);
 
-              visited_[neigh_index] = visited_[index] = true;
-              did_something = true;
-              break;
-            }
-            default: {
-            }
-          }
-        }
-      }
-    }
+    //           visited_[neigh_index] = visited_[index] = true;
+    //           did_something = true;
+    //           break;
+    //         }
+    //         default: {
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
-    if (did_something) {
-      return true;
-    }
+    // if (did_something) {
+    //   return true;
+    // }
   }
 
   const int max_fall_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
@@ -309,17 +312,18 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
       for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
         const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
         const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-        Element& neigh_element = GetElementAt(neigh_pos);
+        const Element& neigh_element = GetElementAt(neigh_pos);
 
         if (CanAccess(neigh_pos)) {
           switch (neigh_element.GetSubstance()) {
             case engine::Substance::kFire: {
               if (rng_.NextRandValue() % 5 == 0) {
                 element = Element(engine::Substance::kFire);
+
+                visited_[neigh_index] = visited_[index] = true;
+                did_something = true;
               }
 
-              visited_[neigh_index] = visited_[index] = true;
-              did_something = true;
               break;
             }
             default: {
@@ -617,10 +621,11 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
             case engine::Substance::kOil: {
               if (rng_.NextRandValue() % 5 == 0) {
                 neigh_element = Element(engine::Substance::kFire);
+
+                visited_[neigh_index] = visited_[index] = true;
+                did_something = true;
               }
 
-              visited_[neigh_index] = visited_[index] = true;
-              did_something = true;
               break;
             }
             case engine::Substance::kSteam: {

@@ -1,12 +1,14 @@
 #include "world/World.hpp"
 
+#include <cstddef>
+#include <cstdint>
+
 #include <algorithm>
 #include <atomic>
-#include <cstddef>
-
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <thread>
+#include <vector>
+
+#include <SFML/System/Vector2.hpp>
 
 #include "CommonConstants.hpp"
 #include "world/ChunkManager.hpp"

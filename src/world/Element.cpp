@@ -1,5 +1,7 @@
 #include "world/Element.hpp"
 
+#include <algorithm>
+#include <cstdint>
 #include <vector>
 
 #include <SFML/Graphics/Color.hpp>

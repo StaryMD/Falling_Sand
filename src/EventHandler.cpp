@@ -138,3 +138,7 @@ sf::Vector2i EventHandler::GetMouseScrollWheelLocation() const {
 sf::Vector2i EventHandler::GetMouseMovementDelta() const {
   return prev_mouse_location_ - mouse_location_;
 }
+
+sf::Vector2i EventHandler::GetMousePosition() const {
+  return mouse_location_;
+}

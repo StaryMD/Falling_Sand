@@ -13,11 +13,11 @@ class ChunkManager {
 
   explicit ChunkManager(sf::Vector2i size);
 
+  [[nodiscard]] sf::Vector2i GetSize() const { return size_; };
+
   [[nodiscard]] bool IsActive(int pos_index) const;
 
   [[nodiscard]] bool IsActive(sf::Vector2i position) const;
-
-  [[nodiscard]] sf::Vector2i GetSize() const { return size_; };
 
   void SetNextStepActivity(sf::Vector2i position, bool activity_ = true);
 

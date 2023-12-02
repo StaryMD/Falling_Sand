@@ -40,6 +40,8 @@ class EventHandler {
 
   [[nodiscard]] sf::Vector2i GetMouseMovementDelta() const;
 
+  [[nodiscard]] sf::Vector2i GetMousePosition() const;
+
  private:
   void SetKeyDown(sf::Keyboard::Key key_code);
   void SetKeyUp(sf::Keyboard::Key key_code);
