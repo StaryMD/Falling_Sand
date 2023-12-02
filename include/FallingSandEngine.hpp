@@ -23,7 +23,7 @@ class FallingSandEngine {
   void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes, sf::Vector2u screen_size,
                unsigned tick_counter);
 
-  void PlaceElementInLine(sf::Vector2i start_pos, sf::Vector2i end_pos, engine::Substance substance);
+  void PlaceElementInLine(sf::Vector2i start_pos, sf::Vector2i end_pos, int radius, engine::Substance substance);
 
   void Update();
 

@@ -116,10 +116,17 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   d_queue_.finish();
 }
 
-void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const sf::Vector2i end_pos,
+void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const sf::Vector2i end_pos, const int radius,
                                            const engine::Substance substance) {
+  // ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
+  //   world_.SetElementAt(ToVector2<int, float>({point_on_line_x, point_on_line_y}), Element(substance));
+  // });
   ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
-    world_.SetElementAt(ToVector2<int, float>({point_on_line_x, point_on_line_y}), Element(substance));
+    ExecuteInADisc(radius, [&](const int point_on_disc_x, const int point_on_disc_y) {
+      world_.SetElementAt(ToVector2<int, float>({point_on_line_x + static_cast<float>(point_on_disc_x),
+                                                 point_on_line_y + static_cast<float>(point_on_disc_y)}),
+                          Element(substance));
+    });
   });
 }
 

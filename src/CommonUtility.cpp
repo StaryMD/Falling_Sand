@@ -65,11 +65,11 @@ void ExecuteInACircle(
       do_function(x, y);
       do_function(-x, y);
 
-      do_function(y, x);
-      do_function(y, -x);
-
       do_function(x, -y);
       do_function(-x, -y);
+
+      do_function(y, x);
+      do_function(y, -x);
 
       do_function(-y, x);
       do_function(-y, -x);
@@ -90,6 +90,48 @@ void ExecuteInACircle(
 
     do_function(x, -y);
     do_function(-x, -y);
+  }
+  //NOLINTEND(readability-identifier-length)
+}
+
+void ExecuteInADisc(const int radius,
+                    const std::function<void(const int point_on_disc_x, const int point_on_disc_y)>& do_function) {
+  if (radius == 0) {
+    do_function(0, 0);
+    return;
+  }
+
+  //NOLINTBEGIN(readability-identifier-length)
+  int t1 = static_cast<int>(std::sqrt(radius));
+  int x = radius;
+  int y = 0;
+
+  while (x >= y) {
+    {
+      for (int i = -x; i <= x; ++i) {
+        do_function(i, y);
+
+        if (y != 0) {
+          do_function(i, -y);
+        }
+      }
+    }
+
+    ++y;
+    t1 += y;
+    const int t2 = t1 - x;
+    if (t2 >= 0) {
+      t1 = t2;
+
+      for (int i = -y + 1; i <= y - 1; ++i) {
+        if (x != (y - 1)) {
+          do_function(i, x);
+          do_function(i, -x);
+        }
+      }
+
+      --x;
+    }
   }
   //NOLINTEND(readability-identifier-length)
 }

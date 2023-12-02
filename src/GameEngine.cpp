@@ -39,7 +39,7 @@
 constexpr uint32_t kChunkColorOpacity = 0x00000033;
 constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;
 constexpr uint32_t kChunkInactiveColor = 0xFF000000 | kChunkColorOpacity;
-  
+
 constexpr uint32_t kChunkBorderTransparency = 0x00000033;
 constexpr uint32_t kChunkBorderColor = 0x00000000 | kChunkBorderTransparency;
 
@@ -171,7 +171,8 @@ void GameEngine::HandleInput() {
       const auto drag = event_handler_.GetMouseMovement();
 
       sand_engine_.PlaceElementInLine(ToVector2<int>(camera_view_.MapPixelToCoords(drag.first)),
-                                      ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)), chosen_substance_);
+                                      ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)), brush_radius_,
+                                      chosen_substance_);
     }
 
     if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {
@@ -297,7 +298,13 @@ void GameEngine::DrawBrush() {
   const auto pointer_tile = camera_view_.MapCoordsToPixel(ToVector2<double>(coord));
 
   sf::RectangleShape rect_shape(ToVector2<float>(sf::Vector2(pixel_size, pixel_size)));
-  rect_shape.setFillColor(sf::Color(255, 255, 255, 100));
+
+  const auto current_frame_count = refresh_rate_.GetFrameCount();
+  if (current_frame_count % 100 < 50) {
+    rect_shape.setFillColor(sf::Color(255, 255, 255, 75 + current_frame_count % 50));
+  } else {
+    rect_shape.setFillColor(sf::Color(255, 255, 255, 124 - current_frame_count % 50));
+  }
 
   ExecuteInACircle(brush_radius_, [&](const int point_on_circle_x, const int point_on_circle_y) {
     rect_shape.setPosition(
@@ -338,7 +345,8 @@ std::string GameEngine::ConstructDebugText() const {
                << "MOUSE COORD : " << mouse_coord.x << ' ' << mouse_coord.y << '\n'
                << '\n'
                << "CHUNKS UPDATED : " << updated_chunks_count << '\n'
-               << "UPDATE THREADS : " << sand_engine_.GetWorld().update_threads_ << '\n';
+               << "UPDATE THREADS : " << sand_engine_.GetWorld().update_threads_ << '\n'
+               << "zBRUSH RADIUS : " << brush_radius_ << '\n';
 
   return debug_string.str();
 }
