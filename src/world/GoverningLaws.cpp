@@ -3,12 +3,16 @@
 #include <algorithm>
 
 #include <SFML/System/Vector2.hpp>
+#include <vector>
 
 #include "CommonConstants.hpp"
 #include "RandomNumberGenerators.hpp"
 #include "world/Element.hpp"
 #include "world/Substance.hpp"
 #include "world/World.hpp"
+
+const std::vector<sf::Vector2i> kRelPositions = {sf::Vector2i(-1, 0), sf::Vector2i(1, 0), sf::Vector2i(0, -1),
+                                                 sf::Vector2i(0, 1)};
 
 template <>
 bool World::GovernLaw<engine::Substance::kAir>(Element& /*element*/, const sf::Vector2i /*position*/) {
@@ -20,34 +24,6 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
   const int index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
-    // bool did_something = false;
-
-    // for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
-    //   for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
-    //     const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
-    //     const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-    //     Element& neigh_element = GetElementAt(neigh_pos);
-
-    //     if (CanAccess(neigh_pos)) {
-    //       switch (neigh_element.GetSubstance()) {
-    //         case engine::Substance::kFire: {
-    //           neigh_element = element;
-    //           element = Element(engine::Substance::kAir);
-
-    //           visited_[neigh_index] = visited_[index] = true;
-    //           did_something = true;
-    //           break;
-    //         }
-    //         default: {
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
-    // if (did_something) {
-    //   return true;
-    // }
   }
 
   const int max_fall_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
@@ -165,24 +141,22 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
   {  // Check if fancy interactions are available
     bool did_something = false;
 
-    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
-      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
-        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
-        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-        Element& neigh_element = GetElementAt(neigh_pos);
+    for (const auto rel_pos : kRelPositions) {
+      const sf::Vector2i neigh_pos = position + rel_pos;
+      const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+      Element& neigh_element = GetElementAt(neigh_pos);
 
-        if (CanAccess(neigh_pos)) {
-          switch (neigh_element.GetSubstance()) {
-            case engine::Substance::kFire: {
-              element = Element(engine::Substance::kSteam);
-              neigh_element = Element(engine::Substance::kAir);
+      if (CanAccess(neigh_pos)) {
+        switch (neigh_element.GetSubstance()) {
+          case engine::Substance::kFire: {
+            element = Element(engine::Substance::kSteam);
+            neigh_element = Element(engine::Substance::kAir);
 
-              visited_[neigh_index] = visited_[index] = true;
-              did_something = true;
-              break;
-            }
-            default: {
-            }
+            visited_[neigh_index] = visited_[index] = true;
+            did_something = true;
+            break;
+          }
+          default: {
           }
         }
       }
@@ -230,21 +204,21 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
       (CanAccess({position.x + 1, position.y}) && not engine::IsSolid(GetElementAt(index + 1).GetSubstance()));
 
   if (can_fall_left && !can_fall_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index + constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index + constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (rng_.NextRandValue() & 1) {
-      elements_[index].SetSpeed(-1);
+      element.SetSpeed(-1);
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
-      elements_[index].SetSpeed(1);
+      element.SetSpeed(1);
       SwapElements(index, index + constants::kWorldWidth + 1);
     }
     return true;
@@ -280,12 +254,12 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }
@@ -308,26 +282,24 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
   {  // Check if fancy interactions are available
     bool did_something = false;
 
-    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
-      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
-        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
-        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-        const Element& neigh_element = GetElementAt(neigh_pos);
+    for (const auto rel_pos : kRelPositions) {
+      const sf::Vector2i neigh_pos = position + rel_pos;
+      const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+      const Element& neigh_element = GetElementAt(neigh_pos);
 
-        if (CanAccess(neigh_pos)) {
-          switch (neigh_element.GetSubstance()) {
-            case engine::Substance::kFire: {
-              if (rng_.NextRandValue() % 5 == 0) {
-                element = Element(engine::Substance::kFire);
+      if (CanAccess(neigh_pos)) {
+        switch (neigh_element.GetSubstance()) {
+          case engine::Substance::kFire: {
+            if (rng_.NextRandValue() % 5 == 0) {
+              element = Element(engine::Substance::kFire);
 
-                visited_[neigh_index] = visited_[index] = true;
-                did_something = true;
-              }
-
-              break;
+              visited_[neigh_index] = visited_[index] = true;
+              did_something = true;
             }
-            default: {
-            }
+
+            break;
+          }
+          default: {
           }
         }
       }
@@ -375,21 +347,21 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
       (CanAccess({position.x + 1, position.y}) && not engine::IsSolid(GetElementAt(index + 1).GetSubstance()));
 
   if (can_fall_left && !can_fall_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index + constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index + constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (rng_.NextRandValue() & 1) {
-      elements_[index].SetSpeed(-1);
+      element.SetSpeed(-1);
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
-      elements_[index].SetSpeed(1);
+      element.SetSpeed(1);
       SwapElements(index, index + constants::kWorldWidth + 1);
     }
     return true;
@@ -425,12 +397,12 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }
@@ -453,24 +425,22 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
   {  // Check if fancy interactions are available
     bool did_something = false;
 
-    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
-      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
-        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
-        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-        Element& neigh_element = GetElementAt(neigh_pos);
+    for (const auto rel_pos : kRelPositions) {
+      const sf::Vector2i neigh_pos = position + rel_pos;
+      const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+      Element& neigh_element = GetElementAt(neigh_pos);
 
-        if (CanAccess(neigh_pos)) {
-          switch (neigh_element.GetSubstance()) {
-            case engine::Substance::kFire: {
-              element = Element(engine::Substance::kWater);
-              neigh_element = Element(engine::Substance::kAir);
+      if (CanAccess(neigh_pos)) {
+        switch (neigh_element.GetSubstance()) {
+          case engine::Substance::kFire: {
+            element = Element(engine::Substance::kWater);
+            neigh_element = Element(engine::Substance::kAir);
 
-              visited_[neigh_index] = visited_[index] = true;
-              did_something = true;
-              break;
-            }
-            default: {
-            }
+            visited_[neigh_index] = visited_[index] = true;
+            did_something = true;
+            break;
+          }
+          default: {
           }
         }
       }
@@ -525,21 +495,21 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
       (CanAccess({position.x + 1, position.y}) && not engine::IsSolid(GetElementAt(index + 1).GetSubstance()));
 
   if (can_fall_left && !can_fall_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index - constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index - constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (rng_.NextRandValue() & 1) {
-      elements_[index].SetSpeed(-1);
+      element.SetSpeed(-1);
       SwapElements(index, index - constants::kWorldWidth - 1);
     } else {
-      elements_[index].SetSpeed(1);
+      element.SetSpeed(1);
       SwapElements(index, index - constants::kWorldWidth + 1);
     }
     return true;
@@ -575,12 +545,12 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }
@@ -602,42 +572,40 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
   {  // Check if fancy interactions are available
     bool did_something = false;
 
-    for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
-      for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
-        const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
-        const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-        Element& neigh_element = GetElementAt(neigh_pos);
+    for (const auto rel_pos : kRelPositions) {
+      const sf::Vector2i neigh_pos = position + rel_pos;
+      const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
+      Element& neigh_element = GetElementAt(neigh_pos);
 
-        if (CanAccess(neigh_pos)) {
-          switch (neigh_element.GetSubstance()) {
-            case engine::Substance::kWater: {
-              element = Element(engine::Substance::kAir);
-              neigh_element = Element(engine::Substance::kSteam);
+      if (CanAccess(neigh_pos)) {
+        switch (neigh_element.GetSubstance()) {
+          case engine::Substance::kWater: {
+            element = Element(engine::Substance::kAir);
+            neigh_element = Element(engine::Substance::kSteam);
 
-              visited_[neigh_index] = visited_[index] = true;
+            visited_[neigh_index] = visited_[index] = true;
+            did_something = true;
+            break;
+          }
+          case engine::Substance::kOil: {
+            if (rng_.NextRandValue() % 5 == 0) {
+              neigh_element = Element(engine::Substance::kFire);
+
               did_something = true;
-              break;
             }
-            case engine::Substance::kOil: {
-              if (rng_.NextRandValue() % 5 == 0) {
-                neigh_element = Element(engine::Substance::kFire);
 
-                visited_[neigh_index] = visited_[index] = true;
-                did_something = true;
-              }
+            visited_[neigh_index] = visited_[index] = true;
+            break;
+          }
+          case engine::Substance::kSteam: {
+            element = Element(engine::Substance::kAir);
+            neigh_element = Element(engine::Substance::kWater);
 
-              break;
-            }
-            case engine::Substance::kSteam: {
-              element = Element(engine::Substance::kAir);
-              neigh_element = Element(engine::Substance::kWater);
-
-              visited_[neigh_index] = visited_[index] = true;
-              did_something = true;
-              break;
-            }
-            default: {
-            }
+            visited_[neigh_index] = visited_[index] = true;
+            did_something = true;
+            break;
+          }
+          default: {
           }
         }
       }
@@ -670,34 +638,6 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
   const int index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
-    // bool did_something = false;
-
-    // for (int rel_x = -1; rel_x <= 1; rel_x += 2) {
-    //   for (int rel_y = -1; rel_y <= 1; rel_y += 2) {
-    //     const sf::Vector2i neigh_pos = position + sf::Vector2i(rel_x, rel_y);
-    //     const int neigh_index = neigh_pos.y * constants::kWorldWidth + neigh_pos.x;
-    //     Element& neigh_element = GetElementAt(neigh_pos);
-
-    //     if (CanAccess(neigh_pos)) {
-    //       switch (neigh_element.GetSubstance()) {
-    //         case engine::Substance::kFire: {
-    //           element = Element(engine::Substance::kWater);
-    //           neigh_element = Element(engine::Substance::kAir);
-
-    //           visited_[neigh_index] = visited_[index] = true;
-    //           did_something = true;
-    //           break;
-    //         }
-    //         default: {
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
-    // if (did_something) {
-    //   return true;
-    // }
   }
 
   const int max_up_distance = static_cast<int>(std::ceil(element.GetVerticalSpeed()));
@@ -737,21 +677,21 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
       (CanAccess({position.x + 1, position.y}) && not engine::IsSolid(GetElementAt(index + 1).GetSubstance()));
 
   if (can_fall_left && !can_fall_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index - constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index - constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (rng_.NextRandValue() & 1) {
-      elements_[index].SetSpeed(-1);
+      element.SetSpeed(-1);
       SwapElements(index, index - constants::kWorldWidth - 1);
     } else {
-      elements_[index].SetSpeed(1);
+      element.SetSpeed(1);
       SwapElements(index, index - constants::kWorldWidth + 1);
     }
     return true;
@@ -787,12 +727,12 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    elements_[index].SetSpeed(-1);
+    element.SetSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    elements_[index].SetSpeed(1);
+    element.SetSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }

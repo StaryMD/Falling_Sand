@@ -3,6 +3,10 @@
 #include <cstdlib>
 #include <ctime>
 
+FastRng::FastRng(const int seed) {
+  seed_ = seed;
+}
+
 FastRng::FastRng() {
   std::srand(std::time(nullptr));
   seed_ = std::rand();

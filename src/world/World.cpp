@@ -11,6 +11,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "CommonConstants.hpp"
+#include "RandomNumberGenerators.hpp"
 #include "world/ChunkManager.hpp"
 #include "world/Element.hpp"
 #include "world/Substance.hpp"
@@ -24,7 +25,7 @@ World::World(const sf::Vector2i size)
 
   visited_.resize(static_cast<size_t>(size_.x) * size_.y);
   // update_threads_ = static_cast<int>(std::thread::hardware_concurrency());
-  update_threads_ = 0;
+  update_threads_ = static_cast<int>(std::thread::hardware_concurrency());
 }
 
 World::World(const sf::Vector2u size) : World(sf::Vector2i(static_cast<int>(size.x), static_cast<int>(size.y))) {}
@@ -33,6 +34,7 @@ void World::Update() {
   using constants::kChunkSize;
   std::fill(visited_.begin(), visited_.end(), false);
   chunk_manager_.SwapBuffers();
+  rng_ = FastRng();
 
   chunks_updated_count_ = 0;
 

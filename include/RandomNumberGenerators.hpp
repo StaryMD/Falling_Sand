@@ -7,6 +7,8 @@ class FastRng {
  public:
   FastRng();
 
+  explicit FastRng(int seed);
+
   int NextRandValue();
 };
 
