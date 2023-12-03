@@ -1,7 +1,6 @@
 #ifndef GAME_ENGINE_HPP_
 #define GAME_ENGINE_HPP_
 
-#include <SFML/System/Vector2.hpp>
 #include <string>
 #include <vector>
 
@@ -11,6 +10,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include "CameraView.hpp"
 #include "EventHandler.hpp"
@@ -46,7 +46,7 @@ class GameEngine {
 
   void DrawBrush();
 
-  std::string ConstructDebugText() const;
+  void ConstructDebugText(std::string& text_string) const;
 
   RefreshRate refresh_rate_;
   EventHandler event_handler_;

@@ -1,5 +1,6 @@
 #include "FallingSandEngine.hpp"
 
+#include <cmath>
 #include <cstddef>
 #include <filesystem>
 #include <iostream>
@@ -118,13 +119,10 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
 
 void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const sf::Vector2i end_pos, const int radius,
                                            const engine::Substance substance) {
-  // ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
-  //   world_.SetElementAt(ToVector2<int, float>({point_on_line_x, point_on_line_y}), Element(substance));
-  // });
   ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
     ExecuteInADisc(radius, [&](const int point_on_disc_x, const int point_on_disc_y) {
-      world_.SetElementAt(ToVector2<int, float>({point_on_line_x + static_cast<float>(point_on_disc_x),
-                                                 point_on_line_y + static_cast<float>(point_on_disc_y)}),
+      world_.SetElementAt(ToVector2<int>(sf::Vector2f(point_on_line_x + static_cast<float>(point_on_disc_x),
+                                                      point_on_line_y + static_cast<float>(point_on_disc_y))),
                           Element(substance));
     });
   });
@@ -136,4 +134,66 @@ void FallingSandEngine::Update() {
 
 bool FallingSandEngine::IsChunkActive(const sf::Vector2i position) const {
   return world_.IsChunkActive(position);
+}
+
+template <typename functor>
+void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point, const functor& do_function) {
+  float move_x = static_cast<float>(end_point.x - start_point.x);
+  float move_y = static_cast<float>(end_point.y - start_point.y);
+
+  const int step_count = static_cast<int>(std::max(std::abs(move_x), std::abs(move_y)));
+
+  move_x /= static_cast<float>(step_count);
+  move_y /= static_cast<float>(step_count);
+
+  float point_on_line_x = static_cast<float>(start_point.x);
+  float point_on_line_y = static_cast<float>(start_point.y);
+
+  for (int i = 0; i <= step_count; i++) {
+    do_function(point_on_line_x, point_on_line_y);
+    point_on_line_x += move_x;
+    point_on_line_y += move_y;
+  }
+}
+
+template <typename functor>
+void ExecuteInADisc(const int radius, const functor& do_function) {
+  if (radius == 0) {
+    do_function(0, 0);
+    return;
+  }
+
+  //NOLINTBEGIN(readability-identifier-length)
+  int t1 = static_cast<int>(std::sqrt(radius));
+  int x = radius;
+  int y = 0;
+
+  while (x >= y) {
+    {
+      for (int i = -x; i <= x; ++i) {
+        do_function(i, y);
+
+        if (y != 0) {
+          do_function(i, -y);
+        }
+      }
+    }
+
+    ++y;
+    t1 += y;
+    const int t2 = t1 - x;
+    if (t2 >= 0) {
+      t1 = t2;
+
+      for (int i = -y + 1; i <= y - 1; ++i) {
+        if (x != (y - 1)) {
+          do_function(i, x);
+          do_function(i, -x);
+        }
+      }
+
+      --x;
+    }
+  }
+  //NOLINTEND(readability-identifier-length)
 }

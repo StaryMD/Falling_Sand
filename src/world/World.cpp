@@ -23,7 +23,8 @@ World::World(const sf::Vector2i size)
   }
 
   visited_.resize(static_cast<size_t>(size_.x) * size_.y);
-  update_threads_ = static_cast<int>(std::thread::hardware_concurrency());
+  // update_threads_ = static_cast<int>(std::thread::hardware_concurrency());
+  update_threads_ = 0;
 }
 
 World::World(const sf::Vector2u size) : World(sf::Vector2i(static_cast<int>(size.x), static_cast<int>(size.y))) {}
@@ -105,6 +106,9 @@ void World::Update() {
           ++chunks_updated_count_;
           bool chunk_was_updated = false;
 
+          sf::Vector2i top_left_corner;
+          sf::Vector2i bottom_right_corner;
+
           for (int pos_y = kChunkSize - 1; pos_y >= 0; --pos_y) {
             int pos_x = 0;
             int step_x = 1;
@@ -119,7 +123,11 @@ void World::Update() {
               const int index = element_position.y * constants::kWorldWidth + element_position.x;
 
               if (not visited_[index]) {
-                chunk_was_updated |= GovernLaw(element_position);
+                const bool something_changed = GovernLaw(element_position);
+
+                if (something_changed) {
+                  chunk_was_updated = true;
+                }
               }
             }
           }

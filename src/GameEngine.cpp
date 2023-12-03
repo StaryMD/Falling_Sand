@@ -3,16 +3,11 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <iomanip>
-#include <ios>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
@@ -77,6 +72,7 @@ void GameEngine::Run() {
       refresh_rate_.ResetFrameTime();
 
       HandleInput();
+
       ComputeNextFrame();
       DrawFrame();
 
@@ -311,7 +307,11 @@ void GameEngine::ShowChunkBorders() {
 
 void GameEngine::ShowDebugInfo() {
   if (do_show_debug_screen_) {
-    text_.setString(ConstructDebugText());
+    static std::string text_string;
+
+    ConstructDebugText(text_string);
+
+    text_.setString(text_string);
 
     text_.setFillColor(sf::Color::Black);
     text_.setPosition(3, 3);
@@ -324,14 +324,14 @@ void GameEngine::ShowDebugInfo() {
 }
 
 void GameEngine::DrawBrush() {
-
   const int pixel_size = static_cast<int>(camera_view_.GetZoomLevel());
   const sf::Vector2i mouse_pos = event_handler_.GetMousePosition();
 
   const sf::Vector2i coord = ToVector2<int>(camera_view_.MapPixelToCoords(mouse_pos));
-  const auto pointer_tile = camera_view_.MapCoordsToPixel(ToVector2<double>(coord));
+  const sf::Vector2i pointer_tile = camera_view_.MapCoordsToPixel(ToVector2<double>(coord));
 
-  sf::RectangleShape rect_shape(ToVector2<float>(sf::Vector2(pixel_size, pixel_size)));
+  static sf::RectangleShape rect_shape;
+  rect_shape.setSize(ToVector2<float>(sf::Vector2(pixel_size, pixel_size)));
 
   const auto current_frame_count = refresh_rate_.GetFrameCount();
   if (current_frame_count % 100 < 50) {
@@ -347,7 +347,7 @@ void GameEngine::DrawBrush() {
   });
 }
 
-std::string GameEngine::ConstructDebugText() const {
+void GameEngine::ConstructDebugText(std::string& text_string) const {
   const auto [avg_fps, min_fps] = refresh_rate_.GetFpsInfo();
   const double total_frame_elapsed_time = total_frame_elapsed_time_;
   const double total_frame_percentage = total_frame_elapsed_time_ / constants::kWantedSecondsPerFrame * 100.0;
@@ -360,7 +360,10 @@ std::string GameEngine::ConstructDebugText() const {
   const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
   const sf::Vector2<double> camera_fov = camera_view_.GetFieldOfView().getPosition();
 
-  std::ostringstream debug_string;
+  text_string.resize(0);
+
+  std::ostringstream debug_string(text_string);
+
   debug_string << std::setprecision(constants::kDebugDigitPrecision) << std::fixed
                << "FC: " << refresh_rate_.GetFrameCount() << '\n'
                << "TC: " << tick_count_ << '\n'
@@ -382,5 +385,71 @@ std::string GameEngine::ConstructDebugText() const {
                << "UPDATE THREADS : " << sand_engine_.GetWorld().update_threads_ << '\n'
                << "BRUSH RADIUS : " << brush_radius_ << '\n';
 
-  return debug_string.str();
+  text_string = debug_string.str();
+
+  text_string.resize(strlen(text_string.data()));
+}
+
+template <typename functor>
+void ExecuteInACircle(const int radius, const functor& do_function) {
+  if (radius == 0) {
+    do_function(0, 0);
+    return;
+  }
+
+  //NOLINTBEGIN(readability-identifier-length)
+  int t1 = static_cast<int>(std::sqrt(radius));
+  int x = radius;
+  int y = 0;
+
+  {
+    {
+      do_function(x, y);
+      do_function(-x, y);
+
+      do_function(y, x);
+      do_function(y, -x);
+    }
+
+    ++y;
+    t1 += y;
+    const int t2 = t1 - x;
+    if (t2 >= 0) {
+      t1 = t2;
+      --x;
+    }
+  }
+
+  while (x > y) {
+    {
+      do_function(x, y);
+      do_function(-x, y);
+
+      do_function(x, -y);
+      do_function(-x, -y);
+
+      do_function(y, x);
+      do_function(y, -x);
+
+      do_function(-y, x);
+      do_function(-y, -x);
+    }
+
+    ++y;
+    t1 += y;
+    const int t2 = t1 - x;
+    if (t2 >= 0) {
+      t1 = t2;
+      --x;
+    }
+  }
+
+  if (x == y) {
+    do_function(x, y);
+    do_function(-x, y);
+
+    do_function(x, -y);
+    do_function(-x, -y);
+  }
+  //NOLINTEND(readability-identifier-length)
 }
