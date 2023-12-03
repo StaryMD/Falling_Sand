@@ -55,6 +55,5 @@ void Element::GravityAffect() {
 }
 
 void Element::StopFall() {
-  //NOLINTNEXTLINE(readability-magic-numbers)
   vertical_speed_ = kDefaultVerticalSpeed;
 }

@@ -61,7 +61,7 @@ void GameEngine::Setup() {
   screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) * sizeof(sf::Color));
 
   text_.setFont(font_);
-  text_.setCharacterSize(18U);  // NOLINT
+  text_.setCharacterSize(18U);
 
   refresh_rate_.Reset();
 }
@@ -386,8 +386,6 @@ void GameEngine::ConstructDebugText(std::string& text_string) const {
                << "BRUSH RADIUS : " << brush_radius_ << '\n';
 
   text_string = debug_string.str();
-
-  text_string.resize(strlen(text_string.data()));
 }
 
 template <typename functor>
