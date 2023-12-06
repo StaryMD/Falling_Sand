@@ -39,7 +39,7 @@ class World {
 
   [[nodiscard]] size_t GetElementCount() const { return static_cast<size_t>(size_.x) * size_.y; }
 
-  [[nodiscard]] const void* GetElementsPointer() { return elements_.data(); }
+  [[nodiscard]] void* GetElementsPointer() { return elements_.data(); }
 
   [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
 

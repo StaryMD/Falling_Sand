@@ -26,6 +26,8 @@ class Element {
 
   [[nodiscard]] float GetVerticalSpeed() const;
 
+  [[nodiscard]] uint8_t GetDrawProperty() const;
+
   void GravityAffect();
 
   void StopFall();

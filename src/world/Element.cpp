@@ -57,3 +57,7 @@ void Element::GravityAffect() {
 void Element::StopFall() {
   vertical_speed_ = kDefaultVerticalSpeed;
 }
+
+uint8_t Element::GetDrawProperty() const {
+  return draw_property_;
+}
