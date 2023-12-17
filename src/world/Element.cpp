@@ -26,7 +26,7 @@ Element::Element(const engine::Substance subs) : substance_(subs) {
   horizontal_speed_ = -1;
   vertical_speed_ = kDefaultVerticalSpeed;
 
-  draw_property_ = element_rng.NextRandValue() % 256;
+  draw_property_ = element_rng.NextValue() % 256;
 }
 
 const std::vector<sf::Color> kColors{

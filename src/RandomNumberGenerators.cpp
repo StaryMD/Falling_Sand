@@ -12,7 +12,7 @@ FastRng::FastRng() {
   seed_ = std::rand();
 }
 
-int FastRng::NextRandValue() {
+int FastRng::NextValue() {
   seed_ = 214013 * seed_ + 2531011;
   seed_ = (seed_ >> 16) & 0x7FFF;
   return seed_;

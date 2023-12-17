@@ -91,7 +91,7 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
       return true;
     }
     if (can_go_left && can_go_right) {
-      if (rng_.NextRandValue() & 1) {
+      if (fastest_rng_.NextValue() & 1) {
         SwapElements(index, index - go_left_tiles);
       } else {
         SwapElements(index, index + go_right_tiles);
@@ -118,7 +118,7 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
     return true;
   }
   if (can_fall_left && can_fall_right) {
-    if (rng_.NextRandValue() & 1) {
+    if (fastest_rng_.NextValue() & 1) {
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
       SwapElements(index, index + constants::kWorldWidth + 1);
@@ -214,7 +214,7 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
     return true;
   }
   if (can_fall_left && can_fall_right) {
-    if (rng_.NextRandValue() & 1) {
+    if (fastest_rng_.NextValue() & 1) {
       element.SetSpeed(-1);
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
@@ -290,7 +290,7 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
       if (CanAccess(neigh_pos)) {
         switch (neigh_element.GetSubstance()) {
           case engine::Substance::kFire: {
-            if (rng_.NextRandValue() % 5 == 0) {
+            if (fastest_rng_.NextInt(5) == 0) {
               element = Element(engine::Substance::kFire);
 
               visited_[neigh_index] = visited_[index] = true;
@@ -357,7 +357,7 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
     return true;
   }
   if (can_fall_left && can_fall_right) {
-    if (rng_.NextRandValue() & 1) {
+    if (fastest_rng_.NextValue() & 1) {
       element.SetSpeed(-1);
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
@@ -452,7 +452,7 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
   }
 
   // Check if it can condense into water
-  if ((AirNeighbourCount(index) > 0) && (rng_.NextRandValue() < 2)) {
+  if ((AirNeighbourCount(index) > 0) && (fastest_rng_.NextInt(100) == 0)) {
     element = Element(engine::Substance::kWater);
     visited_[index] = true;
     return true;
@@ -505,7 +505,7 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
     return true;
   }
   if (can_fall_left && can_fall_right) {
-    if (rng_.NextRandValue() & 1) {
+    if (fastest_rng_.NextValue() & 1) {
       element.SetSpeed(-1);
       SwapElements(index, index - constants::kWorldWidth - 1);
     } else {
@@ -588,7 +588,7 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
             break;
           }
           case engine::Substance::kOil: {
-            if (rng_.NextRandValue() % 5 == 0) {
+            if (fastest_rng_.NextInt(5) == 0) {
               neigh_element = Element(engine::Substance::kFire);
 
               did_something = true;
@@ -617,13 +617,13 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
   }
 
   // Check if fire can die
-  if ((AirNeighbourCount(index) > 0) && (rng_.NextRandValue() < 2)) {
+  if ((AirNeighbourCount(index) > 0) && (fastest_rng_.NextInt(100) == 0)) {
     element = Element(engine::Substance::kAir);
     visited_[index] = true;
   }
 
   // Check if fire can create smoke
-  if (CanAccess({position.x, position.y - 1}) && (rng_.NextRandValue() < 2)) {
+  if (CanAccess({position.x, position.y - 1}) && (fastest_rng_.NextInt(100) == 0)) {
     if (GetElementAt(index - constants::kWorldWidth).GetSubstance() == engine::Substance::kAir) {
       GetElementAt(index - constants::kWorldWidth) = Element(engine::Substance::kSmoke);
       visited_[index] = true;
@@ -687,7 +687,7 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
     return true;
   }
   if (can_fall_left && can_fall_right) {
-    if (rng_.NextRandValue() & 1) {
+    if (fastest_rng_.NextValue() & 1) {
       element.SetSpeed(-1);
       SwapElements(index, index - constants::kWorldWidth - 1);
     } else {

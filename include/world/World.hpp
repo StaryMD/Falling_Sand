@@ -55,6 +55,7 @@ class World {
   std::vector<Element> elements_;
   std::vector<bool> visited_;
   FastRng rng_;
+  Counter<uint32_t> fastest_rng_;
 
   unsigned chunks_updated_count_;
 

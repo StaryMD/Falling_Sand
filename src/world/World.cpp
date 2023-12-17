@@ -24,7 +24,6 @@ World::World(const sf::Vector2i size)
   }
 
   visited_.resize(static_cast<size_t>(size_.x) * size_.y);
-  // update_threads_ = static_cast<int>(std::thread::hardware_concurrency());
   update_threads_ = static_cast<int>(std::thread::hardware_concurrency());
 }
 
@@ -63,7 +62,7 @@ void World::Update() {
             int pos_x = 0;
             int step_x = 1;
 
-            if (rng_.NextRandValue() & 1) {
+            if (rng_.NextValue() & 1) {
               pos_x = kChunkSize - 1;
               step_x = -1;
             }
@@ -111,11 +110,19 @@ void World::Update() {
           sf::Vector2i top_left_corner;
           sf::Vector2i bottom_right_corner;
 
-          for (int pos_y = kChunkSize - 1; pos_y >= 0; --pos_y) {
+          int pos_y = 0;
+          int step_y = 1;
+
+          if (rng_.NextValue() & 1) {
+            pos_y = kChunkSize - 1;
+            step_y = -1;
+          }
+
+          for (int _ = 0; _ != kChunkSize; ++_, pos_y += step_y) {
             int pos_x = 0;
             int step_x = 1;
 
-            if (rng_.NextRandValue() & 1) {
+            if (rng_.NextValue() & 1) {
               pos_x = kChunkSize - 1;
               step_x = -1;
             }
@@ -181,6 +188,13 @@ void World::SetElementAt(const size_t index, const Element element) {
 
 void World::SetElementAt(const sf::Vector2i pos, const Element element) {
   const size_t index = pos.y * size_.x + pos.x;
+
+  const bool is_inside = pos.y < constants::kWorldHeight && pos.y >= 0 && pos.x >= 0 && pos.x < constants::kWorldWidth;
+
+  if (not is_inside) {
+    return;
+  }
+
   SetElementAt(index, element);
   chunk_manager_.SetNextStepActivity(pos / constants::kChunkSize);
 }
@@ -211,7 +225,7 @@ bool World::CanAccessWithRandomVisit(const sf::Vector2i position, const engine::
   const int8_t chance_to_ignore_visitedness = engine::GetChanceToIgnoreVisitedness(original_subs);
 
   const bool skip_visit_check =
-      (chance_to_ignore_visitedness != -1) && (0 == (rng_.NextRandValue() % chance_to_ignore_visitedness));
+      (chance_to_ignore_visitedness != -1) && (0 == (fastest_rng_.NextValue() % chance_to_ignore_visitedness));
 
   return CanAccess(position) && !skip_visit_check;
 }
