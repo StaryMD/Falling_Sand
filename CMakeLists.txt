@@ -23,7 +23,7 @@ set(MY_OPENCL_VERSION
   300
   CACHE STRING "")
 set(MY_SFML_VERSION
-  2.6
+  2.5.1
   CACHE STRING "")
 
 set(MY_SFML_COMPONENTS graphics window system)
@@ -53,7 +53,7 @@ target_include_directories(${EXECUTABLE_NAME}
 
 find_package(OpenCL)
 if(OpenCL_FOUND)
-  target_link_libraries(${EXECUTABLE_NAME} OpenCL::OpenCL)
+  target_link_libraries(${EXECUTABLE_NAME} OpenCL::OpenCL Threads::Threads ${MY_SFML_LIBS})
   target_compile_definitions(
     ${EXECUTABLE_NAME}
     PRIVATE -DUSE_OPENCL_FOR_DRAW
@@ -62,12 +62,15 @@ if(OpenCL_FOUND)
     PRIVATE -DCL_TARGET_OPENCL_VERSION=${MY_OPENCL_VERSION})
 endif()
 
-set(SFML_STATIC_LIBRARIES TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+# target_link_libraries(${EXECUTABLE_NAME} PRIVATE Threads::Threads)
+
+# set(SFML_STATIC_LIBRARIES TRUE)
 find_package(
   SFML ${MY_SFML_VERSION}
   COMPONENTS ${MY_SFML_COMPONENTS}
   REQUIRED)
-target_link_libraries(${EXECUTABLE_NAME} ${MY_SFML_LIBS})
 
 target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Werror
   -pedantic -O3)

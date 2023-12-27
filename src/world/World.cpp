@@ -58,7 +58,15 @@ void World::Update() {
           ++chunks_updated;
           bool chunk_was_updated = false;
 
-          for (int pos_y = kChunkSize - 1; pos_y >= 0; --pos_y) {
+          int pos_y = 0;
+          int step_y = 1;
+
+          if (rng_.NextValue() & 1) {
+            pos_y = kChunkSize - 1;
+            step_y = -1;
+          }
+
+          for (int _ = 0; _ != kChunkSize; ++_, pos_y += step_y) {
             int pos_x = 0;
             int step_x = 1;
 
@@ -106,9 +114,6 @@ void World::Update() {
         if (chunk_manager_.IsActive({chunk_x, chunk_y})) {
           ++chunks_updated_count_;
           bool chunk_was_updated = false;
-
-          sf::Vector2i top_left_corner;
-          sf::Vector2i bottom_right_corner;
 
           int pos_y = 0;
           int step_y = 1;

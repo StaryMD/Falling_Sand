@@ -9,10 +9,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <type_traits>
 #include <vector>
 
-#include <CL/opencl.hpp>
+#include <CL/cl2.hpp>
 
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>

@@ -3,8 +3,6 @@
 
 #include <cstdint>
 
-#include <SFML/Graphics/Color.hpp>
-
 namespace engine {
 
 enum class Substance : uint8_t {

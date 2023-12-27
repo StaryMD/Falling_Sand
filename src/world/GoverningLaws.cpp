@@ -618,16 +618,8 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
 
   // Check if fire can die
   if ((AirNeighbourCount(index) > 0) && (fastest_rng_.NextInt(100) == 0)) {
-    element = Element(engine::Substance::kAir);
+    element = Element(engine::Substance::kSmoke);
     visited_[index] = true;
-  }
-
-  // Check if fire can create smoke
-  if (CanAccess({position.x, position.y - 1}) && (fastest_rng_.NextInt(100) == 0)) {
-    if (GetElementAt(index - constants::kWorldWidth).GetSubstance() == engine::Substance::kAir) {
-      GetElementAt(index - constants::kWorldWidth) = Element(engine::Substance::kSmoke);
-      visited_[index] = true;
-    }
   }
 
   return true;
@@ -744,7 +736,8 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
     }
     return true;
   }
-  return true;
+
+  return false;
 }
 
 bool World::GovernLaw(const sf::Vector2i position) {

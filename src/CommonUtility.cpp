@@ -3,8 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-
-#include <SFML/System/Vector2.hpp>
+#include <string_view>
 
 std::string ReadFileContent(std::string_view filename) {
   const std::ifstream file(filename.data());

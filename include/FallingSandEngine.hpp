@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <CL/opencl.hpp>
+#include <CL/cl2.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>

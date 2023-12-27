@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -350,15 +352,15 @@ void GameEngine::DrawBrush() {
 void GameEngine::ConstructDebugText(std::string& text_string) const {
   const auto [avg_fps, min_fps] = refresh_rate_.GetFpsInfo();
   const double total_frame_elapsed_time = total_frame_elapsed_time_;
-  const double total_frame_percentage = total_frame_elapsed_time_ / constants::kWantedSecondsPerFrame * 100.0;
-  const double handle_events_elapsed_time = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
-  const double screen_update_elapsed_time = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
-  const double compute_elapsed_time = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
+  const double total_frame_percentage = total_frame_elapsed_time / constants::kWantedSecondsPerFrame * 100.0;
+  const double handle_events_elapsed_percentage = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
+  const double screen_update_elapsed_percentage = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
+  const double compute_elapsed_percentage = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const unsigned updated_chunks_count = sand_engine_.GetUpdatedChunksCount();
 
   const sf::Vector2i mouse_position = ToVector2<int>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
   const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
-  const sf::Vector2<double> camera_fov = camera_view_.GetFieldOfView().getPosition();
+  const sf::Vector2<double> camera_fov = {camera_view_.GetFieldOfView().left, camera_view_.GetFieldOfView().top};
 
   text_string.resize(0);
 
@@ -373,9 +375,9 @@ void GameEngine::ConstructDebugText(std::string& text_string) const {
                << "TOTAL FRAME TIME: " << total_frame_elapsed_time << '\n'
                << "TOTAL FRAME %: " << total_frame_percentage << '\n'
                << '\n'
-               << "TOTAL EVENT %: " << handle_events_elapsed_time << '\n'
-               << "TOTAL COMP %: " << compute_elapsed_time << '\n'
-               << "TOTAL DRAW %: " << screen_update_elapsed_time << '\n'
+               << "TOTAL EVENT %: " << handle_events_elapsed_percentage << '\n'
+               << "TOTAL COMP %: " << compute_elapsed_percentage << '\n'
+               << "TOTAL DRAW %: " << screen_update_elapsed_percentage << '\n'
                << '\n'
                << "MOUSE PIXEL : " << mouse_position.x << ' ' << mouse_position.y << '\n'
                << "CAMERA POS : " << camera_fov.x << ' ' << camera_fov.y << '\n'

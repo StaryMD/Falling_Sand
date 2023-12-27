@@ -26,7 +26,7 @@ class Counter {
   /**
    * @brief Generate an integer value within [0, max_value).
    * 
-   * @param max_value Uppder limit of the interval - excluded.
+   * @param max_value Upper limit of the interval - excluded.
    * @return int_type Random value in the interval.
    */
   int_type NextInt(const int_type max_value) { return (seed_++) % max_value; }

@@ -2,6 +2,7 @@
 #define WORLD_HPP_
 
 #include <vector>
+#include <cstddef>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
