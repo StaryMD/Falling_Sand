@@ -9,12 +9,12 @@
 #include <SFML/Window/Mouse.hpp>
 
 void EventHandler::HandleEvents(sf::RenderWindow& window) {
-  for (int i = static_cast<int>(keys_to_update_.size()) - 1; i >= 0; --i) {
+  for (int32_t i = static_cast<int32_t>(keys_to_update_.size()) - 1; i >= 0; --i) {
     key_was_down_[keys_to_update_[i]] = key_is_down_[keys_to_update_[i]];
     keys_to_update_.pop_back();
   }
 
-  for (int i = static_cast<int>(mouse_buttons_to_update_.size()) - 1; i >= 0; --i) {
+  for (int32_t i = static_cast<int32_t>(mouse_buttons_to_update_.size()) - 1; i >= 0; --i) {
     mouse_button_was_down_[mouse_buttons_to_update_[i]] = mouse_button_is_down_[mouse_buttons_to_update_[i]];
     mouse_buttons_to_update_.pop_back();
   }
@@ -123,7 +123,7 @@ void EventHandler::UpdateMouseLocation() {
   mouse_location_ = sf::Mouse::getPosition();
 }
 
-std::pair<sf::Vector2i, sf::Vector2i> EventHandler::GetMouseMovement() const {
+std::pair<sf::Vector2<int32_t>, sf::Vector2<int32_t>> EventHandler::GetMouseMovement() const {
   return std::make_pair(prev_mouse_location_, mouse_location_);
 }
 
@@ -131,14 +131,14 @@ float EventHandler::GetMouseWheelScrollDelta() const {
   return mouse_wheel_scroll_delta_;
 }
 
-sf::Vector2i EventHandler::GetMouseScrollWheelLocation() const {
+sf::Vector2<int32_t> EventHandler::GetMouseScrollWheelLocation() const {
   return mouse_wheel_scroll_location_;
 }
 
-sf::Vector2i EventHandler::GetMouseMovementDelta() const {
+sf::Vector2<int32_t> EventHandler::GetMouseMovementDelta() const {
   return prev_mouse_location_ - mouse_location_;
 }
 
-sf::Vector2i EventHandler::GetMousePosition() const {
+sf::Vector2<int32_t> EventHandler::GetMousePosition() const {
   return mouse_location_;
 }

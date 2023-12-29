@@ -7,7 +7,8 @@
 
 #include "CommonUtility.hpp"
 
-CameraView::CameraView(const sf::Vector2i max_size, const sf::Vector2i size, const sf::Vector2i pos_center)
+CameraView::CameraView(const sf::Vector2<uint32_t> max_size, const sf::Vector2<uint32_t> size,
+                       const sf::Vector2<uint32_t> pos_center)
     : max_size_(max_size), zoom_level_(0) {
   const sf::Vector2<double> local_size = {static_cast<double>(size.x), static_cast<double>(size.y)};
   const sf::Vector2<double> local_pos_center = {static_cast<double>(pos_center.x), static_cast<double>(pos_center.y)};
@@ -15,21 +16,10 @@ CameraView::CameraView(const sf::Vector2i max_size, const sf::Vector2i size, con
   constexpr double kHalf = 0.5;
   field_of_view_ = sf::Rect<double>(local_pos_center - local_size * kHalf, local_size);
 
-  Zoom(kStartingZoomLevel, pos_center);
+  Zoom(kStartingZoomLevel, ToVector2<int32_t>(pos_center));
 }
 
-CameraView::CameraView(const sf::Vector2u max_size, const sf::Vector2u size, const sf::Vector2u pos_center)
-    : max_size_(max_size), zoom_level_(0) {
-  const sf::Vector2<double> local_size = {static_cast<double>(size.x), static_cast<double>(size.y)};
-  const sf::Vector2<double> local_pos_center = {static_cast<double>(pos_center.x), static_cast<double>(pos_center.y)};
-
-  constexpr double kHalf = 0.5;
-  field_of_view_ = sf::Rect<double>(local_pos_center - local_size * kHalf, local_size);
-
-  Zoom(kStartingZoomLevel, ToVector2<int>(pos_center));
-}
-
-void CameraView::Zoom(float delta, const sf::Vector2i location) {
+void CameraView::Zoom(float delta, const sf::Vector2<int32_t> location) {
   const sf::Vector2<double> mapped_location = MapPixelToCoords(location);
 
   const double prev_zoom_level = GetZoomLevel();
@@ -38,7 +28,7 @@ void CameraView::Zoom(float delta, const sf::Vector2i location) {
   } else {
     delta = -1.0;
   }
-  zoom_level_ = std::clamp(zoom_level_ + static_cast<int>(delta), 0, kZoomLevelCount - 1);
+  zoom_level_ = std::clamp(zoom_level_ + static_cast<int32_t>(delta), 0, kZoomLevelCount - 1);
 
   if (prev_zoom_level == GetZoomLevel()) {
     return;
@@ -60,24 +50,24 @@ void CameraView::Zoom(float delta, const sf::Vector2i location) {
   ClampViewToMaxSize();
 }
 
-void CameraView::MovePosition(const sf::Vector2i delta) {
+void CameraView::MovePosition(const sf::Vector2<int32_t> delta) {
   field_of_view_.left += delta.x / GetZoomLevel();
   field_of_view_.top += delta.y / GetZoomLevel();
 
   ClampViewToMaxSize();
 }
 
-sf::Vector2<double> CameraView::MapPixelToCoords(const sf::Vector2i position) const {
+sf::Vector2<double> CameraView::MapPixelToCoords(const sf::Vector2<int32_t> position) const {
   const sf::Vector2<double> camera_position{field_of_view_.left, field_of_view_.top};
   const sf::Vector2<double> local_position{static_cast<double>(position.x), static_cast<double>(position.y)};
 
   return camera_position + local_position / GetZoomLevel();
 }
 
-sf::Vector2i CameraView::MapCoordsToPixel(const sf::Vector2<double> coords) const {
+sf::Vector2<int32_t> CameraView::MapCoordsToPixel(const sf::Vector2<double> coords) const {
   const sf::Vector2<double> camera_position{field_of_view_.left, field_of_view_.top};
 
-  return ToVector2<int>((coords - camera_position) * GetZoomLevel());
+  return ToVector2<int32_t>((coords - camera_position) * GetZoomLevel());
 }
 
 double CameraView::GetZoomLevel() const {

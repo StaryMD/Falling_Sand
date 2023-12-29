@@ -34,13 +34,13 @@ class EventHandler {
 
   [[nodiscard]] float GetMouseWheelScrollDelta() const;
 
-  [[nodiscard]] sf::Vector2i GetMouseScrollWheelLocation() const;
+  [[nodiscard]] sf::Vector2<int32_t> GetMouseScrollWheelLocation() const;
 
-  [[nodiscard]] std::pair<sf::Vector2i, sf::Vector2i> GetMouseMovement() const;
+  [[nodiscard]] std::pair<sf::Vector2<int32_t>, sf::Vector2<int32_t>> GetMouseMovement() const;
 
-  [[nodiscard]] sf::Vector2i GetMouseMovementDelta() const;
+  [[nodiscard]] sf::Vector2<int32_t> GetMouseMovementDelta() const;
 
-  [[nodiscard]] sf::Vector2i GetMousePosition() const;
+  [[nodiscard]] sf::Vector2<int32_t> GetMousePosition() const;
 
  private:
   void SetKeyDown(sf::Keyboard::Key key_code);
@@ -50,10 +50,10 @@ class EventHandler {
   void SetMouseButtonDown(sf::Mouse::Button mouse_button);
   void UpdateMouseLocation();
 
-  sf::Vector2i mouse_location_;
-  sf::Vector2i prev_mouse_location_;
+  sf::Vector2<int32_t> mouse_location_;
+  sf::Vector2<int32_t> prev_mouse_location_;
 
-  sf::Vector2i mouse_wheel_scroll_location_;
+  sf::Vector2<int32_t> mouse_wheel_scroll_location_;
   float mouse_wheel_scroll_delta_;
 
   std::array<bool, sf::Keyboard::KeyCount> key_is_down_;

@@ -5,7 +5,7 @@
 
 namespace engine {
 
-const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsSolidVector = {
+const std::array<bool, static_cast<int32_t>(Substance::kSubstanceCount)> kIsSolidVector = {
     true,   // Nothing
     false,  // Air
     true,   // Sand
@@ -18,7 +18,7 @@ const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsSolidVec
 
 };
 
-const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsMovableVector = {
+const std::array<bool, static_cast<int32_t>(Substance::kSubstanceCount)> kIsMovableVector = {
     false,  // Nothing
     true,   // Air
     true,   // Sand
@@ -31,7 +31,7 @@ const std::array<bool, static_cast<int>(Substance::kSubstanceCount)> kIsMovableV
 
 };
 
-const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kDensityVector = {
+const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kDensityVector = {
     0,  // Nothing
     3,  // Air
     6,  // Sand
@@ -43,7 +43,7 @@ const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kDensityV
     1,  // Smoke
 };
 
-const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kChanceToIgnoreVisitednessVector = {
+const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kChanceToIgnoreVisitednessVector = {
     -1,  // Nothing
     -1,  // Air
     -1,  // Sand
@@ -56,7 +56,7 @@ const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kChanceTo
 
 };
 
-const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kHorizontalTravelVector = {
+const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kHorizontalTravelVector = {
     1,   // Nothing
     1,   // Air
     1,   // Sand
@@ -70,23 +70,23 @@ const std::array<int8_t, static_cast<int>(Substance::kSubstanceCount)> kHorizont
 };
 
 bool IsSolid(const Substance subs) {
-  return kIsSolidVector[static_cast<int>(subs)];
+  return kIsSolidVector[static_cast<int32_t>(subs)];
 }
 
 bool IsMovable(const Substance subs) {
-  return kIsMovableVector[static_cast<int>(subs)];
+  return kIsMovableVector[static_cast<int32_t>(subs)];
 }
 
 int8_t GetDensity(const Substance subs) {
-  return kDensityVector[static_cast<int>(subs)];
+  return kDensityVector[static_cast<int32_t>(subs)];
 }
 
 int8_t GetChanceToIgnoreVisitedness(const Substance subs) {
-  return kChanceToIgnoreVisitednessVector[static_cast<int>(subs)];
+  return kChanceToIgnoreVisitednessVector[static_cast<int32_t>(subs)];
 }
 
 int8_t GetHorizontalTravel(const Substance subs) {
-  return kHorizontalTravelVector[static_cast<int>(subs)];
+  return kHorizontalTravelVector[static_cast<int32_t>(subs)];
 }
 
 }  // namespace engine

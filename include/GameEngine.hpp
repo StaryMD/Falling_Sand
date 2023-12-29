@@ -22,7 +22,7 @@ class GameEngine {
  public:
   GameEngine() = delete;
 
-  GameEngine(const std::string& application_name, unsigned window_width, unsigned window_height);
+  GameEngine(const std::string& application_name, uint32_t window_width, uint32_t window_height);
 
   explicit GameEngine(const std::string& application_name);
 
@@ -61,11 +61,11 @@ class GameEngine {
   sf::Text text_;
   sf::Font font_;
 
-  int brush_radius_ = 0;
+  int32_t brush_radius_ = 0;
 
   engine::Substance chosen_substance_{engine::Substance::kAir};
 
-  unsigned tick_count_{};
+  uint32_t tick_count_{};
 
   bool do_show_debug_screen_{true};
   bool do_show_chunk_borders_{false};

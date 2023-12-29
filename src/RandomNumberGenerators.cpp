@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 
-FastRng::FastRng(const int seed) {
+FastRng::FastRng(const int32_t seed) {
   seed_ = seed;
 }
 
@@ -12,7 +12,7 @@ FastRng::FastRng() {
   seed_ = std::rand();
 }
 
-int FastRng::NextValue() {
+int32_t FastRng::NextValue() {
   seed_ = 214013 * seed_ + 2531011;
   seed_ = (seed_ >> 16) & 0x7FFF;
   return seed_;

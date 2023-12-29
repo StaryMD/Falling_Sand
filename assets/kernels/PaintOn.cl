@@ -22,15 +22,15 @@ struct Element {
 };
 
 // FORMAT : 0x<A><B><G><R>U
-__global unsigned colors[] = {0, 0xFFD0D0D0U, 0, 0, 0, 0, 0, 0, 0xFF383B3BU};
+__constant unsigned colors[] = {0, 0xFFD0D0D0U, 0, 0, 0, 0, 0, 0, 0xFF383B3BU};
 
-__global unsigned sand_colors[] = {0xFF69A9D8U, 0xFF7ABCEAU, 0xFF90C7F4U, 0xFF7ABCEAU};
-__global unsigned stone_colors[] = {0xFF656363U, 0xFF6C6766U, 0xFF535254U, 0xFF666464U};
-__global unsigned water_colors[] = {0xFF982804U, 0xFFAA3105U, 0xFF9D2A05U, 0xFF902503U};
-__global unsigned oil_colors[] = {0xFF3FAACBU, 0xFF3BA7C9U, 0xFF36A4C8U, 0xFF339FC1U};
-__global unsigned steam_colors[] = {0xFFE4DFDCU, 0xFFE8E3E1U, 0xFFEDE8E5U, 0xFFDFDAD7U};
-__global unsigned fire_colors[] = {0xFF0075FFU, 0xFF0064FCU, 0xFF0235D7U, 0xFF0322B6U};
-__global unsigned smoke_colors[] = {0xFF090909U, 0xFF0A0A0AU, 0xFF0C0C0CU, 0xFF0A0A0AU};
+__constant unsigned sand_colors[] = {0xFF69A9D8U, 0xFF7ABCEAU, 0xFF90C7F4U, 0xFF7ABCEAU};
+__constant unsigned stone_colors[] = {0xFF656363U, 0xFF6C6766U, 0xFF535254U, 0xFF666464U};
+__constant unsigned water_colors[] = {0xFF982804U, 0xFFAA3105U, 0xFF9D2A05U, 0xFF902503U};
+__constant unsigned oil_colors[] = {0xFF3FAACBU, 0xFF3BA7C9U, 0xFF36A4C8U, 0xFF339FC1U};
+__constant unsigned steam_colors[] = {0xFFE4DFDCU, 0xFFE8E3E1U, 0xFFEDE8E5U, 0xFFDFDAD7U};
+__constant unsigned fire_colors[] = {0xFF0075FFU, 0xFF0064FCU, 0xFF0235D7U, 0xFF0322B6U};
+__constant unsigned smoke_colors[] = {0xFF090909U, 0xFF0A0A0AU, 0xFF0C0C0CU, 0xFF0A0A0AU};
 
 __kernel void PaintOn(__global struct Element elements[WORLD_SIZE_Y][WORLD_SIZE_X],
                       __global unsigned pixels[SCREEN_SIZE_Y][SCREEN_SIZE_X],

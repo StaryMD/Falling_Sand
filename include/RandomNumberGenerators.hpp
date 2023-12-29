@@ -1,15 +1,16 @@
 #ifndef RANDOM_NUMBER_GENERATORS_HPP_
 #define RANDOM_NUMBER_GENERATORS_HPP_
 
+#include <cstdint>
 class FastRng {
-  int seed_;
+  int32_t seed_;
 
  public:
   FastRng();
 
-  explicit FastRng(int seed);
+  explicit FastRng(int32_t seed);
 
-  int NextValue();
+  int32_t NextValue();
 };
 
 template <typename int_type>

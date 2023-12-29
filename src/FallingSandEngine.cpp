@@ -1,9 +1,7 @@
 #include "FallingSandEngine.hpp"
 #include <CL/cl.h>
 
-#include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <filesystem>
 #include <iostream>
@@ -23,12 +21,7 @@
 #include "world/Element.hpp"
 #include "world/Substance.hpp"
 
-FallingSandEngine::FallingSandEngine(const sf::Vector2i size, const sf::Vector2u screen_size)
-    : world_(size), screen_size_(screen_size) {
-  Setup();
-}
-
-FallingSandEngine::FallingSandEngine(const sf::Vector2u size, const sf::Vector2u screen_size)
+FallingSandEngine::FallingSandEngine(const sf::Vector2<uint32_t> size, const sf::Vector2<uint32_t> screen_size)
     : world_(size), screen_size_(screen_size) {
   Setup();
 }
@@ -94,7 +87,7 @@ void FallingSandEngine::Setup() {
 }
 
 void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes,
-                                const sf::Vector2u screen_size, const unsigned tick_counter) {
+                                const sf::Vector2<uint32_t> screen_size, const uint32_t tick_counter) {
   const sf::Rect<double> view = camera_view.GetFieldOfView();
   const double step_x = view.width / screen_size.x;
   const double step_y = view.height / screen_size.y;
@@ -104,7 +97,7 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   d_queue_.enqueueWriteBuffer(d_input_buffer_, CL_FALSE, 0, world_.GetElementCount() * sizeof(Element),
                               world_.GetElementsPointer());
 
-  int arg_counter = 0;
+  int32_t arg_counter = 0;
   try {
     d_kernel_.setArg(arg_counter++, d_input_buffer_);
     d_kernel_.setArg(arg_counter++, d_output_buffer_);
@@ -153,11 +146,11 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
 
   double world_coord_y = view.top;
 
-  for (unsigned screen_y = 0; screen_y < screen_size.y; ++screen_y, world_coord_y += step_y) {
+  for (uint32_t screen_y = 0; screen_y < screen_size.y; ++screen_y, world_coord_y += step_y) {
     double world_coord_x = view.left;
 
-    for (unsigned screen_x = 0; screen_x < screen_size.x; ++screen_x, world_coord_x += step_x) {
-      const Element element = world_.GetElementAt({static_cast<int>(world_coord_x), static_cast<int>(world_coord_y)});
+    for (uint32_t screen_x = 0; screen_x < screen_size.x; ++screen_x, world_coord_x += step_x) {
+      const Element element = world_.GetElementAt({static_cast<int32_t>(world_coord_x), static_cast<int32_t>(world_coord_y)});
 
       const auto subs = element.GetSubstance();
 
@@ -173,32 +166,32 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
           break;
         }
         case engine::Substance::kWater: {
-          const unsigned index = ((tick_counter + draw_property) / 20) % 4;
+          const uint32_t index = ((tick_counter + draw_property) / 20) % 4;
           *(pixel_it++) = kWaterColors[index];
           break;
         }
         case engine::Substance::kOil: {
-          const unsigned index = ((tick_counter + draw_property) / 50) % 4;
+          const uint32_t index = ((tick_counter + draw_property) / 50) % 4;
           *(pixel_it++) = kOilColors[index];
           break;
         }
         case engine::Substance::kSteam: {
-          const unsigned index = ((tick_counter + draw_property) / 30) % 4;
+          const uint32_t index = ((tick_counter + draw_property) / 30) % 4;
           *(pixel_it++) = kSteamColors[index];
           break;
         }
         case engine::Substance::kFire: {
-          const unsigned index = ((tick_counter + draw_property) / 40) % 4;
+          const uint32_t index = ((tick_counter + draw_property) / 40) % 4;
           *(pixel_it++) = kFireColors[index];
           break;
         }
         case engine::Substance::kSmoke: {
-          const unsigned index = ((tick_counter + draw_property) / 40) % 4;
+          const uint32_t index = ((tick_counter + draw_property) / 40) % 4;
           *(pixel_it++) = kSmokeColors[index];
           break;
         }
         default: {
-          *(pixel_it++) = kColors[static_cast<int>(subs)];
+          *(pixel_it++) = kColors[static_cast<int32_t>(subs)];
         }
       }
     }
@@ -207,11 +200,11 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
 #endif
 }
 
-void FallingSandEngine::PlaceElementInLine(const sf::Vector2i start_pos, const sf::Vector2i end_pos, const int radius,
+void FallingSandEngine::PlaceElementInLine(const sf::Vector2<int32_t> start_pos, const sf::Vector2<int32_t> end_pos, const int32_t radius,
                                            const engine::Substance substance) {
   ExecuteInALine(start_pos, end_pos, [&](const float point_on_line_x, const float point_on_line_y) {
-    ExecuteInADisc(radius, [&](const int point_on_disc_x, const int point_on_disc_y) {
-      world_.SetElementAt(ToVector2<int>(sf::Vector2f(point_on_line_x + static_cast<float>(point_on_disc_x),
+    ExecuteInADisc(radius, [&](const int32_t point_on_disc_x, const int32_t point_on_disc_y) {
+      world_.SetElementAt(ToVector2<int32_t>(sf::Vector2f(point_on_line_x + static_cast<float>(point_on_disc_x),
                                                       point_on_line_y + static_cast<float>(point_on_disc_y))),
                           Element(substance));
     });
@@ -222,68 +215,6 @@ void FallingSandEngine::Update() {
   world_.Update();
 }
 
-bool FallingSandEngine::IsChunkActive(const sf::Vector2i position) const {
+bool FallingSandEngine::IsChunkActive(const sf::Vector2<int32_t> position) const {
   return world_.IsChunkActive(position);
-}
-
-template <typename functor>
-void ExecuteInALine(const sf::Vector2i start_point, const sf::Vector2i end_point, const functor& do_function) {
-  float move_x = static_cast<float>(end_point.x - start_point.x);
-  float move_y = static_cast<float>(end_point.y - start_point.y);
-
-  const int step_count = static_cast<int>(std::max(std::abs(move_x), std::abs(move_y)));
-
-  move_x /= static_cast<float>(step_count);
-  move_y /= static_cast<float>(step_count);
-
-  float point_on_line_x = static_cast<float>(start_point.x);
-  float point_on_line_y = static_cast<float>(start_point.y);
-
-  for (int i = 0; i <= step_count; i++) {
-    do_function(point_on_line_x, point_on_line_y);
-    point_on_line_x += move_x;
-    point_on_line_y += move_y;
-  }
-}
-
-template <typename functor>
-void ExecuteInADisc(const int radius, const functor& do_function) {
-  if (radius == 0) {
-    do_function(0, 0);
-    return;
-  }
-
-  //NOLINTBEGIN(readability-identifier-length)
-  int t1 = static_cast<int>(std::sqrt(radius));
-  int x = radius;
-  int y = 0;
-
-  while (x >= y) {
-    {
-      for (int i = -x; i <= x; ++i) {
-        do_function(i, y);
-
-        if (y != 0) {
-          do_function(i, -y);
-        }
-      }
-    }
-
-    ++y;
-    t1 += y;
-    const int t2 = t1 - x;
-    if (t2 >= 0) {
-      t1 = t2;
-
-      for (int i = -y + 1; i <= y - 1; ++i) {
-        if (x != (y - 1)) {
-          do_function(i, x);
-          do_function(i, -x);
-        }
-      }
-
-      --x;
-    }
-  }
-  //NOLINTEND(readability-identifier-length)
 }

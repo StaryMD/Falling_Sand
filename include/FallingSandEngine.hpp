@@ -16,20 +16,19 @@ class FallingSandEngine {
  public:
   FallingSandEngine() = delete;
 
-  explicit FallingSandEngine(sf::Vector2i size, sf::Vector2u screen_size);
+  explicit FallingSandEngine(sf::Vector2<uint32_t> size, sf::Vector2<uint32_t> screen_size);
 
-  explicit FallingSandEngine(sf::Vector2u size, sf::Vector2u screen_size);
+  void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes, sf::Vector2<uint32_t> screen_size,
+               uint32_t tick_counter);
 
-  void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes, sf::Vector2u screen_size,
-               unsigned tick_counter);
-
-  void PlaceElementInLine(sf::Vector2i start_pos, sf::Vector2i end_pos, int radius, engine::Substance substance);
+  void PlaceElementInLine(sf::Vector2<int32_t> start_pos, sf::Vector2<int32_t> end_pos, int32_t radius,
+                          engine::Substance substance);
 
   void Update();
 
-  [[nodiscard]] bool IsChunkActive(sf::Vector2i position) const;
+  [[nodiscard]] bool IsChunkActive(sf::Vector2<int32_t> position) const;
 
-  [[nodiscard]] unsigned GetUpdatedChunksCount() const { return world_.GetChunksUpdatedCount(); }
+  [[nodiscard]] uint32_t GetUpdatedChunksCount() const { return world_.GetChunksUpdatedCount(); }
 
   [[nodiscard]] World& GetWorld() { return world_; }
 
@@ -37,7 +36,7 @@ class FallingSandEngine {
 
  private:
   World world_;
-  sf::Vector2u screen_size_;
+  sf::Vector2<uint32_t> screen_size_;
 
   cl::Context d_context_;
   cl::CommandQueue d_queue_;

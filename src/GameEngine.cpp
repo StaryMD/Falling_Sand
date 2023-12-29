@@ -42,8 +42,8 @@ constexpr uint32_t kChunkBorderColor = 0x00000000 | kChunkBorderTransparency;
 
 GameEngine::GameEngine(const std::string& application_name)
     : window_(sf::VideoMode::getDesktopMode(), application_name, sf::Style::Fullscreen),
-      sand_engine_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize()),
-      camera_view_(sf::Vector2u(constants::kWorldWidth, constants::kWorldHeight), window_.getSize(),
+      sand_engine_({constants::kWorldWidth, constants::kWorldHeight}, window_.getSize()),
+      camera_view_({constants::kWorldWidth, constants::kWorldHeight}, window_.getSize(),
                    window_.getSize() / 2U) {
   Setup();
 }
@@ -168,8 +168,8 @@ void GameEngine::HandleInput() {
     if (event_handler_.IsMouseButtonDown(sf::Mouse::Button::Left)) {
       const auto drag = event_handler_.GetMouseMovement();
 
-      sand_engine_.PlaceElementInLine(ToVector2<int>(camera_view_.MapPixelToCoords(drag.first)),
-                                      ToVector2<int>(camera_view_.MapPixelToCoords(drag.second)), brush_radius_,
+      sand_engine_.PlaceElementInLine(ToVector2<int32_t>(camera_view_.MapPixelToCoords(drag.first)),
+                                      ToVector2<int32_t>(camera_view_.MapPixelToCoords(drag.second)), brush_radius_,
                                       chosen_substance_);
     }
 
@@ -210,23 +210,23 @@ void GameEngine::ShowChunkActivity() {
     sf::RectangleShape rect_shape({chunk_border_size, chunk_border_size});
     rect_shape.setOrigin(-pixel_offset);
 
-    const sf::Vector2i top_left_chunk_pos =
+    const sf::Vector2<int32_t> top_left_chunk_pos =
         ToVector2<int, double>({fov.left / constants::kChunkSize, fov.top / constants::kChunkSize});
 
-    const int visible_chunk_count_x = static_cast<int>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 2;
-    const int visible_chunk_count_y = static_cast<int>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 2;
+    const int32_t visible_chunk_count_x = static_cast<int32_t>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 2;
+    const int32_t visible_chunk_count_y = static_cast<int32_t>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 2;
 
-    for (int relative_chunk_y = 0; relative_chunk_y < visible_chunk_count_y; ++relative_chunk_y) {
-      int consecutive_start = 0;
-      bool consecutive_activeness = sand_engine_.IsChunkActive(top_left_chunk_pos + sf::Vector2i{0, relative_chunk_y});
+    for (int32_t relative_chunk_y = 0; relative_chunk_y < visible_chunk_count_y; ++relative_chunk_y) {
+      int32_t consecutive_start = 0;
+      bool consecutive_activeness = sand_engine_.IsChunkActive(top_left_chunk_pos + sf::Vector2<int32_t>{0, relative_chunk_y});
 
-      for (int relative_chunk_x = 1; relative_chunk_x < visible_chunk_count_x; ++relative_chunk_x) {
-        const sf::Vector2i chunk_pos = top_left_chunk_pos + sf::Vector2i(relative_chunk_x, relative_chunk_y);
+      for (int32_t relative_chunk_x = 1; relative_chunk_x < visible_chunk_count_x; ++relative_chunk_x) {
+        const sf::Vector2<int32_t> chunk_pos = top_left_chunk_pos + sf::Vector2<int32_t>(relative_chunk_x, relative_chunk_y);
 
         const bool active = sand_engine_.IsChunkActive(chunk_pos);
 
         if (active != consecutive_activeness) {
-          const int consecutive_length = relative_chunk_x - consecutive_start;
+          const int32_t consecutive_length = relative_chunk_x - consecutive_start;
 
           rect_shape.setSize(sf::Vector2f(static_cast<float>(consecutive_length), 1) * chunk_border_size);
 
@@ -248,7 +248,7 @@ void GameEngine::ShowChunkActivity() {
         }
       }
       {
-        const int consecutive_length = visible_chunk_count_x - consecutive_start;
+        const int32_t consecutive_length = visible_chunk_count_x - consecutive_start;
 
         rect_shape.setSize(sf::Vector2f(static_cast<float>(consecutive_length), 1) * chunk_border_size);
 
@@ -279,15 +279,15 @@ void GameEngine::ShowChunkBorders() {
 
     const sf::Vector2f pixel_offset = ToVector2<float>(camera_view_.MapCoordsToPixel(offset));
 
-    const int line_count_x = static_cast<int>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 1;
-    const int line_count_y = static_cast<int>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 1;
+    const int32_t line_count_x = static_cast<int32_t>(static_cast<float>(window_.getSize().x) / chunk_border_size) + 1;
+    const int32_t line_count_y = static_cast<int32_t>(static_cast<float>(window_.getSize().y) / chunk_border_size) + 1;
 
     std::array<sf::Vertex, 2> line;
 
     line[0] = sf::Vertex({pixel_offset.x, 0}, sf::Color(kChunkBorderColor));
     line[1] = sf::Vertex({pixel_offset.x, static_cast<float>(window_.getSize().y)}, sf::Color(kChunkBorderColor));
 
-    for (int i = 0; i < line_count_x; ++i) {
+    for (int32_t i = 0; i < line_count_x; ++i) {
       line[0].position.x += chunk_border_size;
       line[1].position.x += chunk_border_size;
 
@@ -298,7 +298,7 @@ void GameEngine::ShowChunkBorders() {
     line[1] = sf::Vertex({static_cast<float>(window_.getSize().x), pixel_offset.y},
                          sf::Color(0, 0, 0, kChunkBorderTransparency));
 
-    for (int i = 0; i < line_count_y; ++i) {
+    for (int32_t i = 0; i < line_count_y; ++i) {
       line[0].position.y += chunk_border_size;
       line[1].position.y += chunk_border_size;
 
@@ -326,11 +326,11 @@ void GameEngine::ShowDebugInfo() {
 }
 
 void GameEngine::DrawBrush() {
-  const int pixel_size = static_cast<int>(camera_view_.GetZoomLevel());
-  const sf::Vector2i mouse_pos = event_handler_.GetMousePosition();
+  const int32_t pixel_size = static_cast<int32_t>(camera_view_.GetZoomLevel());
+  const sf::Vector2<int32_t> mouse_pos = event_handler_.GetMousePosition();
 
-  const sf::Vector2i coord = ToVector2<int>(camera_view_.MapPixelToCoords(mouse_pos));
-  const sf::Vector2i pointer_tile = camera_view_.MapCoordsToPixel(ToVector2<double>(coord));
+  const sf::Vector2<int32_t> coord = ToVector2<int32_t>(camera_view_.MapPixelToCoords(mouse_pos));
+  const sf::Vector2<int32_t> pointer_tile = camera_view_.MapCoordsToPixel(ToVector2<double>(coord));
 
   static sf::RectangleShape rect_shape;
   rect_shape.setSize(ToVector2<float>(sf::Vector2(pixel_size, pixel_size)));
@@ -342,9 +342,9 @@ void GameEngine::DrawBrush() {
     rect_shape.setFillColor(sf::Color(255, 255, 255, 124 - current_frame_count % 50));
   }
 
-  ExecuteInACircle(brush_radius_, [&](const int point_on_circle_x, const int point_on_circle_y) {
+  ExecuteInACircle(brush_radius_, [&](const int32_t point_on_circle_x, const int32_t point_on_circle_y) {
     rect_shape.setPosition(
-        ToVector2<float>(pointer_tile + sf::Vector2i(point_on_circle_x, point_on_circle_y) * pixel_size));
+        ToVector2<float>(pointer_tile + sf::Vector2<int32_t>(point_on_circle_x, point_on_circle_y) * pixel_size));
     window_.draw(rect_shape);
   });
 }
@@ -356,9 +356,9 @@ void GameEngine::ConstructDebugText(std::string& text_string) const {
   const double handle_events_elapsed_percentage = handle_events_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double screen_update_elapsed_percentage = screen_update_elapsed_time_ / total_frame_elapsed_time * 100.0;
   const double compute_elapsed_percentage = compute_elapsed_time_ / total_frame_elapsed_time * 100.0;
-  const unsigned updated_chunks_count = sand_engine_.GetUpdatedChunksCount();
+  const uint32_t updated_chunks_count = sand_engine_.GetUpdatedChunksCount();
 
-  const sf::Vector2i mouse_position = ToVector2<int>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
+  const sf::Vector2<int32_t> mouse_position = ToVector2<int32_t>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
   const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
   const sf::Vector2<double> camera_fov = {camera_view_.GetFieldOfView().left, camera_view_.GetFieldOfView().top};
 
@@ -388,68 +388,4 @@ void GameEngine::ConstructDebugText(std::string& text_string) const {
                << "BRUSH RADIUS : " << brush_radius_ << '\n';
 
   text_string = debug_string.str();
-}
-
-template <typename functor>
-void ExecuteInACircle(const int radius, const functor& do_function) {
-  if (radius == 0) {
-    do_function(0, 0);
-    return;
-  }
-
-  //NOLINTBEGIN(readability-identifier-length)
-  int t1 = static_cast<int>(std::sqrt(radius));
-  int x = radius;
-  int y = 0;
-
-  {
-    {
-      do_function(x, y);
-      do_function(-x, y);
-
-      do_function(y, x);
-      do_function(y, -x);
-    }
-
-    ++y;
-    t1 += y;
-    const int t2 = t1 - x;
-    if (t2 >= 0) {
-      t1 = t2;
-      --x;
-    }
-  }
-
-  while (x > y) {
-    {
-      do_function(x, y);
-      do_function(-x, y);
-
-      do_function(x, -y);
-      do_function(-x, -y);
-
-      do_function(y, x);
-      do_function(y, -x);
-
-      do_function(-y, x);
-      do_function(-y, -x);
-    }
-
-    ++y;
-    t1 += y;
-    const int t2 = t1 - x;
-    if (t2 >= 0) {
-      t1 = t2;
-      --x;
-    }
-  }
-
-  if (x == y) {
-    do_function(x, y);
-    do_function(-x, y);
-
-    do_function(x, -y);
-    do_function(-x, -y);
-  }
-  //NOLINTEND(readability-identifier-length)
 }
