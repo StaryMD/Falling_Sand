@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <vector>
 
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -16,8 +15,8 @@ class World {
  public:
   World() = delete;
 
-  explicit World(sf::Vector2<int32_t> size);
-  explicit World(sf::Vector2<uint32_t> size);
+  template <typename int_type>
+  explicit World(sf::Vector2<int_type> size);
 
   [[nodiscard]] sf::Vector2<int32_t> GetSize() const { return size_; }
 
@@ -26,6 +25,8 @@ class World {
 
   [[nodiscard]] const Element& GetElementAt(size_t index) const;
   [[nodiscard]] const Element& GetElementAt(sf::Vector2<int32_t> pos) const;
+
+  [[nodiscard]] engine::Substance GetSubstanceAt(sf::Vector2<int32_t> pos) const;
 
   void SetElementAt(size_t index, Element element);
   void SetElementAt(sf::Vector2<int32_t> pos, Element element);

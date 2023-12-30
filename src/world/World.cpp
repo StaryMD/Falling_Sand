@@ -11,13 +11,15 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "CommonConstants.hpp"
+#include "CommonUtility.hpp"
 #include "RandomNumberGenerators.hpp"
 #include "World/ChunkManager.hpp"
 #include "World/Element.hpp"
 #include "World/Substance.hpp"
 
-World::World(const sf::Vector2<int32_t> size)
-    : size_(size), chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {
+template <typename int_type>
+World::World(const sf::Vector2<int_type> size)
+    : size_(ToVector2<int32_t>(size)), chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {
     element = Element(engine::Substance::kAir);
@@ -26,9 +28,6 @@ World::World(const sf::Vector2<int32_t> size)
   visited_.resize(static_cast<size_t>(size_.x) * size_.y);
   update_threads_ = static_cast<int32_t>(std::thread::hardware_concurrency()) - 1;
 }
-
-World::World(const sf::Vector2<uint32_t> size)
-    : World(sf::Vector2<int32_t>(static_cast<int32_t>(size.x), static_cast<int32_t>(size.y))) {}
 
 void World::Update() {
   using constants::kChunkSize;
@@ -179,6 +178,11 @@ Element& World::GetElementAt(const sf::Vector2<int32_t> pos) {
   return GetElementAt(index);
 }
 
+engine::Substance World::GetSubstanceAt(const sf::Vector2<int32_t> pos) const {
+  const size_t index = pos.y * size_.x + pos.x;
+  return GetElementAt(index).GetSubstance();
+}
+
 const Element& World::GetElementAt(const size_t index) const {
   return elements_[index];
 }
@@ -250,4 +254,40 @@ uint8_t World::AirNeighbourCount(const int32_t index) const {
          (GetElementAt(index + constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
   //NOLINTEND(readability-implicit-bool-conversion)
   return ans;
+}
+
+bool World::GovernLaw(const sf::Vector2<int32_t> position) {
+  Element& element = GetElementAt(position);
+
+  switch (element.GetSubstance()) {
+    case engine::Substance::kAir: {
+      return GovernLaw<engine::Substance::kAir>(element, position);
+    }
+    case engine::Substance::kSand: {
+      return GovernLaw<engine::Substance::kSand>(element, position);
+    }
+    case engine::Substance::kStone: {
+      return GovernLaw<engine::Substance::kStone>(element, position);
+    }
+    case engine::Substance::kWater: {
+      return GovernLaw<engine::Substance::kWater>(element, position);
+    }
+    case engine::Substance::kOil: {
+      return GovernLaw<engine::Substance::kOil>(element, position);
+    }
+    case engine::Substance::kSteam: {
+      return GovernLaw<engine::Substance::kSteam>(element, position);
+    }
+    case engine::Substance::kFire: {
+      return GovernLaw<engine::Substance::kFire>(element, position);
+    }
+    case engine::Substance::kSmoke: {
+      return GovernLaw<engine::Substance::kSmoke>(element, position);
+    }
+    default: {
+      // unreachable (hopefully)
+    }
+  }
+
+  return false;
 }
