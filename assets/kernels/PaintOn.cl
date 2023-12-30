@@ -1,17 +1,17 @@
 #ifndef SCREEN_SIZE_X
-#define SCREEN_SIZE_X 1
+#error "SCREEN_SIZE_X not defined"
 #endif
 
 #ifndef SCREEN_SIZE_Y
-#define SCREEN_SIZE_Y 1
+#error "SCREEN_SIZE_Y not defined"
 #endif
 
 #ifndef WORLD_SIZE_X
-#define WORLD_SIZE_X 1
+#error "WORLD_SIZE_X not defined"
 #endif
 
 #ifndef WORLD_SIZE_Y
-#define WORLD_SIZE_Y 1
+#error "WORLD_SIZE_Y not defined"
 #endif
 
 struct Element {
