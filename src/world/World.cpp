@@ -1,4 +1,4 @@
-#include "world/World.hpp"
+#include "World/World.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -12,9 +12,9 @@
 
 #include "CommonConstants.hpp"
 #include "RandomNumberGenerators.hpp"
-#include "world/ChunkManager.hpp"
-#include "world/Element.hpp"
-#include "world/Substance.hpp"
+#include "World/ChunkManager.hpp"
+#include "World/Element.hpp"
+#include "World/Substance.hpp"
 
 World::World(const sf::Vector2<int32_t> size)
     : size_(size), chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {

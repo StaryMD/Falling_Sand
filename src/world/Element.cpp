@@ -1,4 +1,4 @@
-#include "world/Element.hpp"
+#include "World/Element.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -8,7 +8,7 @@
 
 #include "CommonConstants.hpp"
 #include "RandomNumberGenerators.hpp"
-#include "world/Substance.hpp"
+#include "World/Substance.hpp"
 
 constexpr float kDefaultVerticalSpeed = 0.01F;
 constexpr float kMaxVerticalSpeed = 4.0F;

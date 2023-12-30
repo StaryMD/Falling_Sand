@@ -7,9 +7,9 @@
 
 #include "CommonConstants.hpp"
 #include "RandomNumberGenerators.hpp"
-#include "world/Element.hpp"
-#include "world/Substance.hpp"
-#include "world/World.hpp"
+#include "World/Element.hpp"
+#include "World/Substance.hpp"
+#include "World/World.hpp"
 
 const std::vector<sf::Vector2<int32_t>> kRelPositions = {sf::Vector2<int32_t>(-1, 0), sf::Vector2<int32_t>(1, 0),
                                                          sf::Vector2<int32_t>(0, -1), sf::Vector2<int32_t>(0, 1)};

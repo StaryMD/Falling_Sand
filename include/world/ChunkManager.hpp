@@ -5,7 +5,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-#include "world/Chunk.hpp"
+#include "World/Chunk.hpp"
 
 class ChunkManager {
  public:

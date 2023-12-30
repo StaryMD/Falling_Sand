@@ -1,15 +1,16 @@
 #ifndef WORLD_HPP_
 #define WORLD_HPP_
 
-#include <vector>
 #include <cstddef>
+#include <vector>
+
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include "RandomNumberGenerators.hpp"
-#include "world/ChunkManager.hpp"
-#include "world/Element.hpp"
+#include "World/ChunkManager.hpp"
+#include "World/Element.hpp"
 
 class World {
  public:
