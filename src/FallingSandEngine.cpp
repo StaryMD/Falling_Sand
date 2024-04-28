@@ -1,6 +1,6 @@
 #include "FallingSandEngine.hpp"
-#include <CL/cl.h>
 
+#include <CL/opencl.hpp>
 #include <array>
 #include <cstddef>
 #include <filesystem>
@@ -8,8 +8,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <CL/cl2.hpp>
 
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -27,63 +25,62 @@ FallingSandEngine::FallingSandEngine(const std::string& application_name, const 
 }
 
 void FallingSandEngine::Setup() {
-  {
-    std::vector<cl::Platform> platforms;
-    cl::Platform::get(&platforms);
+  try {
+    {
+      std::vector<cl::Platform> platforms;
+      cl::Platform::get(&platforms);
 
-    cl::Device best_device;
-    size_t device_speed_best = 0;
+      cl::Device best_device;
+      size_t device_speed_best = 0;
 
-    for (const cl::Platform& platform : platforms) {
-      std::vector<cl::Device> devices;
-      platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
+      for (const cl::Platform& platform : platforms) {
+        std::vector<cl::Device> devices;
+        platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
 
-      for (const cl::Device& device : devices) {
-        const size_t max_compute_units = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>();
-        const size_t max_clock_frequency = device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>();
+        for (const cl::Device& device : devices) {
+          const size_t max_compute_units = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>();
+          const size_t max_clock_frequency = device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>();
 
-        const size_t device_speed = max_compute_units * max_clock_frequency;
+          const size_t device_speed = max_compute_units * max_clock_frequency;
 
-        if (device_speed > device_speed_best) {
-          device_speed_best = device_speed;
-          best_device = device;
+          if (device_speed > device_speed_best) {
+            device_speed_best = device_speed;
+            best_device = device;
+          }
         }
       }
+
+      if (best_device.get() == nullptr) {
+        std::cerr << "No devices have been found\n";
+      }
+
+      d_context_ = cl::Context(best_device);
     }
 
-    if (best_device.get() == nullptr) {
-      std::cout << "No devices have been found\n";
-    }
+    d_queue_ = cl::CommandQueue(d_context_);
+    d_input_buffer_ = cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
+    d_output_buffer_ = cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));
 
-    d_context_ = cl::Context(best_device);
+    const std::string kernel_source =
+        ReadFileContent(std::filesystem::current_path().string() + "/assets/kernels/PaintOn.cl");
+    const cl::Program program(d_context_, kernel_source);
 
-    std::cout << "Using device: " << best_device.getInfo<CL_DEVICE_NAME>() << '\n';
-  }
+    std::stringstream build_options;
+    build_options << "-DSCREEN_SIZE_X=" << screen_size_.x << " -DSCREEN_SIZE_Y=" << screen_size_.y
+                  << " -DWORLD_SIZE_X=" << world_.GetSize().x << " -DWORLD_SIZE_Y=" << world_.GetSize().y;
 
-  d_queue_ = cl::CommandQueue(d_context_);
-  d_input_buffer_ = cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
-  d_output_buffer_ = cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));
-
-  const std::string kernel_source =
-      ReadFileContent(std::filesystem::current_path().string() + "/" + "assets/kernels/PaintOn.cl");
-  const cl::Program program(d_context_, kernel_source);
-
-  std::stringstream build_options;
-  build_options << "-DSCREEN_SIZE_X=" << screen_size_.x << " -DSCREEN_SIZE_Y=" << screen_size_.y
-                << " -DWORLD_SIZE_X=" << world_.GetSize().x << " -DWORLD_SIZE_Y=" << world_.GetSize().y;
-
-  try {
     program.build(build_options.str().c_str());
+
+    d_kernel_ = cl::Kernel(program, "PaintOn");
+
   } catch (const cl::BuildError& error) {
-    const auto build_logs = error.getBuildLog();
+    const cl::BuildLogType build_logs = error.getBuildLog();
 
     for (const auto& [device, log] : build_logs) {
-      std::cout << "Device " << device.getInfo<CL_DEVICE_NAME>() << " logs:\n" << log << '\n';
+      std::cerr << "Device " << device.getInfo<CL_DEVICE_NAME>() << " logs:\n" << log << '\n';
     }
     throw;
   }
-
-  d_kernel_ = cl::Kernel(program, "PaintOn");
 
   window_.setVerticalSyncEnabled(true);
   screen_texture_.create(window_.getSize().x, window_.getSize().y);

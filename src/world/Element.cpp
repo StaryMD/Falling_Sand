@@ -50,6 +50,10 @@ float Element::GetVerticalSpeed() const {
   return vertical_speed_;
 }
 
+bool Element::HasSignificantVerticalSpeed() const {
+  return vertical_speed_ > kDefaultVerticalSpeed;
+}
+
 void Element::GravityAffect() {
   vertical_speed_ = std::min(kMaxVerticalSpeed, vertical_speed_ + constants::kGravityAcceleration);
 }

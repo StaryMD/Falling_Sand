@@ -31,10 +31,12 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   const double step_x = view.width / screen_size.x;
   const double step_y = view.height / screen_size.y;
 
-#if USE_OPENCL_FOR_DRAW
+#if true
+
+  cl::Event write_event;
 
   d_queue_.enqueueWriteBuffer(d_input_buffer_, CL_FALSE, 0, world_.GetElementCount() * sizeof(Element),
-                              world_.GetElementsPointer());
+                              world_.GetElementsPointer(), nullptr, &write_event);
 
   int32_t arg_counter = 0;
   try {
@@ -47,16 +49,24 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
     d_kernel_.setArg(arg_counter++, tick_counter);
 
   } catch (const cl::Error& error) {
-    std::cerr << "Opencl Error : " << error.err() << " : " << error.what() << '\n';
-    std::cerr << "Arg counter : " << arg_counter - 1 << '\n';
+    std::cerr << "Opencl Error : " << error.err() << " : " << error.what() << '\n'
+              << "Arg counter : " << arg_counter - 1 << '\n';
     throw;
   }
 
-  d_queue_.enqueueNDRangeKernel(d_kernel_, cl::NullRange, cl::NDRange(screen_size.x, screen_size.y));
+  cl::Event enqueue_event;
+  std::vector<cl::Event> wait_events = {write_event};
 
-  d_queue_.enqueueReadBuffer(d_output_buffer_, CL_FALSE, 0, GetPixelCount() * sizeof(sf::Color), bytes.data());
+  d_queue_.enqueueNDRangeKernel(d_kernel_, cl::NullRange, cl::NDRange(screen_size.x, screen_size.y), cl::NullRange,
+                                &wait_events, &enqueue_event);
 
-  d_queue_.finish();
+  cl::Event read_event;
+  wait_events = {enqueue_event};
+
+  d_queue_.enqueueReadBuffer(d_output_buffer_, CL_FALSE, 0, GetPixelCount() * sizeof(sf::Color), bytes.data(),
+                             &wait_events, &read_event);
+
+  read_event.wait();
 
 #else
 

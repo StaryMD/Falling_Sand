@@ -17,8 +17,7 @@
 #include "World/Element.hpp"
 #include "World/Substance.hpp"
 
-template <typename int_type>
-World::World(const sf::Vector2<int_type> size)
+World::World(const sf::Vector2<uint32_t> size)
     : size_(ToVector2<int32_t>(size)), chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {

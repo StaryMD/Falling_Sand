@@ -68,7 +68,7 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
   }
 
   // Hit the ground and has force left, knock it left or right
-  if (element.GetVerticalSpeed() > 0.0F) {
+  if (element.HasSignificantVerticalSpeed()) {
     element.StopFall();
     const int32_t horizontal_force = std::max(0, max_fall_distance - 2);
 

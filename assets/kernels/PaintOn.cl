@@ -1,19 +1,3 @@
-#ifndef SCREEN_SIZE_X
-#error "SCREEN_SIZE_X not defined"
-#endif
-
-#ifndef SCREEN_SIZE_Y
-#error "SCREEN_SIZE_Y not defined"
-#endif
-
-#ifndef WORLD_SIZE_X
-#error "WORLD_SIZE_X not defined"
-#endif
-
-#ifndef WORLD_SIZE_Y
-#error "WORLD_SIZE_Y not defined"
-#endif
-
 struct Element {
   uchar subs;
   uchar draw_property;
@@ -32,7 +16,7 @@ __constant unsigned steam_colors[] = {0xFFE4DFDCU, 0xFFE8E3E1U, 0xFFEDE8E5U, 0xF
 __constant unsigned fire_colors[] = {0xFF0075FFU, 0xFF0064FCU, 0xFF0235D7U, 0xFF0322B6U};
 __constant unsigned smoke_colors[] = {0xFF090909U, 0xFF0A0A0AU, 0xFF0C0C0CU, 0xFF0A0A0AU};
 
-__kernel void PaintOn(__global struct Element elements[WORLD_SIZE_Y][WORLD_SIZE_X],
+__kernel void PaintOn(__global const struct Element elements[WORLD_SIZE_Y][WORLD_SIZE_X],
                       __global unsigned pixels[SCREEN_SIZE_Y][SCREEN_SIZE_X],
                       const float view_left, const float view_top,
                       const float view_step_x, const float view_step_y,
