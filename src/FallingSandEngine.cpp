@@ -86,8 +86,6 @@ void FallingSandEngine::Setup() {
   d_kernel_ = cl::Kernel(program, "PaintOn");
 
   window_.setVerticalSyncEnabled(true);
-  screen_texture_.create(window_.getSize().x, window_.getSize().y);
-  screen_sprite_.setTexture(screen_texture_);
 
   const bool font_loaded_successfully =
       font_.loadFromFile(std::filesystem::current_path().string() + "/assets/fonts/consola.ttf");
@@ -96,7 +94,7 @@ void FallingSandEngine::Setup() {
     std::cerr << "Font could not be loaded\n";
   }
 
-  screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) * sizeof(sf::Color));
+  screen_pixels_.resize(static_cast<size_t>(window_.getSize().x) * window_.getSize().y);
 
   text_.setFont(font_);
   text_.setCharacterSize(18U);

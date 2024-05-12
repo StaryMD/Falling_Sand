@@ -37,8 +37,7 @@ class FallingSandEngine : public GameEngine {
 
   void ConstructDebugText(std::string& text_string) const;
 
-  void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes, sf::Vector2<uint32_t> screen_size,
-               uint32_t tick_counter);
+  void PaintOn(const CameraView& camera_view, std::vector<sf::Color>& pixels, uint32_t tick_counter);
 
   void PlaceElementInLine(sf::Vector2<int32_t> start_pos, sf::Vector2<int32_t> end_pos, int32_t radius,
                           engine::Substance substance);
@@ -56,7 +55,7 @@ class FallingSandEngine : public GameEngine {
 
   sf::Texture screen_texture_;
   sf::Sprite screen_sprite_;
-  std::vector<sf::Uint8> screen_pixels_;
+  std::vector<sf::Color> screen_pixels_;
 
   cl::Context d_context_;
   cl::CommandQueue d_queue_;

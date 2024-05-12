@@ -17,8 +17,7 @@
 #include "World/Element.hpp"
 #include "World/Substance.hpp"
 
-template <typename int_type>
-World::World(const sf::Vector2<int_type> size)
+World::World(const sf::Vector2<uint32_t> size)
     : size_(ToVector2<int32_t>(size)), chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {
@@ -26,7 +25,8 @@ World::World(const sf::Vector2<int_type> size)
   }
 
   visited_.resize(static_cast<size_t>(size_.x) * size_.y);
-  update_threads_ = static_cast<int32_t>(std::thread::hardware_concurrency()) - 1;
+  // update_threads_ = static_cast<int32_t>(std::thread::hardware_concurrency()) - 1;
+  update_threads_ = 0;
 }
 
 void World::Update() {
@@ -169,56 +169,43 @@ void World::UpdateChunkNeighborhood(const int32_t chunk_x, const int32_t chunk_y
   }
 }
 
-Element& World::GetElementAt(const size_t index) {
-  return elements_[index];
-}
-
 Element& World::GetElementAt(const sf::Vector2<int32_t> pos) {
   const size_t index = pos.y * size_.x + pos.x;
-  return GetElementAt(index);
+  return elements_[index];
 }
 
 engine::Substance World::GetSubstanceAt(const sf::Vector2<int32_t> pos) const {
-  const size_t index = pos.y * size_.x + pos.x;
-  return GetElementAt(index).GetSubstance();
-}
-
-const Element& World::GetElementAt(const size_t index) const {
-  return elements_[index];
+  return GetElementAt(pos).GetSubstance();
 }
 
 const Element& World::GetElementAt(const sf::Vector2<int32_t> pos) const {
   const size_t index = pos.y * size_.x + pos.x;
-  return GetElementAt(index);
+  return elements_[index];
 }
 
-void World::SetElementAt(const size_t index, const Element element) {
-  elements_[index] = element;
-}
-
-void World::SetElementAt(const sf::Vector2<int32_t> pos, const Element element) {
-  const size_t index = pos.y * size_.x + pos.x;
-
-  const bool is_inside = pos.y < constants::kWorldHeight && pos.y >= 0 && pos.x >= 0 && pos.x < constants::kWorldWidth;
+void World::SetElementAt(const sf::Vector2<int32_t> position, const Element element) {
+  const bool is_inside =
+      position.y < constants::kWorldHeight && position.y >= 0 && position.x >= 0 && position.x < constants::kWorldWidth;
 
   if (not is_inside) {
     return;
   }
 
-  SetElementAt(index, element);
-  chunk_manager_.SetNextStepActivity(pos / constants::kChunkSize);
+  GetElementAt(position) = element;
+  chunk_manager_.SetNextStepActivity(position / constants::kChunkSize);
 }
 
-void World::SwapElements(const size_t index1, const size_t index2) {
-  std::swap(elements_[index1], elements_[index2]);
-  visited_[index1] = visited_[index2] = true;
+void World::SwapElements(const sf::Vector2<int32_t> position1, const sf::Vector2<int32_t> position2) {
+  std::swap(GetElementAt(position1), GetElementAt(position2));
+  SetVisit(position1, true);
+  SetVisit(position2, true);
 }
 
 bool World::IsChunkActive(const sf::Vector2<int32_t> position) const {
   return chunk_manager_.IsActive(position);
 }
 
-bool World::CanAccess(const sf::Vector2<int32_t> position) {
+bool World::CanAccess(const sf::Vector2<int32_t> position) const {
   const bool is_inside =
       position.y < constants::kWorldHeight && position.y >= 0 && position.x >= 0 && position.x < constants::kWorldWidth;
 
@@ -226,9 +213,7 @@ bool World::CanAccess(const sf::Vector2<int32_t> position) {
     return false;
   }
 
-  const int32_t index = position.y * constants::kWorldWidth + position.x;
-
-  return engine::IsMovable(GetElementAt(index).GetSubstance()) && !visited_[index];
+  return engine::IsMovable(GetSubstanceAt(position)) && !GetVisit(position);
 }
 
 bool World::CanAccessWithRandomVisit(const sf::Vector2<int32_t> position, const engine::Substance original_subs) {
@@ -240,19 +225,15 @@ bool World::CanAccessWithRandomVisit(const sf::Vector2<int32_t> position, const 
   return CanAccess(position) && !skip_visit_check;
 }
 
-uint8_t World::AirNeighbourCount(const int32_t index) const {
-  const int32_t pos_x = index % constants::kWorldWidth;
-  const int32_t pos_y = index / constants::kWorldWidth;
+uint8_t World::AirNeighbourCount(const sf::Vector2<int32_t> position) const {
+  int8_t ans = 0;
 
-  int32_t ans = 0;
-
-  //NOLINTBEGIN(readability-implicit-bool-conversion)
-  ans += (pos_x - 1 >= 0) && (GetElementAt(index - 1).GetSubstance() == engine::Substance::kAir);
-  ans += (pos_x + 1 < constants::kWorldWidth) && (GetElementAt(index + 1).GetSubstance() == engine::Substance::kAir);
-  ans += (pos_y - 1 >= 0) && (GetElementAt(index - constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
-  ans += (pos_y + 1 < constants::kWorldHeight) &&
-         (GetElementAt(index + constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
-  //NOLINTEND(readability-implicit-bool-conversion)
+  //NOLINTBEGIN(readability-implicit-bool-conversion,bugprone-narrowing-conversions)
+  ans += (position.x - 1 >= 0) && (GetSubstanceAt(LeftBy(position)) == engine::Substance::kAir);
+  ans += (position.x + 1 < constants::kWorldWidth) && (GetSubstanceAt(RightBy(position)) == engine::Substance::kAir);
+  ans += (position.y - 1 >= 0) && (GetSubstanceAt(DownBy(position)) == engine::Substance::kAir);
+  ans += (position.y + 1 < constants::kWorldHeight) && (GetSubstanceAt(UpBy(position)) == engine::Substance::kAir);
+  //NOLINTEND(readability-implicit-bool-conversion,bugprone-narrowing-conversions)
   return ans;
 }
 
@@ -290,4 +271,30 @@ bool World::GovernLaw(const sf::Vector2<int32_t> position) {
   }
 
   return false;
+}
+
+sf::Vector2<int32_t> World::GetSize() const {
+  return size_;
+}
+
+size_t World::GetElementCount() const {
+  return static_cast<size_t>(size_.x) * size_.y;
+}
+
+void* World::GetElementsPointer() {
+  return elements_.data();
+}
+
+uint32_t World::GetChunksUpdatedCount() const {
+  return chunks_updated_count_;
+}
+
+bool World::GetVisit(const sf::Vector2<int32_t> position) const {
+  const size_t index = position.y * size_.x + position.x;
+  return visited_[index];
+}
+
+void World::SetVisit(const sf::Vector2<int32_t> position, const bool visit) {
+  const size_t index = position.y * size_.x + position.x;
+  visited_[index] = visit;
 }

@@ -10,21 +10,19 @@
 #include "RandomNumberGenerators.hpp"
 #include "World/Substance.hpp"
 
-constexpr float kDefaultVerticalSpeed = 0.01F;
-constexpr float kMaxVerticalSpeed = 4.0F;
-
 namespace {
 FastRng element_rng;
-};
+Counter<uint32_t> fastest_rng;
+};  // namespace
 
 Element::Element() : substance_(engine::Substance::kNothing) {
-  horizontal_speed_ = -1;
-  vertical_speed_ = kDefaultVerticalSpeed;
+  horizontal_speed_ = fastest_rng.NextInt(2) ? -1 : 1;
+  vertical_speed_ = constants::kDefaultVerticalSpeed;
 }
 
 Element::Element(const engine::Substance subs) : substance_(subs) {
-  horizontal_speed_ = -1;
-  vertical_speed_ = kDefaultVerticalSpeed;
+  horizontal_speed_ = fastest_rng.NextInt(2) ? -1 : 1;
+  vertical_speed_ = constants::kDefaultVerticalSpeed;
 
   draw_property_ = element_rng.NextValue() % 256;
 }
@@ -51,11 +49,11 @@ float Element::GetVerticalSpeed() const {
 }
 
 void Element::GravityAffect() {
-  vertical_speed_ = std::min(kMaxVerticalSpeed, vertical_speed_ + constants::kGravityAcceleration);
+  vertical_speed_ = std::min(constants::kMaxVerticalSpeed, vertical_speed_ + constants::kGravityAcceleration);
 }
 
 void Element::StopFall() {
-  vertical_speed_ = kDefaultVerticalSpeed;
+  vertical_speed_ = constants::kDefaultVerticalSpeed;
 }
 
 uint8_t Element::GetDrawProperty() const {

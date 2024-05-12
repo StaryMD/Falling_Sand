@@ -23,6 +23,9 @@ constexpr float kWantedSecondsPerFrame = 1.0 / kWantedFramesPerSecond;
 
 constexpr float kGravityAcceleration = 0.4F;
 
+constexpr float kDefaultVerticalSpeed = 0.01F;
+constexpr float kMaxVerticalSpeed = 4.0F;
+
 }  // namespace constants
 
 #endif /* COMMON_CONSTANTS_HPP_ */

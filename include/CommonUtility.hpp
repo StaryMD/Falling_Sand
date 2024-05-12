@@ -141,4 +141,24 @@ static inline sf::Vector2<t> ToVector2(const sf::Vector2<d> vector) {
 
 std::string ReadFileContent(std::string_view filename);
 
+template <typename type>
+sf::Vector2<type> LeftBy(const sf::Vector2<type>& position, const type how_much = 1) {
+  return {position.x - how_much, position.y};
+}
+
+template <typename type>
+sf::Vector2<type> RightBy(const sf::Vector2<type>& position, const type how_much = 1) {
+  return {position.x + how_much, position.y};
+}
+
+template <typename type>
+sf::Vector2<type> UpBy(const sf::Vector2<type>& position, const type how_much = 1) {
+  return {position.x, position.y - how_much};
+}
+
+template <typename type>
+sf::Vector2<type> DownBy(const sf::Vector2<type>& position, const type how_much = 1) {
+  return {position.x, position.y + how_much};
+}
+
 #endif /* COMMON_UTILITY_HPP_ */

@@ -1,9 +1,12 @@
 #include "FallingSandEngine.hpp"
 
+#include <SFML/System/Vector2.hpp>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 
 #include "CommonUtility.hpp"
+#include "World/Substance.hpp"
 
 constexpr uint32_t kChunkColorOpacity = 0x00000033;
 constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;
@@ -13,8 +16,8 @@ constexpr uint32_t kChunkBorderTransparency = 0x00000033;
 constexpr uint32_t kChunkBorderColor = 0x00000000 | kChunkBorderTransparency;
 
 void FallingSandEngine::UserDrawFrame() {
-  PaintOn(camera_view_, screen_pixels_, this->window_.getSize(), tick_count_);
-  screen_texture_.update(screen_pixels_.data());
+  PaintOn(camera_view_, screen_pixels_, tick_count_);
+  screen_texture_.update(reinterpret_cast<sf::Uint8*>(screen_pixels_.data()));
   window_.draw(screen_sprite_);
 
   ShowChunkActivity();
@@ -25,14 +28,12 @@ void FallingSandEngine::UserDrawFrame() {
   window_.display();
 }
 
-void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes,
-                                const sf::Vector2<uint32_t> screen_size, const uint32_t tick_counter) {
+void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::Color>& pixels,
+                                const uint32_t tick_counter) {
   const sf::Rect<double> view = camera_view.GetFieldOfView();
-  const double step_x = view.width / screen_size.x;
-  const double step_y = view.height / screen_size.y;
+  const double scaling_factor = camera_view.GetZoomLevel();
 
-#if USE_OPENCL_FOR_DRAW
-
+#if USE_OPENCL_FOR_DRAW && false  // DEPRECATED
   d_queue_.enqueueWriteBuffer(d_input_buffer_, CL_FALSE, 0, world_.GetElementCount() * sizeof(Element),
                               world_.GetElementsPointer());
 
@@ -81,57 +82,64 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   static const std::array<sf::Color, 4> kSmokeColors = {sf::Color(0x090909FFU), sf::Color(0x0A0A0AFFU),
                                                         sf::Color(0x0C0C0CFFU), sf::Color(0x0A0A0AFFU)};
 
-  sf::Color* pixel_it = reinterpret_cast<sf::Color*>(bytes.data());
+  const sf::Vector2<int32_t> origin_coords = ToVector2<int32_t>(camera_view_.MapPixelToCoords({0, 0}));
+  const sf::Vector2<float> top_left_tile_pixel =
+      ToVector2<float>(camera_view_.MapCoordsToPixel(ToVector2<double>(origin_coords)));
 
-  double world_coord_y = view.top;
+  const sf::Vector2<int32_t> view_top_left = ToVector2<int32_t, double>({view.left, view.top});
 
-  for (uint32_t screen_y = 0; screen_y < screen_size.y; ++screen_y, world_coord_y += step_y) {
-    double world_coord_x = view.left;
+  const sf::Vector2<int32_t> scaled_screen_size(window_.getSize() / static_cast<uint32_t>(scaling_factor));
 
-    for (uint32_t screen_x = 0; screen_x < screen_size.x; ++screen_x, world_coord_x += step_x) {
-      const Element element =
-          world_.GetElementAt({static_cast<int32_t>(world_coord_x), static_cast<int32_t>(world_coord_y)});
+  screen_texture_.create(scaled_screen_size.x, scaled_screen_size.y);
+  screen_sprite_.setTexture(screen_texture_);
+  screen_sprite_.setScale(static_cast<float>(scaling_factor), static_cast<float>(scaling_factor));
+  screen_sprite_.setPosition(top_left_tile_pixel);
 
-      const auto subs = element.GetSubstance();
-
+  for (int32_t screen_y = 0; screen_y < scaled_screen_size.y; ++screen_y) {
+    for (int32_t screen_x = 0; screen_x < scaled_screen_size.x; ++screen_x) {
+      const sf::Vector2<int32_t> element_position = view_top_left + sf::Vector2<int32_t>(screen_x, screen_y);
+      const Element element = world_.GetElementAt(element_position);
+      const engine::Substance subs = element.GetSubstance();
       const uint8_t draw_property = element.GetDrawProperty();
+
+      const int32_t pixel_index = screen_y * scaled_screen_size.x + screen_x;
 
       switch (element.GetSubstance()) {
         case engine::Substance::kSand: {
-          *(pixel_it++) = kSandColors[draw_property % 4];
+          pixels[pixel_index] = kSandColors[draw_property % 4];
           break;
         }
         case engine::Substance::kStone: {
-          *(pixel_it++) = kStoneColors[draw_property % 4];
+          pixels[pixel_index] = kStoneColors[draw_property % 4];
           break;
         }
         case engine::Substance::kWater: {
-          const uint32_t index = ((tick_counter + draw_property) / 20) % 4;
-          *(pixel_it++) = kWaterColors[index];
+          const uint32_t texture_index = ((tick_counter + draw_property) / 20) % 4;
+          pixels[pixel_index] = kWaterColors[texture_index];
           break;
         }
         case engine::Substance::kOil: {
-          const uint32_t index = ((tick_counter + draw_property) / 50) % 4;
-          *(pixel_it++) = kOilColors[index];
+          const uint32_t texture_index = ((tick_counter + draw_property) / 50) % 4;
+          pixels[pixel_index] = kOilColors[texture_index];
           break;
         }
         case engine::Substance::kSteam: {
-          const uint32_t index = ((tick_counter + draw_property) / 30) % 4;
-          *(pixel_it++) = kSteamColors[index];
+          const uint32_t texture_index = ((tick_counter + draw_property) / 30) % 4;
+          pixels[pixel_index] = kSteamColors[texture_index];
           break;
         }
         case engine::Substance::kFire: {
-          const uint32_t index = ((tick_counter + draw_property) / 40) % 4;
-          *(pixel_it++) = kFireColors[index];
+          const uint32_t texture_index = ((tick_counter + draw_property) / 40) % 4;
+          pixels[pixel_index] = kFireColors[texture_index];
           break;
         }
         case engine::Substance::kSmoke: {
-          const uint32_t index = ((tick_counter + draw_property) / 40) % 4;
-          *(pixel_it++) = kSmokeColors[index];
+          const uint32_t texture_index = ((tick_counter + draw_property) / 40) % 4;
+          pixels[pixel_index] = kSmokeColors[texture_index];
           break;
         }
         default: {
-          *(pixel_it++) = kColors[static_cast<int32_t>(subs)];
+          pixels[pixel_index] = kColors[static_cast<int32_t>(subs)];
         }
       }
     }
