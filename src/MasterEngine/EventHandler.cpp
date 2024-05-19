@@ -1,5 +1,6 @@
 #include "MasterEngine/EventHandler.hpp"
 
+#include <cstdint>
 #include <utility>
 
 #include <SFML/Graphics/RenderWindow.hpp>

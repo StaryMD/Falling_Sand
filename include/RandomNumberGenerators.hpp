@@ -2,6 +2,7 @@
 #define RANDOM_NUMBER_GENERATORS_HPP_
 
 #include <cstdint>
+
 class FastRng {
   int32_t seed_;
 

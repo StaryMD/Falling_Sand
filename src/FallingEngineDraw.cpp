@@ -1,9 +1,31 @@
 #include "FallingSandEngine.hpp"
 
+#include <CL/cl.h>
+
+#include <array>
+#include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
+#include <CL/opencl.hpp>
+#include <SFML/Config.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Mouse.hpp>
+
+#include "CommonConstants.hpp"
 #include "CommonUtility.hpp"
+#include "MasterEngine/CameraView.hpp"
+#include "World/Element.hpp"
+#include "World/Substance.hpp"
 
 constexpr uint32_t kChunkColorOpacity = 0x00000033;
 constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;
@@ -31,7 +53,7 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   const double step_x = view.width / screen_size.x;
   const double step_y = view.height / screen_size.y;
 
-#if true
+#if USE_OPENCL_FOR_DRAW
 
   cl::Event write_event;
 

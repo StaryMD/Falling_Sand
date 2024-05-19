@@ -1,21 +1,26 @@
 #include "FallingSandEngine.hpp"
 
-#include <CL/opencl.hpp>
+#include <CL/cl.h>
+
+#include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include <SFML/Config.hpp>
+#include <CL/opencl.hpp>
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 
 #include "CommonUtility.hpp"
 #include "MasterEngine/CameraView.hpp"
+#include "MasterEngine/GameEngine.hpp"
 #include "World/Element.hpp"
 #include "World/Substance.hpp"
 
@@ -97,6 +102,8 @@ void FallingSandEngine::Setup() {
 
   text_.setFont(font_);
   text_.setCharacterSize(18U);
+
+  window_.setMouseCursorVisible(false);
 }
 
 void FallingSandEngine::UserHandleInput() {

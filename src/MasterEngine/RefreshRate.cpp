@@ -32,7 +32,7 @@ double RefreshRate::GetFrameElapsedTime() const {
 }
 
 void RefreshRate::ResetFrameTime() {
-  past_fps_buffer_[(frame_counter_++) % constants::kFpsBufferSize] = static_cast<double>(1.0) / GetFrameElapsedTime();
+  past_fps_buffer_[(frame_counter_++) % constants::kFpsBufferSize] = 1.0 / GetFrameElapsedTime();
 
   last_frame_start_clock_.restart();
 }

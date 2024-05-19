@@ -1,5 +1,6 @@
 #include "RandomNumberGenerators.hpp"
 
+#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 

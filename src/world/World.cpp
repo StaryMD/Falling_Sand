@@ -1,10 +1,9 @@
 #include "World/World.hpp"
 
-#include <cstddef>
-#include <cstdint>
-
 #include <algorithm>
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
 #include <thread>
 #include <vector>
 

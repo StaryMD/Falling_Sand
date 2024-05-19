@@ -1,6 +1,8 @@
+#include <cstdint>
 #include <filesystem>
 #include <string_view>
 
+#include "CommonConstants.hpp"
 #include "FallingSandEngine.hpp"
 
 int32_t main(const int32_t /*argc*/, const char** argv) {

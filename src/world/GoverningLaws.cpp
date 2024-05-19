@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include <algorithm>
+#include <cstdint>
 
 #include <SFML/System/Vector2.hpp>
 #include <vector>
