@@ -43,4 +43,4 @@ Capitolele lucrarii
   Optimizare
   Quality assurance
 Concluzie
-Declaratia de autenticicate
+Declaratia de autenticitate
