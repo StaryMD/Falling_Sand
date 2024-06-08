@@ -26,20 +26,20 @@ const std::array<bool, static_cast<int32_t>(Substance::kSubstanceCount)> kIsMova
     true,   // Water
     true,   // Oil
     true,   // Steam
-    false,  // Fire
+    true,  // Fire
     true,   // Smoke
 
 };
 
 const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kDensityVector = {
     0,  // Nothing
-    3,  // Air
-    6,  // Sand
-    7,  // Stone
-    5,  // Water
-    4,  // Oil
-    2,  // Steam
-    0,  // Fire
+    4,  // Air
+    7,  // Sand
+    8,  // Stone
+    6,  // Water
+    5,  // Oil
+    3,  // Steam
+    2,  // Fire
     1,  // Smoke
 };
 

@@ -585,6 +585,8 @@ template <>
 bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vector2<int32_t> position) {
   const int32_t index = position.y * constants::kWorldWidth + position.x;
 
+  bool has_air_neighbours = false;
+
   {  // Check if fancy interactions are available
     bool did_something = false;
 
@@ -614,12 +616,8 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
             visited_[neigh_index] = visited_[index] = true;
             break;
           }
-          case engine::Substance::kSteam: {
-            element = Element(engine::Substance::kAir);
-            neigh_element = Element(engine::Substance::kWater);
-
-            visited_[neigh_index] = visited_[index] = true;
-            did_something = true;
+          case engine::Substance::kAir: {
+            has_air_neighbours = true;
             break;
           }
           default: {
@@ -634,7 +632,7 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
   }
 
   // Check if fire can die
-  if ((AirNeighbourCount(index) != 0) && (fastest_rng_.NextInt(100) == 0)) {
+  if (has_air_neighbours && (fastest_rng_.NextInt(100) == 0)) {
     element = Element(engine::Substance::kSmoke);
     visited_[index] = true;
   }
