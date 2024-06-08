@@ -634,7 +634,7 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
   }
 
   // Check if fire can die
-  if ((AirNeighbourCount(index) > 0) && (fastest_rng_.NextInt(100) == 0)) {
+  if ((AirNeighbourCount(index) != 0) && (fastest_rng_.NextInt(100) == 0)) {
     element = Element(engine::Substance::kSmoke);
     visited_[index] = true;
   }

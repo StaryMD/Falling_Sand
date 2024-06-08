@@ -142,14 +142,6 @@ void FallingSandEngine::UserHandleInput() {
       world_.update_threads_ = std::max(0, world_.update_threads_ - 1);
     }
 
-    if (this->event_handler_.IsKeyPressed(sf::Keyboard::Left)) {
-      ++brush_radius_;
-    }
-
-    if (this->event_handler_.IsKeyPressed(sf::Keyboard::Right)) {
-      brush_radius_ = std::max(0, brush_radius_ - 1);
-    }
-
     if (this->event_handler_.IsKeyDown(sf::Keyboard::Num1)) {
       chosen_substance_ = engine::Substance::kAir;
     } else if (this->event_handler_.IsKeyDown(sf::Keyboard::Num2)) {
@@ -181,8 +173,15 @@ void FallingSandEngine::UserHandleInput() {
     }
 
     if (this->event_handler_.GetMouseWheelScrollDelta() != 0) {
-      camera_view_.Zoom(this->event_handler_.GetMouseWheelScrollDelta(),
-                        this->event_handler_.GetMouseScrollWheelLocation());
+      if (this->event_handler_.IsKeyDown(sf::Keyboard::LControl)) {
+        camera_view_.Zoom(this->event_handler_.GetMouseWheelScrollDelta(),
+                          this->event_handler_.GetMouseScrollWheelLocation());
+      } else {
+        const int32_t delta = this->event_handler_.GetMouseWheelScrollDelta() > 0 ? 1 : -1;
+
+        brush_radius_ += delta;
+        brush_radius_ = std::max(0, brush_radius_);
+      }
     }
   }
 }

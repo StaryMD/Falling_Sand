@@ -14,7 +14,7 @@ FastRng::FastRng() {
 }
 
 int32_t FastRng::NextValue() {
-  seed_ = 214013 * seed_ + 2531011;
-  seed_ = (seed_ >> 16) & 0x7FFF;
+  seed_ = 75 * seed_ + 74;
+  seed_ %= (1 << 16) + 1;
   return seed_;
 }
