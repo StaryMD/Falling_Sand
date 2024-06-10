@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -24,7 +25,8 @@
 #include "World/Element.hpp"
 #include "World/Substance.hpp"
 
-FallingSandEngine::FallingSandEngine(const std::string& application_name, const sf::Vector2<uint32_t> world_size)
+FallingSandEngine::FallingSandEngine(const std::string& application_name,
+                                     const sf::Vector2<uint32_t> world_size)
     : GameEngine(application_name), world_(world_size), screen_size_(window_.getSize()) {
   Setup();
 }
@@ -63,8 +65,10 @@ void FallingSandEngine::Setup() {
     }
 
     d_queue_ = cl::CommandQueue(d_context_);
-    d_input_buffer_ = cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
-    d_output_buffer_ = cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));
+    d_input_buffer_ =
+        cl::Buffer(d_context_, CL_MEM_READ_ONLY, world_.GetElementCount() * sizeof(Element));
+    d_output_buffer_ =
+        cl::Buffer(d_context_, CL_MEM_WRITE_ONLY, GetPixelCount() * sizeof(sf::Color));
 
     const std::string kernel_source =
         ReadFileContent(std::filesystem::current_path().string() + "/assets/kernels/PaintOn.cl");
@@ -72,7 +76,8 @@ void FallingSandEngine::Setup() {
 
     std::stringstream build_options;
     build_options << "-DSCREEN_SIZE_X=" << screen_size_.x << " -DSCREEN_SIZE_Y=" << screen_size_.y
-                  << " -DWORLD_SIZE_X=" << world_.GetSize().x << " -DWORLD_SIZE_Y=" << world_.GetSize().y;
+                  << " -DWORLD_SIZE_X=" << world_.GetSize().x
+                  << " -DWORLD_SIZE_Y=" << world_.GetSize().y;
 
     program.build(build_options.str().c_str());
 
@@ -95,10 +100,11 @@ void FallingSandEngine::Setup() {
       font_.loadFromFile(std::filesystem::current_path().string() + "/assets/fonts/consola.ttf");
 
   if (not font_loaded_successfully) {
-    std::cerr << "Font could not be loaded\n";
+    throw std::runtime_error("Font could not be loaded");
   }
 
-  screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) * sizeof(sf::Color));
+  screen_pixels_.resize(static_cast<size_t>(window_.getSize().x * window_.getSize().y) *
+                        sizeof(sf::Color));
 
   text_.setFont(font_);
   text_.setCharacterSize(18U);
@@ -164,8 +170,8 @@ void FallingSandEngine::UserHandleInput() {
       const auto drag = this->event_handler_.GetMouseMovement();
 
       PlaceElementInLine(ToVector2<int32_t>(camera_view_.MapPixelToCoords(drag.first)),
-                         ToVector2<int32_t>(camera_view_.MapPixelToCoords(drag.second)), brush_radius_,
-                         chosen_substance_);
+                         ToVector2<int32_t>(camera_view_.MapPixelToCoords(drag.second)),
+                         brush_radius_, chosen_substance_);
     }
 
     if (this->event_handler_.IsMouseButtonDown(sf::Mouse::Button::Middle)) {

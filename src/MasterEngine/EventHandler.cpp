@@ -16,7 +16,8 @@ void EventHandler::HandleEvents(sf::RenderWindow& window) {
   }
 
   for (int32_t i = static_cast<int32_t>(mouse_buttons_to_update_.size()) - 1; i >= 0; --i) {
-    mouse_button_was_down_[mouse_buttons_to_update_[i]] = mouse_button_is_down_[mouse_buttons_to_update_[i]];
+    mouse_button_was_down_[mouse_buttons_to_update_[i]] =
+        mouse_button_is_down_[mouse_buttons_to_update_[i]];
     mouse_buttons_to_update_.pop_back();
   }
 

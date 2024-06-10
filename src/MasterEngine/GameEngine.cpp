@@ -15,7 +15,8 @@
 
 GameEngine::GameEngine(const std::string& application_name)
     : window_(sf::VideoMode::getDesktopMode(), application_name, sf::Style::Fullscreen),
-      camera_view_({constants::kWorldWidth, constants::kWorldHeight}, window_.getSize(), window_.getSize() / 2U) {}
+      camera_view_({constants::kWorldWidth, constants::kWorldHeight}, window_.getSize(),
+                   window_.getSize() / 2U) {}
 
 void GameEngine::Run() {
   refresh_rate_.Reset();

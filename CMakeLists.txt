@@ -50,10 +50,6 @@ target_include_directories(${EXECUTABLE_NAME}
 
 target_link_libraries(${EXECUTABLE_NAME} ${MY_SFML_LIBS})
 
-find_package(OpenCL REQUIRED)
-
-target_link_libraries(${EXECUTABLE_NAME} OpenCL::OpenCL)
-
 target_compile_definitions(
   ${EXECUTABLE_NAME}
   PRIVATE -DCL_HPP_ENABLE_EXCEPTIONS
@@ -61,6 +57,10 @@ target_compile_definitions(
   PRIVATE -DCL_TARGET_OPENCL_VERSION=${MY_OPENCL_VERSION})
 
 if(${USE_OPENCL_FOR_DRAW})
+  find_package(OpenCL REQUIRED)
+
+  target_link_libraries(${EXECUTABLE_NAME} OpenCL::OpenCL)
+
   target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DUSE_OPENCL_FOR_DRAW)
 endif()
 

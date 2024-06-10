@@ -12,8 +12,9 @@
 #include "World/Substance.hpp"
 #include "World/World.hpp"
 
-const std::vector<sf::Vector2<int32_t>> kRelPositions = {sf::Vector2<int32_t>(-1, 0), sf::Vector2<int32_t>(1, 0),
-                                                         sf::Vector2<int32_t>(0, -1), sf::Vector2<int32_t>(0, 1)};
+const std::vector<sf::Vector2<int32_t>> kRelPositions = {
+    sf::Vector2<int32_t>(-1, 0), sf::Vector2<int32_t>(1, 0), sf::Vector2<int32_t>(0, -1),
+    sf::Vector2<int32_t>(0, 1)};
 
 template <typename type>
 sf::Vector2<type> LeftBy(const sf::Vector2<type>& position, const type how_much = 1) {
@@ -36,12 +37,14 @@ sf::Vector2<type> DownBy(const sf::Vector2<type>& position, const type how_much 
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kAir>(Element& /*element*/, const sf::Vector2<int32_t> /*position*/) {
+bool World::GovernLaw<engine::Substance::kAir>(Element& /*element*/,
+                                               const sf::Vector2<int32_t> /*position*/) {
   return false;
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vector2<int32_t> position) {
+bool World::GovernLaw<engine::Substance::kSand>(Element& element,
+                                                const sf::Vector2<int32_t> position) {
   const int32_t index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
@@ -51,7 +54,8 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
 
   int32_t go_down_tiles = 0;
   for (int32_t i = 1; i <= max_fall_distance; ++i) {
-    const bool can_go_down = CanAccess(DownBy(position, i)) && !engine::IsSolid(GetSubstanceAt(DownBy(position, i)));
+    const bool can_go_down =
+        CanAccess(DownBy(position, i)) && !engine::IsSolid(GetSubstanceAt(DownBy(position, i)));
 
     if (can_go_down) {
       go_down_tiles = i;
@@ -77,7 +81,8 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
     for (int32_t i = 1; i <= horizontal_force; ++i) {
       const bool can_go_left =
           CanAccessWithRandomVisit(LeftBy(position, i), engine::Substance::kSand) &&
-          (engine::GetDensity(engine::Substance::kSand) > engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
+          (engine::GetDensity(engine::Substance::kSand) >
+           engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
 
       if (can_go_left) {
         go_left_tiles = i;
@@ -90,7 +95,8 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
     for (int32_t i = 1; i <= horizontal_force; ++i) {
       const bool can_go_right =
           CanAccessWithRandomVisit(RightBy(position, i), engine::Substance::kSand) &&
-          (engine::GetDensity(engine::Substance::kSand) > engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
+          (engine::GetDensity(engine::Substance::kSand) >
+           engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
 
       if (can_go_right) {
         go_right_tiles = i;
@@ -151,12 +157,14 @@ bool World::GovernLaw<engine::Substance::kSand>(Element& element, const sf::Vect
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kStone>(Element& /*element*/, const sf::Vector2<int32_t> /*position*/) {
+bool World::GovernLaw<engine::Substance::kStone>(Element& /*element*/,
+                                                 const sf::Vector2<int32_t> /*position*/) {
   return false;
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vector2<int32_t> position) {
+bool World::GovernLaw<engine::Substance::kWater>(Element& element,
+                                                 const sf::Vector2<int32_t> position) {
   const int32_t index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
@@ -194,8 +202,8 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
   int32_t go_down_tiles = 0;
   for (int32_t i = 1; i <= max_fall_distance; ++i) {
     const bool can_go_down =
-        CanAccess(DownBy(position, i)) &&
-        (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetSubstanceAt(DownBy(position, i))));
+        CanAccess(DownBy(position, i)) && (engine::GetDensity(engine::Substance::kWater) >
+                                           engine::GetDensity(GetSubstanceAt(DownBy(position, i))));
 
     if (can_go_down) {
       go_down_tiles = i;
@@ -215,12 +223,14 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
   element.StopFall();
 
   const bool can_fall_left =
-      (CanAccess(LeftBy(DownBy(position))) && (engine::GetDensity(engine::Substance::kWater) >
-                                               engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
+      (CanAccess(LeftBy(DownBy(position))) &&
+       (engine::GetDensity(engine::Substance::kWater) >
+        engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
       (CanAccess(LeftBy(position)) && not engine::IsSolid(GetSubstanceAt(LeftBy(position))));
   const bool can_fall_right =
-      (CanAccess(RightBy(DownBy(position))) && (engine::GetDensity(engine::Substance::kWater) >
-                                                engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
+      (CanAccess(RightBy(DownBy(position))) &&
+       (engine::GetDensity(engine::Substance::kWater) >
+        engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_left && !can_fall_right) {
@@ -248,7 +258,8 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kWater); ++i) {
     const bool can_go_left =
         CanAccessWithRandomVisit(LeftBy(position, i), engine::Substance::kWater) &&
-        (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
+        (engine::GetDensity(engine::Substance::kWater) >
+         engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
 
     if (can_go_left) {
       go_left_tiles = i;
@@ -261,7 +272,8 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kWater); ++i) {
     const bool can_go_right =
         CanAccessWithRandomVisit(RightBy(position, i), engine::Substance::kWater) &&
-        (engine::GetDensity(engine::Substance::kWater) > engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
+        (engine::GetDensity(engine::Substance::kWater) >
+         engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
 
     if (can_go_right) {
       go_right_tiles = i;
@@ -296,7 +308,8 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element, const sf::Vec
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vector2<int32_t> position) {
+bool World::GovernLaw<engine::Substance::kOil>(Element& element,
+                                               const sf::Vector2<int32_t> position) {
   const int32_t index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
@@ -335,8 +348,8 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
   int32_t go_down_tiles = 0;
   for (int32_t i = 1; i <= max_fall_distance; ++i) {
     const bool can_go_down =
-        CanAccess(DownBy(position, i)) &&
-        (engine::GetDensity(engine::Substance::kOil) > engine::GetDensity(GetSubstanceAt(DownBy(position, i))));
+        CanAccess(DownBy(position, i)) && (engine::GetDensity(engine::Substance::kOil) >
+                                           engine::GetDensity(GetSubstanceAt(DownBy(position, i))));
 
     if (can_go_down) {
       go_down_tiles = i;
@@ -357,11 +370,13 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
 
   const bool can_fall_left =
       (CanAccess(LeftBy(DownBy(position))) &&
-       (engine::GetDensity(engine::Substance::kOil) > engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
+       (engine::GetDensity(engine::Substance::kOil) >
+        engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
       (CanAccess(LeftBy(position)) && not engine::IsSolid(GetSubstanceAt(LeftBy(position))));
   const bool can_fall_right =
       (CanAccess(RightBy(DownBy(position))) &&
-       (engine::GetDensity(engine::Substance::kOil) > engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
+       (engine::GetDensity(engine::Substance::kOil) >
+        engine::GetDensity(GetSubstanceAt(LeftBy(DownBy(position)))))) &&
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_left && !can_fall_right) {
@@ -389,7 +404,8 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kOil); ++i) {
     const bool can_go_left =
         CanAccessWithRandomVisit(LeftBy(position, i), engine::Substance::kOil) &&
-        (engine::GetDensity(engine::Substance::kOil) > engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
+        (engine::GetDensity(engine::Substance::kOil) >
+         engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
 
     if (can_go_left) {
       go_left_tiles = i;
@@ -402,7 +418,8 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kOil); ++i) {
     const bool can_go_right =
         CanAccessWithRandomVisit(RightBy(position, i), engine::Substance::kOil) &&
-        (engine::GetDensity(engine::Substance::kOil) > engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
+        (engine::GetDensity(engine::Substance::kOil) >
+         engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
 
     if (can_go_right) {
       go_right_tiles = i;
@@ -437,7 +454,8 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element, const sf::Vecto
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vector2<int32_t> position) {
+bool World::GovernLaw<engine::Substance::kSteam>(Element& element,
+                                                 const sf::Vector2<int32_t> position) {
   const int32_t index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
@@ -481,8 +499,9 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
 
   int32_t go_up_tiles = 0;
   for (int32_t i = 1; i <= max_up_distance; ++i) {
-    const bool can_go_up = CanAccess(UpBy(position, i)) && (engine::GetDensity(engine::Substance::kSteam) <
-                                                            engine::GetDensity(GetSubstanceAt(UpBy(position, i))));
+    const bool can_go_up =
+        CanAccess(UpBy(position, i)) && (engine::GetDensity(engine::Substance::kSteam) <
+                                         engine::GetDensity(GetSubstanceAt(UpBy(position, i))));
 
     if (can_go_up) {
       go_up_tiles = i;
@@ -503,11 +522,13 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
 
   const bool can_fall_left =
       (CanAccess(LeftBy(UpBy(position))) &&
-       (engine::GetDensity(engine::Substance::kSteam) < engine::GetDensity(GetSubstanceAt(LeftBy(UpBy(position)))))) &&
+       (engine::GetDensity(engine::Substance::kSteam) <
+        engine::GetDensity(GetSubstanceAt(LeftBy(UpBy(position)))))) &&
       (CanAccess(LeftBy(position)) && not engine::IsSolid(GetSubstanceAt(LeftBy(position))));
   const bool can_fall_right =
       (CanAccess(RightBy(UpBy(position))) &&
-       (engine::GetDensity(engine::Substance::kSteam) < engine::GetDensity(GetSubstanceAt(RightBy(UpBy(position)))))) &&
+       (engine::GetDensity(engine::Substance::kSteam) <
+        engine::GetDensity(GetSubstanceAt(RightBy(UpBy(position)))))) &&
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_left && !can_fall_right) {
@@ -535,7 +556,8 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kSteam); ++i) {
     const bool can_go_left =
         CanAccessWithRandomVisit(LeftBy(position, i), engine::Substance::kSteam) &&
-        (engine::GetDensity(engine::Substance::kSteam) < engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
+        (engine::GetDensity(engine::Substance::kSteam) <
+         engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
 
     if (can_go_left) {
       go_left_tiles = i;
@@ -548,7 +570,8 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kSteam); ++i) {
     const bool can_go_right =
         CanAccessWithRandomVisit(RightBy(position, i), engine::Substance::kSteam) &&
-        (engine::GetDensity(engine::Substance::kSteam) < engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
+        (engine::GetDensity(engine::Substance::kSteam) <
+         engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
 
     if (can_go_right) {
       go_right_tiles = i;
@@ -582,7 +605,8 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element, const sf::Vec
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vector2<int32_t> position) {
+bool World::GovernLaw<engine::Substance::kFire>(Element& element,
+                                                const sf::Vector2<int32_t> position) {
   const int32_t index = position.y * constants::kWorldWidth + position.x;
 
   bool has_air_neighbours = false;
@@ -641,7 +665,8 @@ bool World::GovernLaw<engine::Substance::kFire>(Element& element, const sf::Vect
 }
 
 template <>
-bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vector2<int32_t> position) {
+bool World::GovernLaw<engine::Substance::kSmoke>(Element& element,
+                                                 const sf::Vector2<int32_t> position) {
   const int32_t index = position.y * constants::kWorldWidth + position.x;
 
   {  // Check if fancy interactions are available
@@ -651,8 +676,9 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
 
   int32_t go_up_tiles = 0;
   for (int32_t i = 1; i <= max_up_distance; ++i) {
-    const bool can_go_up = CanAccess(UpBy(position, i)) && (engine::GetDensity(engine::Substance::kSmoke) <
-                                                            engine::GetDensity(GetSubstanceAt(UpBy(position, i))));
+    const bool can_go_up =
+        CanAccess(UpBy(position, i)) && (engine::GetDensity(engine::Substance::kSmoke) <
+                                         engine::GetDensity(GetSubstanceAt(UpBy(position, i))));
 
     if (can_go_up) {
       go_up_tiles = i;
@@ -673,11 +699,13 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
 
   const bool can_fall_up_left =
       (CanAccess(LeftBy(UpBy(position))) &&
-       (engine::GetDensity(engine::Substance::kSmoke) < engine::GetDensity(GetSubstanceAt(LeftBy(UpBy(position)))))) &&
+       (engine::GetDensity(engine::Substance::kSmoke) <
+        engine::GetDensity(GetSubstanceAt(LeftBy(UpBy(position)))))) &&
       (CanAccess(LeftBy(position)) && not engine::IsSolid(GetSubstanceAt(LeftBy(position))));
   const bool can_fall_up_right =
       (CanAccess(RightBy(UpBy(position))) &&
-       (engine::GetDensity(engine::Substance::kSmoke) < engine::GetDensity(GetSubstanceAt(RightBy(UpBy(position)))))) &&
+       (engine::GetDensity(engine::Substance::kSmoke) <
+        engine::GetDensity(GetSubstanceAt(RightBy(UpBy(position)))))) &&
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_up_left && !can_fall_up_right) {
@@ -705,7 +733,8 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kSmoke); ++i) {
     const bool can_go_left =
         CanAccessWithRandomVisit(LeftBy(position, i), engine::Substance::kSmoke) &&
-        (engine::GetDensity(engine::Substance::kSmoke) < engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
+        (engine::GetDensity(engine::Substance::kSmoke) <
+         engine::GetDensity(GetSubstanceAt(LeftBy(position, i))));
 
     if (can_go_left) {
       go_left_tiles = i;
@@ -718,7 +747,8 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element, const sf::Vec
   for (int32_t i = 1; i <= engine::GetHorizontalTravel(engine::Substance::kSmoke); ++i) {
     const bool can_go_right =
         CanAccessWithRandomVisit(RightBy(position, i), engine::Substance::kSmoke) &&
-        (engine::GetDensity(engine::Substance::kSmoke) < engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
+        (engine::GetDensity(engine::Substance::kSmoke) <
+         engine::GetDensity(GetSubstanceAt(RightBy(position, i))));
 
     if (can_go_right) {
       go_right_tiles = i;

@@ -17,7 +17,8 @@
 #include "World/Substance.hpp"
 
 World::World(const sf::Vector2<uint32_t> size)
-    : size_(ToVector2<int32_t>(size)), chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {
+    : size_(ToVector2<int32_t>(size)),
+      chunk_manager_({constants::kChunkNumHorizontal, constants::kChunkNumVertical}) {
   elements_.resize(static_cast<size_t>(size_.x) * size_.y);
   for (Element& element : elements_) {
     element = Element(engine::Substance::kAir);
@@ -40,7 +41,8 @@ void World::Update() {
 
     auto update_odd_chunks = [this, &local_chunks_updated_count](const int32_t thread_id) {
       const int32_t total_chunk_count = chunk_manager_.GetSize().y * chunk_manager_.GetSize().x;
-      const int32_t chunks_to_update_count = (total_chunk_count + update_threads_ - 1) / update_threads_;
+      const int32_t chunks_to_update_count =
+          (total_chunk_count + update_threads_ - 1) / update_threads_;
 
       uint32_t chunks_updated = 0;
 
@@ -50,7 +52,8 @@ void World::Update() {
         const int32_t chunk_y = index / chunk_manager_.GetSize().x;
         const int32_t chunk_x = index % chunk_manager_.GetSize().x;
 
-        const bool chunk_is_valid = (chunk_y < chunk_manager_.GetSize().y) && (chunk_x < chunk_manager_.GetSize().x);
+        const bool chunk_is_valid =
+            (chunk_y < chunk_manager_.GetSize().y) && (chunk_x < chunk_manager_.GetSize().x);
 
         if (chunk_is_valid && chunk_manager_.IsActive({chunk_x, chunk_y})) {
           ++chunks_updated;
@@ -74,8 +77,10 @@ void World::Update() {
             }
 
             for (int32_t _ = 0; _ != kChunkSize; ++_, pos_x += step_x) {
-              const sf::Vector2<int32_t> element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
-              const int32_t index = element_position.y * constants::kWorldWidth + element_position.x;
+              const sf::Vector2<int32_t> element_position(chunk_x * kChunkSize + pos_x,
+                                                          chunk_y * kChunkSize + pos_y);
+              const int32_t index =
+                  element_position.y * constants::kWorldWidth + element_position.x;
 
               if (not visited_[index]) {
                 chunk_was_updated |= GovernLaw(element_position);
@@ -131,8 +136,10 @@ void World::Update() {
             }
 
             for (int32_t _ = 0; _ != kChunkSize; ++_, pos_x += step_x) {
-              const sf::Vector2<int32_t> element_position(chunk_x * kChunkSize + pos_x, chunk_y * kChunkSize + pos_y);
-              const int32_t index = element_position.y * constants::kWorldWidth + element_position.x;
+              const sf::Vector2<int32_t> element_position(chunk_x * kChunkSize + pos_x,
+                                                          chunk_y * kChunkSize + pos_y);
+              const int32_t index =
+                  element_position.y * constants::kWorldWidth + element_position.x;
 
               if (not visited_[index]) {
                 const bool something_changed = GovernLaw(element_position);
@@ -197,7 +204,8 @@ void World::SetElementAt(const size_t index, const Element element) {
 void World::SetElementAt(const sf::Vector2<int32_t> pos, const Element element) {
   const size_t index = pos.y * size_.x + pos.x;
 
-  const bool is_inside = pos.y < constants::kWorldHeight && pos.y >= 0 && pos.x >= 0 && pos.x < constants::kWorldWidth;
+  const bool is_inside =
+      pos.y < constants::kWorldHeight && pos.y >= 0 && pos.x >= 0 && pos.x < constants::kWorldWidth;
 
   if (not is_inside) {
     return;
@@ -217,8 +225,8 @@ bool World::IsChunkActive(const sf::Vector2<int32_t> position) const {
 }
 
 bool World::CanAccess(const sf::Vector2<int32_t> position) {
-  const bool is_inside =
-      position.y < constants::kWorldHeight && position.y >= 0 && position.x >= 0 && position.x < constants::kWorldWidth;
+  const bool is_inside = position.y < constants::kWorldHeight && position.y >= 0 &&
+                         position.x >= 0 && position.x < constants::kWorldWidth;
 
   if (not is_inside) {
     return false;
@@ -229,11 +237,12 @@ bool World::CanAccess(const sf::Vector2<int32_t> position) {
   return engine::IsMovable(GetElementAt(index).GetSubstance()) && !visited_[index];
 }
 
-bool World::CanAccessWithRandomVisit(const sf::Vector2<int32_t> position, const engine::Substance original_subs) {
+bool World::CanAccessWithRandomVisit(const sf::Vector2<int32_t> position,
+                                     const engine::Substance original_subs) {
   const int8_t chance_to_ignore_visitedness = engine::GetChanceToIgnoreVisitedness(original_subs);
 
-  const bool skip_visit_check =
-      (chance_to_ignore_visitedness != -1) && (0 == (fastest_rng_.NextValue() % chance_to_ignore_visitedness));
+  const bool skip_visit_check = (chance_to_ignore_visitedness != -1) &&
+                                (0 == (fastest_rng_.NextValue() % chance_to_ignore_visitedness));
 
   return CanAccess(position) && !skip_visit_check;
 }
@@ -246,8 +255,10 @@ uint8_t World::AirNeighbourCount(const int32_t index) const {
 
   //NOLINTBEGIN(readability-implicit-bool-conversion)
   ans += (pos_x - 1 >= 0) && (GetElementAt(index - 1).GetSubstance() == engine::Substance::kAir);
-  ans += (pos_x + 1 < constants::kWorldWidth) && (GetElementAt(index + 1).GetSubstance() == engine::Substance::kAir);
-  ans += (pos_y - 1 >= 0) && (GetElementAt(index - constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
+  ans += (pos_x + 1 < constants::kWorldWidth) &&
+         (GetElementAt(index + 1).GetSubstance() == engine::Substance::kAir);
+  ans += (pos_y - 1 >= 0) &&
+         (GetElementAt(index - constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
   ans += (pos_y + 1 < constants::kWorldHeight) &&
          (GetElementAt(index + constants::kWorldWidth).GetSubstance() == engine::Substance::kAir);
   //NOLINTEND(readability-implicit-bool-conversion)

@@ -26,7 +26,7 @@ const std::array<bool, static_cast<int32_t>(Substance::kSubstanceCount)> kIsMova
     true,   // Water
     true,   // Oil
     true,   // Steam
-    true,  // Fire
+    true,   // Fire
     true,   // Smoke
 
 };
@@ -43,29 +43,31 @@ const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kDens
     1,  // Smoke
 };
 
-const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kChanceToIgnoreVisitednessVector = {
-    -1,  // Nothing
-    -1,  // Air
-    -1,  // Sand
-    -1,  // Stone
-    5,   // Water
-    10,  // Oil
-    2,   // Steam
-    -1,  // Fire
-    -1,  // Smoke
+const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)>
+    kChanceToIgnoreVisitednessVector = {
+        -1,  // Nothing
+        -1,  // Air
+        -1,  // Sand
+        -1,  // Stone
+        5,   // Water
+        10,  // Oil
+        2,   // Steam
+        -1,  // Fire
+        -1,  // Smoke
 
 };
 
-const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kHorizontalTravelVector = {
-    1,   // Nothing
-    1,   // Air
-    1,   // Sand
-    1,   // Stone
-    4,   // Water
-    1,   // Oil
-    5,   // Steam
-    -1,  // Fire
-    2,   // Smoke
+const std::array<int8_t, static_cast<int32_t>(Substance::kSubstanceCount)> kHorizontalTravelVector =
+    {
+        1,   // Nothing
+        1,   // Air
+        1,   // Sand
+        1,   // Stone
+        4,   // Water
+        1,   // Oil
+        5,   // Steam
+        -1,  // Fire
+        2,   // Smoke
 
 };
 

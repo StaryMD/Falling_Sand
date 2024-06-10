@@ -12,7 +12,8 @@ CameraView::CameraView(const sf::Vector2<uint32_t> max_size, const sf::Vector2<u
                        const sf::Vector2<uint32_t> pos_center)
     : max_size_(max_size), zoom_level_(0) {
   const sf::Vector2<double> local_size = {static_cast<double>(size.x), static_cast<double>(size.y)};
-  const sf::Vector2<double> local_pos_center = {static_cast<double>(pos_center.x), static_cast<double>(pos_center.y)};
+  const sf::Vector2<double> local_pos_center = {static_cast<double>(pos_center.x),
+                                                static_cast<double>(pos_center.y)};
 
   constexpr double kHalf = 0.5;
   field_of_view_ = sf::Rect<double>(local_pos_center - local_size * kHalf, local_size);
@@ -60,7 +61,8 @@ void CameraView::MovePosition(const sf::Vector2<int32_t> delta) {
 
 sf::Vector2<double> CameraView::MapPixelToCoords(const sf::Vector2<int32_t> position) const {
   const sf::Vector2<double> camera_position{field_of_view_.left, field_of_view_.top};
-  const sf::Vector2<double> local_position{static_cast<double>(position.x), static_cast<double>(position.y)};
+  const sf::Vector2<double> local_position{static_cast<double>(position.x),
+                                           static_cast<double>(position.y)};
 
   return camera_position + local_position / GetZoomLevel();
 }
@@ -80,6 +82,8 @@ sf::Rect<double> CameraView::GetFieldOfView() const {
 }
 
 void CameraView::ClampViewToMaxSize() {
-  field_of_view_.left = std::clamp(field_of_view_.left, 0.0, static_cast<double>(max_size_.x) - field_of_view_.width);
-  field_of_view_.top = std::clamp(field_of_view_.top, 0.0, static_cast<double>(max_size_.y) - field_of_view_.height);
+  field_of_view_.left =
+      std::clamp(field_of_view_.left, 0.0, static_cast<double>(max_size_.x) - field_of_view_.width);
+  field_of_view_.top =
+      std::clamp(field_of_view_.top, 0.0, static_cast<double>(max_size_.y) - field_of_view_.height);
 }
