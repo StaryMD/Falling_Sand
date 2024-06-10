@@ -38,11 +38,11 @@ const std::vector<sf::Color> kColors{
   return substance_;
 }
 
-[[nodiscard]] int8_t Element::GetSpeed() const {
+[[nodiscard]] int8_t Element::GetHorizontalSpeed() const {
   return horizontal_speed_;
 }
 
-void Element::SetSpeed(const int8_t speed) {
+void Element::SetHorizontalSpeed(const int8_t speed) {
   horizontal_speed_ = speed;
 }
 

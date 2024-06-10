@@ -84,6 +84,7 @@
 		"SFML",
 		"Struct",
 		"swappable",
+		"tparam",
 		"Visitedness",
 		"Werror",
 		"Wextra"

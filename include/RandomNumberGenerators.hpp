@@ -7,6 +7,11 @@ class FastRng {
  public:
   FastRng();
 
+  /**
+   * @brief Construct a new RNG object with a specific seed.
+   * 
+   * @param seed Value of the seed to start at.
+   */
   explicit FastRng(int32_t seed);
 
   /**
@@ -23,10 +28,24 @@ class FastRng {
 template <typename int_type>
 class Counter {
  public:
+  /**
+  * @brief Construct a new Counter object starting at 0.
+  * 
+  */
   Counter() = default;
 
+  /**
+   * @brief Construct a new Counter object starting at a specific seed.
+   * 
+   * @param seed 
+   */
   explicit Counter(const int_type seed) : seed_(seed) {}
 
+  /**
+   * @brief Get the next value at the counter, increase current value.
+   * 
+   * @return int_type Next value at the counter.
+   */
   int_type NextValue() { return seed_++; }
 
   /**
@@ -41,4 +60,4 @@ class Counter {
   int32_t seed_{};
 };
 
-#endif // RANDOM_NUMBER_GENERATORS_HPP_
+#endif  // RANDOM_NUMBER_GENERATORS_HPP_

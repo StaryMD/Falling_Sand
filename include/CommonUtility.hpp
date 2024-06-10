@@ -7,6 +7,15 @@
 
 #include <SFML/System/Vector2.hpp>
 
+/**
+ * @brief Execute a function for every pixel on a line.
+ * 
+ * @details The type of the function is sent at compile time to vastly improve performance.
+ * @tparam functor Type of the function to be executed.
+ * @param start_point Start point of the line.
+ * @param end_point End point of the line.
+ * @param do_function The function to be executed.
+ */
 template <typename functor>
 void ExecuteInALine(const sf::Vector2<int32_t> start_point, const sf::Vector2<int32_t> end_point,
                     const functor& do_function) {
@@ -28,6 +37,15 @@ void ExecuteInALine(const sf::Vector2<int32_t> start_point, const sf::Vector2<in
   }
 }
 
+/**
+ * @brief Execute a function for every pixel on a circle.
+ * 
+ * @details The type of the function is sent at compile time to vastly improve performance.
+ * The coordinates where the function is executed are relative to the coordinates of the function.
+ * @tparam functor Type of the function to be executed.
+ * @param start_point Radius of the circle.
+ * @param do_function The function to be executed.
+ */
 template <typename functor>
 void ExecuteInACircle(const int32_t radius, const functor& do_function) {
   if (radius == 0) {
@@ -92,6 +110,15 @@ void ExecuteInACircle(const int32_t radius, const functor& do_function) {
   //NOLINTEND(readability-identifier-length)
 }
 
+/**
+ * @brief Execute a function for every pixel in a disc.
+ * 
+ * @details The type of the function is sent at compile time to vastly improve performance.
+ * The coordinates where the function is executed are relative to the coordinates of the function.
+ * @tparam functor Type of the function to be executed.
+ * @param start_point Radius of the disc.
+ * @param do_function The function to be executed.
+ */
 template <typename functor>
 void ExecuteInADisc(const int32_t radius, const functor& do_function) {
   if (radius == 0) {

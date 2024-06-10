@@ -30,9 +30,6 @@ class World {
   void SetElementAt(size_t index, Element element);
   void SetElementAt(sf::Vector2<int32_t> pos, Element element);
 
-  [[nodiscard]] sf::Color GetColorAt(sf::Vector2<int32_t> pos) const;
-  [[nodiscard]] sf::Color GetColorAt(size_t index) const;
-
   void SwapElements(size_t index1, size_t index2);
 
   void Update();
@@ -60,8 +57,6 @@ class World {
   Counter<uint32_t> fastest_rng_;
 
   uint32_t chunks_updated_count_;
-
-  [[nodiscard]] sf::Color GetColorAtNoFail(size_t index) const;
 
   bool GovernLaw(sf::Vector2<int32_t> position);
 

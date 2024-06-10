@@ -234,21 +234,21 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element,
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_left && !can_fall_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index + constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index + constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (fastest_rng_.NextValue() & 1) {
-      element.SetSpeed(-1);
+      element.SetHorizontalSpeed(-1);
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
-      element.SetSpeed(1);
+      element.SetHorizontalSpeed(1);
       SwapElements(index, index + constants::kWorldWidth + 1);
     }
     return true;
@@ -286,17 +286,17 @@ bool World::GovernLaw<engine::Substance::kWater>(Element& element,
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }
   if (can_go_left && can_go_right) {
-    if (element.GetSpeed() < 0) {
+    if (element.GetHorizontalSpeed() < 0) {
       SwapElements(index, index - go_left_tiles);
     } else {
       SwapElements(index, index + go_right_tiles);
@@ -380,21 +380,21 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element,
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_left && !can_fall_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index + constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index + constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (fastest_rng_.NextValue() & 1) {
-      element.SetSpeed(-1);
+      element.SetHorizontalSpeed(-1);
       SwapElements(index, index + constants::kWorldWidth - 1);
     } else {
-      element.SetSpeed(1);
+      element.SetHorizontalSpeed(1);
       SwapElements(index, index + constants::kWorldWidth + 1);
     }
     return true;
@@ -432,17 +432,17 @@ bool World::GovernLaw<engine::Substance::kOil>(Element& element,
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }
   if (can_go_left && can_go_right) {
-    if (element.GetSpeed() < 0) {
+    if (element.GetHorizontalSpeed() < 0) {
       SwapElements(index, index - go_left_tiles);
     } else {
       SwapElements(index, index + go_right_tiles);
@@ -532,21 +532,21 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element,
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_left && !can_fall_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index - constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_right && !can_fall_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index - constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_left && can_fall_right) {
     if (fastest_rng_.NextValue() & 1) {
-      element.SetSpeed(-1);
+      element.SetHorizontalSpeed(-1);
       SwapElements(index, index - constants::kWorldWidth - 1);
     } else {
-      element.SetSpeed(1);
+      element.SetHorizontalSpeed(1);
       SwapElements(index, index - constants::kWorldWidth + 1);
     }
     return true;
@@ -584,17 +584,17 @@ bool World::GovernLaw<engine::Substance::kSteam>(Element& element,
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }
   if (can_go_left && can_go_right) {
-    if (element.GetSpeed() < 0) {
+    if (element.GetHorizontalSpeed() < 0) {
       SwapElements(index, index - go_left_tiles);
     } else {
       SwapElements(index, index + go_right_tiles);
@@ -709,21 +709,21 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element,
       (CanAccess(RightBy(position)) && not engine::IsSolid(GetSubstanceAt(RightBy(position))));
 
   if (can_fall_up_left && !can_fall_up_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index - constants::kWorldWidth - 1);
     return true;
   }
   if (can_fall_up_right && !can_fall_up_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index - constants::kWorldWidth + 1);
     return true;
   }
   if (can_fall_up_left && can_fall_up_right) {
     if (fastest_rng_.NextValue() & 1) {
-      element.SetSpeed(-1);
+      element.SetHorizontalSpeed(-1);
       SwapElements(index, index - constants::kWorldWidth - 1);
     } else {
-      element.SetSpeed(1);
+      element.SetHorizontalSpeed(1);
       SwapElements(index, index - constants::kWorldWidth + 1);
     }
     return true;
@@ -761,17 +761,17 @@ bool World::GovernLaw<engine::Substance::kSmoke>(Element& element,
   const bool can_go_right = go_right_tiles > 0;
 
   if (can_go_left && !can_go_right) {
-    element.SetSpeed(-1);
+    element.SetHorizontalSpeed(-1);
     SwapElements(index, index - go_left_tiles);
     return true;
   }
   if (can_go_right && !can_go_left) {
-    element.SetSpeed(1);
+    element.SetHorizontalSpeed(1);
     SwapElements(index, index + go_right_tiles);
     return true;
   }
   if (can_go_left && can_go_right) {
-    if (element.GetSpeed() < 0) {
+    if (element.GetHorizontalSpeed() < 0) {
       SwapElements(index, index - go_left_tiles);
     } else {
       SwapElements(index, index + go_right_tiles);

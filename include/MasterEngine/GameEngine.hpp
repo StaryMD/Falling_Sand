@@ -35,14 +35,31 @@ class GameEngine {
    */
   explicit GameEngine(const std::string& application_name);
 
-  void Setup();
+  /**
+   * @brief Start and handle the main loop.
+   * 
+   */
   void Run();
 
   virtual ~GameEngine() = default;
 
  protected:
+  /**
+   * @brief User specified function to handle the input. Must be overriden by the user.
+   * 
+   */
   virtual void UserHandleInput() = 0;
+
+  /**
+   * @brief User specified function to compute the next frame.Must be overriden by the user.
+   * 
+   */
   virtual void UserComputeFrame() = 0;
+
+  /**
+   * @brief User specified function to draw the frame. Must be overriden by the user.
+   * 
+   */
   virtual void UserDrawFrame() = 0;
 
   EventHandler event_handler_;
@@ -57,11 +74,23 @@ class GameEngine {
   double compute_elapsed_time_{};
 
  private:
+  /**
+  * @brief Internal call to the input handler.
+  * 
+  */
   void HandleInput();
 
+  /**
+   * @brief Internal call to compute the next frame.
+   * 
+   */
   void ComputeFrame();
 
+  /**
+   * @brief Internal call to draw the current frame
+   * 
+   */
   void DrawFrame();
 };
 
-#endif // GAME_ENGINE_HPP_
+#endif  // GAME_ENGINE_HPP_
