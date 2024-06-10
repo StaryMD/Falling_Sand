@@ -75,3 +75,11 @@ target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Werror
                                                   -pedantic -O3)
 
 file(COPY assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+find_package(Doxygen REQUIRED dot mscgen dia)
+
+set(DOXYGEN_GENERATE_HTML YES)
+
+doxygen_add_docs(doxygen ALL ${PROJECT_SOURCE_DIR})
+
+message(STATUS ${DOXYGEN_INPUT})

@@ -66,4 +66,4 @@ class EventHandler {
   std::vector<sf::Mouse::Button> mouse_buttons_to_update_;
 };
 
-#endif /* INPUT_HANDLER_HPP_ */
+#endif // INPUT_HANDLER_HPP_

@@ -30,4 +30,4 @@ class ChunkManager {
   int8_t current_step_{};
 };
 
-#endif /* CHUNK_MANAGER_HPP_ */
+#endif // CHUNK_MANAGER_HPP_

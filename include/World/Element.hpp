@@ -41,4 +41,4 @@ class Element {
   float vertical_speed_;
 };
 
-#endif /* ELEMENT_HPP_ */
+#endif // ELEMENT_HPP_

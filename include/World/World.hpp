@@ -77,4 +77,4 @@ class World {
   [[nodiscard]] uint8_t AirNeighbourCount(int32_t index) const;
 };
 
-#endif /* WORLD_HPP_ */
+#endif // WORLD_HPP_

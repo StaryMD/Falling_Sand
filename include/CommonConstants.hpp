@@ -25,4 +25,4 @@ constexpr float kGravityAcceleration = 0.4F;
 
 }  // namespace constants
 
-#endif /* COMMON_CONSTANTS_HPP_ */
+#endif // COMMON_CONSTANTS_HPP_

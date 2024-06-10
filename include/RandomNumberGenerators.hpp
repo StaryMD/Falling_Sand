@@ -41,4 +41,4 @@ class Counter {
   int32_t seed_{};
 };
 
-#endif /* RANDOM_NUMBER_GENERATORS_HPP_ */
+#endif // RANDOM_NUMBER_GENERATORS_HPP_

@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include <CL/opencl.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -12,6 +10,12 @@
 #include "MasterEngine/GameEngine.hpp"
 #include "World/Substance.hpp"
 #include "World/World.hpp"
+
+#ifdef USE_OPENCL_FOR_DRAW
+
+#include <CL/opencl.hpp>
+
+#endif  // USE_OPENCL_FOR_DRAW
 
 class FallingSandEngine : public GameEngine {
  public:
@@ -37,11 +41,11 @@ class FallingSandEngine : public GameEngine {
 
   void ConstructDebugText(std::string& text_string) const;
 
-  void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes, sf::Vector2<uint32_t> screen_size,
-               uint32_t tick_counter);
+  void PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes,
+               sf::Vector2<uint32_t> screen_size, uint32_t tick_counter);
 
-  void PlaceElementInLine(sf::Vector2<int32_t> start_pos, sf::Vector2<int32_t> end_pos, int32_t radius,
-                          engine::Substance substance);
+  void PlaceElementInLine(sf::Vector2<int32_t> start_pos, sf::Vector2<int32_t> end_pos,
+                          int32_t radius, engine::Substance substance);
 
   [[nodiscard]] bool IsChunkActive(sf::Vector2<int32_t> position) const;
 
@@ -58,15 +62,21 @@ class FallingSandEngine : public GameEngine {
   sf::Sprite screen_sprite_;
   std::vector<sf::Uint8> screen_pixels_;
 
+#ifdef USE_OPENCL_FOR_DRAW
+
   cl::Context d_context_;
   cl::CommandQueue d_queue_;
   cl::Buffer d_input_buffer_;
   cl::Buffer d_output_buffer_;
   cl::Kernel d_kernel_;
 
+#endif  // USE_OPENCL_FOR_DRAW
+
   void Setup();
 
-  [[nodiscard]] size_t GetPixelCount() const { return static_cast<size_t>(screen_size_.x) * screen_size_.y; }
+  [[nodiscard]] size_t GetPixelCount() const {
+    return static_cast<size_t>(screen_size_.x) * screen_size_.y;
+  }
 
   sf::Text text_;
   sf::Font font_;
@@ -85,4 +95,4 @@ class FallingSandEngine : public GameEngine {
   bool do_advance_one_frame_{false};
 };
 
-#endif /* FALLING_SAND_ENGINE_HPP_ */
+#endif  // FALLING_SAND_ENGINE_HPP_

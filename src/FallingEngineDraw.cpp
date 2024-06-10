@@ -1,7 +1,5 @@
 #include "FallingSandEngine.hpp"
 
-#include <CL/cl.h>
-
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -11,7 +9,6 @@
 #include <string>
 #include <vector>
 
-#include <CL/opencl.hpp>
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
@@ -26,6 +23,12 @@
 #include "MasterEngine/CameraView.hpp"
 #include "World/Element.hpp"
 #include "World/Substance.hpp"
+
+#ifdef USE_OPENCL_FOR_DRAW
+
+#include <CL/opencl.hpp>
+
+#endif  // USE_OPENCL_FOR_DRAW
 
 constexpr uint32_t kChunkColorOpacity = 0x00000033;
 constexpr uint32_t kChunkActiveColor = 0x00FF0000 | kChunkColorOpacity;
@@ -54,7 +57,7 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
   const double step_x = view.width / screen_size.x;
   const double step_y = view.height / screen_size.y;
 
-#if USE_OPENCL_FOR_DRAW
+#ifdef USE_OPENCL_FOR_DRAW
 
   cl::Event write_event;
 
@@ -92,7 +95,7 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
 
   read_event.wait();
 
-#else
+#else  // USE_OPENCL_FOR_DRAW
 
   // FORMAT : 0x<A><B><G><R>U
   static const std::array<sf::Color, 9> kColors = {
@@ -178,7 +181,7 @@ void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::U
     }
   }
 
-#endif
+#endif  // USE_OPENCL_FOR_DRAW
 }
 
 void FallingSandEngine::PlaceElementInLine(const sf::Vector2<int32_t> start_pos,

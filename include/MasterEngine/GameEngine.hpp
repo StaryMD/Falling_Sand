@@ -64,4 +64,4 @@ class GameEngine {
   void DrawFrame();
 };
 
-#endif /* GAME_ENGINE_HPP_ */
+#endif // GAME_ENGINE_HPP_

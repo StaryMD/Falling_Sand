@@ -20,4 +20,4 @@ class Chunk {
   std::array<bool, 2> activity_;
 };
 
-#endif /* CHUNK_HPP_ */
+#endif // CHUNK_HPP_

@@ -38,4 +38,4 @@ class RefreshRate {
   std::array<double, constants::kFpsBufferSize> past_fps_buffer_;
 };
 
-#endif /* REFRESH_RATE_HPP_ */
+#endif // REFRESH_RATE_HPP_

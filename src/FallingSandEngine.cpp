@@ -1,19 +1,13 @@
 #include "FallingSandEngine.hpp"
 
-#include <CL/cl.h>
-
 #include <algorithm>
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <CL/opencl.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -22,8 +16,18 @@
 #include "CommonUtility.hpp"
 #include "MasterEngine/CameraView.hpp"
 #include "MasterEngine/GameEngine.hpp"
-#include "World/Element.hpp"
 #include "World/Substance.hpp"
+
+#ifdef USE_OPENCL_FOR_DRAW
+
+#include <array>
+#include <iostream>
+#include <sstream>
+
+#include <CL/opencl.hpp>
+#include "World/Element.hpp"
+
+#endif  // USE_OPENCL_FOR_DRAW
 
 FallingSandEngine::FallingSandEngine(const std::string& application_name,
                                      const sf::Vector2<uint32_t> world_size)
@@ -32,6 +36,7 @@ FallingSandEngine::FallingSandEngine(const std::string& application_name,
 }
 
 void FallingSandEngine::Setup() {
+#ifdef USE_OPENCL_FOR_DRAW
   try {
     {
       std::vector<cl::Platform> platforms;
@@ -91,6 +96,7 @@ void FallingSandEngine::Setup() {
     }
     throw;
   }
+#endif  // USE_OPENCL_FOR_DRAW
 
   window_.setVerticalSyncEnabled(true);
   screen_texture_.create(window_.getSize().x, window_.getSize().y);

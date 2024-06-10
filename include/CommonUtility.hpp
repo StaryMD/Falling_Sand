@@ -141,4 +141,4 @@ static inline sf::Vector2<t> ToVector2(const sf::Vector2<d> vector) {
 
 std::string ReadFileContent(std::string_view filename);
 
-#endif /* COMMON_UTILITY_HPP_ */
+#endif  // COMMON_UTILITY_HPP_
