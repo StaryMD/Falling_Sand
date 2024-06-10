@@ -28,7 +28,8 @@ set(MY_SFML_LIBS sfml-graphics sfml-window sfml-system)
 project(FallingSand)
 
 option(USE_CLANG_TIDY "Whether to use clang-tidy for static analysis" OFF)
-option(USE_OPENCL_FOR_DRAW "Wheter to speed up drawing with OpenCL" ON)
+option(USE_OPENCL_FOR_DRAW "Whether to speed up drawing by using OpenCL" ON)
+option(GENERATE_DOCUMENTATION "Whether generate Doxygen documentation" OFF)
 
 if(${USE_CLANG_TIDY})
   set(CMAKE_CXX_CLANG_TIDY
@@ -76,19 +77,22 @@ target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Werror
 
 file(COPY assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-find_package(Doxygen REQUIRED dot mscgen dia)
+if(${GENERATE_DOCUMENTATION})
+  find_package(Doxygen REQUIRED dot mscgen dia)
 
-set(DOXYGEN_GENERATE_TREEVIEW YES)
-set(DOXYGEN_DISABLE_INDEX NO)
-set(DOXYGEN_FULL_SIDEBAR NO)
-set(DOXYGEN_HTML_EXTRA_STYLESHEET /usr/local/share/doxygen-awesome-css/doxygen-awesome.css)
-set(DOXYGEN_HTML_COLORSTYLE LIGHT)
-set(DOXYGEN_GENERATE_HTML YES)
-set(DOXYGEN_HAVE_DOT YES)
-set(DOXYGEN_DOT_IMAGE_FORMAT svg)
-set(DOXYGEN_DOT_TRANSPARENT YES)
-set(DOXYGEN_INTERACTIVE_SVG YES)
+  set(DOXYGEN_GENERATE_TREEVIEW YES)
+  set(DOXYGEN_DISABLE_INDEX NO)
+  set(DOXYGEN_FULL_SIDEBAR NO)
+  set(DOXYGEN_HTML_EXTRA_STYLESHEET
+      /usr/local/share/doxygen-awesome-css/doxygen-awesome.css)
+  set(DOXYGEN_HTML_COLORSTYLE LIGHT)
+  set(DOXYGEN_GENERATE_HTML YES)
+  set(DOXYGEN_HAVE_DOT YES)
+  set(DOXYGEN_DOT_IMAGE_FORMAT svg)
+  set(DOXYGEN_DOT_TRANSPARENT YES)
+  set(DOXYGEN_INTERACTIVE_SVG YES)
 
-doxygen_add_docs(doxygen ALL ${PROJECT_SOURCE_DIR})
+  doxygen_add_docs(doxygen ALL ${PROJECT_SOURCE_DIR})
 
-message(STATUS ${DOXYGEN_INPUT})
+  message(STATUS ${DOXYGEN_INPUT})
+endif()
