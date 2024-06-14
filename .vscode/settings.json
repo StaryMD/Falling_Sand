@@ -79,6 +79,7 @@
 		"lsfml",
 		"Ofast",
 		"OPENCL",
+		"parallelizable",
 		"Parens",
 		"runme",
 		"SFML",

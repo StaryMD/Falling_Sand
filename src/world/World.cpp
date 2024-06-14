@@ -26,13 +26,13 @@ World::World(const sf::Vector2<uint32_t> size)
 
   visited_.resize(static_cast<size_t>(size_.x) * size_.y);
   update_threads_ = static_cast<int32_t>(std::thread::hardware_concurrency()) - 1;
+  rng_ = FastRng();
 }
 
 void World::Update() {
   using constants::kChunkSize;
   std::fill(visited_.begin(), visited_.end(), false);
   chunk_manager_.SwapBuffers();
-  rng_ = FastRng();
 
   chunks_updated_count_ = 0;
 

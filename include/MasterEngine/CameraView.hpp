@@ -44,18 +44,18 @@ class CameraView {
   void MovePosition(sf::Vector2<int32_t> delta);
 
   /**
-   * @brief Map a pair of coordinates from map-space to screen-space.
-   * 
-   * @param position Position to be mapped.
-   * @return sf::Vector2<double> Screen-space coordinates of the position.
-   */
-  [[nodiscard]] sf::Vector2<double> MapPixelToCoords(sf::Vector2<int32_t> position) const;
-
-  /**
    * @brief Map a pair of coordinates from screen-space to map-space.
    * 
    * @param coords Coordinates to be mapped.
    * @return sf::Vector2<int32_t> Map-space coordinates.
+   */
+  [[nodiscard]] sf::Vector2<double> MapPixelToCoords(sf::Vector2<int32_t> position) const;
+
+  /**
+   * @brief Map a pair of coordinates from map-space to screen-space.
+   * 
+   * @param position Position to be mapped.
+   * @return sf::Vector2<double> Screen-space coordinates of the position.
    */
   [[nodiscard]] sf::Vector2<int32_t> MapCoordsToPixel(sf::Vector2<double> coords) const;
 
@@ -64,11 +64,11 @@ class CameraView {
    * 
    * @return sf::Rect<double> Rectangle containing the top-left position and the size of the FOV.
    */
-  [[nodiscard]] sf::Rect<double> GetFieldOfView() const;
+  [[nodiscard]] sf::Rect<double> GetView() const;
 
  private:
   sf::Vector2<int32_t> max_size_;
-  sf::Rect<double> field_of_view_;
+  sf::Rect<double> view_;
   int32_t zoom_level_;
 
   /**

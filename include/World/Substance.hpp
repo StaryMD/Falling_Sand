@@ -57,4 +57,4 @@ int8_t GetHorizontalTravel(Substance);
 
 }  // namespace engine
 
-#endif // SUBSTANCE_HPP_
+#endif  // SUBSTANCE_HPP_

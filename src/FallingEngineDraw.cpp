@@ -53,7 +53,7 @@ void FallingSandEngine::UserDrawFrame() {
 void FallingSandEngine::PaintOn(const CameraView& camera_view, std::vector<sf::Uint8>& bytes,
                                 const sf::Vector2<uint32_t> screen_size,
                                 const uint32_t tick_counter) {
-  const sf::Rect<double> view = camera_view.GetFieldOfView();
+  const sf::Rect<double> view = camera_view.GetView();
   const double step_x = view.width / screen_size.x;
   const double step_y = view.height / screen_size.y;
 
@@ -201,7 +201,7 @@ void FallingSandEngine::ShowChunkActivity() {
   if (do_show_chunk_activity_) {
     const float chunk_border_size =
         static_cast<float>(constants::kChunkSize * camera_view_.GetZoomLevel());
-    const sf::Rect<double> fov = camera_view_.GetFieldOfView();
+    const sf::Rect<double> fov = camera_view_.GetView();
 
     const sf::Vector2<double> offset = {fov.left - std::fmod(fov.left, constants::kChunkSize),
                                         fov.top - std::fmod(fov.top, constants::kChunkSize)};
@@ -283,7 +283,7 @@ void FallingSandEngine::ShowChunkBorders() {
   if (do_show_chunk_borders_) {
     const float chunk_border_size =
         static_cast<float>(constants::kChunkSize * camera_view_.GetZoomLevel());
-    const sf::Rect<double> fov = camera_view_.GetFieldOfView();
+    const sf::Rect<double> fov = camera_view_.GetView();
 
     const sf::Vector2<double> offset = {fov.left - std::fmod(fov.left, constants::kChunkSize),
                                         fov.top - std::fmod(fov.top, constants::kChunkSize)};
@@ -380,8 +380,8 @@ void FallingSandEngine::ConstructDebugText(std::string& text_string) const {
   const sf::Vector2<int32_t> mouse_position =
       ToVector2<int32_t>(window_.mapPixelToCoords(sf::Mouse::getPosition(window_)));
   const sf::Vector2<double> mouse_coord = camera_view_.MapPixelToCoords(mouse_position);
-  const sf::Vector2<double> camera_fov = {camera_view_.GetFieldOfView().left,
-                                          camera_view_.GetFieldOfView().top};
+  const sf::Vector2<double> camera_fov = {camera_view_.GetView().left,
+                                          camera_view_.GetView().top};
 
   text_string.resize(0);
 

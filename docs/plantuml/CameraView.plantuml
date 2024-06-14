@@ -1,0 +1,13 @@
+@startuml CameraView
+class CameraView {
+  - max_size_ : sf::Vector2<int32_t>
+  - view_ : sf::Rect<double>
+  - zoom_level_ : int32_t
+
+  - Zoom(float delta, sf::Vector2<int32_t> location) : void
+  - MovePosition(sf::Vector2<int32_t> delta) : void
+  - MapPixelToCoords(sf::Vector2<int32_t> position) : sf::Vector2<double>
+  - MapCoordsToPixel(sf::Vector2<double> coords) : sf::Vector2<int32_t>
+  - GetView() : sf::Rect<double>
+}
+@enduml

@@ -1,0 +1,6 @@
+@startuml Element
+class Element {
+  + substance : Substance
+  + vertical_speed : float
+}
+@enduml
